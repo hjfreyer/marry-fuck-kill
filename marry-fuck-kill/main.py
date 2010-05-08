@@ -17,14 +17,21 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
+import assignment_handlers
+import entity_handlers
+import triple_handlers
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
         self.response.out.write('Hello world!')
 
-
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler)],
+    application = webapp.WSGIApplication([('/', MainHandler),
+                                          ("/entity/create", entity_handlers.EntityCreationHandler),
+                                          ("/entity/view/(.*)", entity_handlers.EntityStatsHandler),
+                                          ("/vote/(.*)", assignment_handlers.AssignmentHandler),
+                                          ("/triple/create", triple_handlers.TripleCreationHandler),
+                                          ("/triple/view/(.*)", triple_handlers.TripleStatsHandler)                                         ],
                                          debug=True)
     util.run_wsgi_app(application)
 
