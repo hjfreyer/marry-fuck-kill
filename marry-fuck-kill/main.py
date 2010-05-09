@@ -23,7 +23,21 @@ import triple_handlers
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        self.response.out.write('Hello world!')
+        response = """
+<html>
+<head>
+    <title>Marry/Fuck/Kill</title>
+</head>
+<body>
+<ul>
+    <li><a href="/_ah/admin">Admin</a></li>
+    <li><a href="/triple/create">New Triple</a></li>
+    <li><a href="/entity/create">New Entity</a></li>
+</ul>
+</body>
+</html>
+"""
+        self.response.out.write(response)
 
 def main():
     application = webapp.WSGIApplication([('/', MainHandler),
