@@ -78,3 +78,6 @@ class Assignment(db.Model):
                                  collection_name="assignment_reference_fuck_set")
     kill = db.ReferenceProperty(Entity,
                                  collection_name="assignment_reference_kill_set")
+
+    def __str__(self):
+        return "[Assignment: %s, %s, %s]" % (self.marry, self.fuck, self.kill)
