@@ -20,6 +20,7 @@ from google.appengine.ext.webapp import util
 import models
 import utils
 
+
 class TripleCreationHandler(webapp.RequestHandler):
     def get(self):
         self.response.out.write("""
