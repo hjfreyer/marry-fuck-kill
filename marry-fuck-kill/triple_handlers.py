@@ -54,4 +54,4 @@ class TripleCreationHandler(webapp.RequestHandler):
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
-        pass
+        self.response.out.write("You want to view %s" % triple_id)
