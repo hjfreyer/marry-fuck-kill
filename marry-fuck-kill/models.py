@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2010 Hunter Freyer and Michael Kelly
+# Copyright 2010 Hunter Freyer and Michael Kelly Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,24 +21,48 @@ class Entity(db.Model):
     name = db.StringProperty(required=True)
     creator = db.UserProperty()    
 
-    type = db.StringProperty(required=True, choices=set(["abstract", "person", "object"]))
+    type = db.StringProperty(choices=set(["abstract", "person", "object"]))
+   
+    def __init__(self, *args, **kwargs):
+        key = Entity.get_key(**kwargs)
+        kwargs["key_name"] = key
+        super(Entity, self).__init__(*args, **kwargs)
+        self.key_name =  key
 
+    @staticmethod
+    def get_key(name, **kwargs):
+        return name
+    
 class Triple(db.Model):
-    name = db.StringProperty(required=True)
-
     creator = db.UserProperty()
  
-    quality = db.FloatProperty()
+    quality = db.FloatProperty(default=1.0)
 
-    one = db.ReferenceProperty(Entity)
-    two = db.ReferenceProperty(Entity)
-    three = db.ReferenceProperty(Entity)
-   
+    one = db.ReferenceProperty(Entity,
+                               collection_name="triple_reference_one_set")
+    two = db.ReferenceProperty(Entity,
+                               collection_name="triple_reference_two_set")
+    three = db.ReferenceProperty(Entity,
+                                 collection_name="triple_reference_three_set")
+
+    def __init__(self, *args, **kwargs):
+        key = Triple.get_key(**kwargs)
+        kwargs["key_name"] = key
+        super(Triple, self).__init__(*args, **kwargs)
+        self.key_name = key
+
+    @staticmethod
+    def get_key(one, two, three, **kwargs):
+        return "%s.%s.%s" % (one.key_name, two.key_name, three.key_name)
+    
 class Assignment(db.Model):
     user = db.UserProperty()
 
     triple = db.ReferenceProperty(Triple)
 
-    marry = db.ReferenceProperty(Entity)
-    fuck = db.ReferenceProperty(Entity)
-    kill = db.ReferenceProperty(Entity)
+    marry = db.ReferenceProperty(Entity,
+                                 collection_name="assignment_reference_marry_set")
+    fuck = db.ReferenceProperty(Entity,
+                                 collection_name="assignment_reference_fuck_set")
+    kill = db.ReferenceProperty(Entity,
+                                 collection_name="assignment_reference_kill_set")

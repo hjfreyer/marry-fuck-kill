@@ -17,13 +17,42 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
+import models
+import utils
+
+
 class TripleCreationHandler(webapp.RequestHandler):
     def get(self):
-        self.response.out.write('Hello world!')
+        self.response.out.write("""
+<h1>Create a Triple!</h1>
+<form method="post">
+  One: <input type="text" name="one"></input><br/>
+  Two: <input type="text" name="two"></input><br/>
+  Three: <input type="text" name="three"></input><br/>
+  <input type="submit"></input>
+</form>
+""")
 
     def post(self):
-        self.response.out.write('Hello world!')
+        one = self.request.get("one")
+        two = self.request.get("two")
+        three = self.request.get("three")
+        
+        one = models.Entity(name=one) 
+        two = models.Entity(name=two)
+        three = models.Entity(name=three)
+
+        one.put()
+        two.put()
+        three.put()
+        
+        triple = models.Triple(one=one, 
+                               two=two, 
+                               three=three)
+        triple.put()
+
+        utils.redirect(self, '/triple/view/' + triple.key_name)        
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
-        self.response.out.write('Hello world!')
+        pass
