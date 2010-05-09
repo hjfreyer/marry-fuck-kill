@@ -49,10 +49,10 @@ class Triple(db.Model):
     @staticmethod
     def get_random_triple():
         # TOOD(mjkelly): Make this constant, not O(triples).
-        triples = []
-        for t in Triple.all():
-            triples.append(t)
-        return random.choice(triples)
+        keys = []
+        for k in Triple.all(keys_only=True):
+            keys.append(k)
+        return Triple.get(random.choice(keys))
 
     def __str__(self):
         return "[Triple: %s, %s, %s]" % (self.one, self.two, self.three)
