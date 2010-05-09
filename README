@@ -2,3 +2,5 @@
 Tasks:
 - pretty it
 - add images to entities
+- basic stats
+  - Histogram for individual triple
