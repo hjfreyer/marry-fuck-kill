@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2007 Google Inc.
+# Copyright 2010 Hunter Freyer and Michael Kelly
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,16 +16,33 @@
 #
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+import urllib
+
+import models
+import utils
 
 class EntityCreationHandler(webapp.RequestHandler):
     def get(self):
-        self.response.out.write('Hello world!')
+        self.response.out.write("""
+<h1>Create an Entity!</h1>
+<form method="post">
+  Name: <input type="text" name="name"></input><br/>
+  <input type="submit"></input>
+</form>
+""")
 
     def post(self):
-        self.response.out.write('Hello world!')
+        name = self.request.get("name")
+        
+        entity = models.Entity(name)
+        entity.put()
+
+        utils.redirect(self, '/entity/view/' + name)
 
 class EntityStatsHandler(webapp.RequestHandler):
     def get(self, entity_id):
-        self.response.out.write('Hello world! ' + entity_id)
+        entity = models.Entity.get_by_key_name(entity_id)
+
+        self.response.out.write('Hello world! ' + entity.key_name)
  
            
