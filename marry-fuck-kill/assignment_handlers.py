@@ -17,12 +17,14 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
+import models
+
 class AssignmentHandler(webapp.RequestHandler):
-    def get(self, assignment_id):
-        self.response.out.write('Hello world!')
+    def get(self, assignment_id=None):
+        triple = models.Triple.get_random_triple()
+
+        self.response.out.write(triple.key().name())
 
     def post(self, assignment_id):
         self.response.out.write('POST Hello world!')
 
-HANDLERS = [
-            ]
