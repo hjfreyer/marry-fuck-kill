@@ -17,13 +17,16 @@
 
 from google.appengine.ext import db
 
-class Entity(db.Model):
+class Entity(db.PolyModel):
     name = db.StringProperty(required=True)
     creator = db.UserProperty()    
 
     type = db.StringProperty(required=True, choices=set(["abstract", "person", "object"]))
 
-class Triple(db.Model):
+    def __str__(self):
+        return "[Entity: %s]" % self.name
+
+class Triple(db.PolyModel):
     name = db.StringProperty(required=True)
 
     creator = db.UserProperty()
@@ -33,8 +36,11 @@ class Triple(db.Model):
     one = db.ReferenceProperty(Entity)
     two = db.ReferenceProperty(Entity)
     three = db.ReferenceProperty(Entity)
+
+    def __str__(self):
+        return "[Triple: %s, %s, %s]" % (self.one, self.two, self.three)
    
-class Assignment(db.Model):
+class Assignment(db.PolyModel):
     user = db.UserProperty()
 
     triple = db.ReferenceProperty(Triple)
