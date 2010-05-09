@@ -33,7 +33,7 @@ class Entity(db.Model):
         return "[Entity: %s]" % self.name
 
     @staticmethod
-    def get_key(name **kwargs):
+    def get_key(name, **kwargs):
         return "%s" % name
     
 class Triple(db.Model):
