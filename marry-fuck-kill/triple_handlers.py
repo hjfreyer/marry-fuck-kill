@@ -38,20 +38,15 @@ class TripleCreationHandler(webapp.RequestHandler):
         two = self.request.get("two")
         three = self.request.get("three")
         
-        one = models.Entity(name=one) 
-        two = models.Entity(name=two)
-        three = models.Entity(name=three)
+        one = models.PutEntity(one) 
+        two = models.PutEntity(two)
+        three = models.PutEntity(three)
 
-        one.put()
-        two.put()
-        three.put()
-        
-        triple = models.Triple(one=one, 
-                               two=two, 
-                               three=three)
-        triple.put()
+        triple = models.PutTriple(one=one, 
+                                  two=two, 
+                                  three=three)
 
-        utils.redirect(self, '/triple/view/' + triple.key_name)        
+        utils.redirect(self, '/triple/view/' + triple.key().name())  
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):

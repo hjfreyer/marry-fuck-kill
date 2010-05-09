@@ -23,15 +23,11 @@ class Entity(db.Model):
 
     type = db.StringProperty(choices=set(["abstract", "person", "object"]))
    
-    def __init__(self, *args, **kwargs):
-        key = Entity.get_key(**kwargs)
-        kwargs["key_name"] = key
-        super(Entity, self).__init__(*args, **kwargs)
-        self.key_name =  key
-
-    @staticmethod
-    def get_key(name, **kwargs):
-        return name
+def PutEntity(name):
+    entity = Entity(name=name,
+                    key_name=name)
+    entity.put()
+    return entity
     
 class Triple(db.Model):
     creator = db.UserProperty()
@@ -44,17 +40,21 @@ class Triple(db.Model):
                                collection_name="triple_reference_two_set")
     three = db.ReferenceProperty(Entity,
                                  collection_name="triple_reference_three_set")
-
-    def __init__(self, *args, **kwargs):
-        key = Triple.get_key(**kwargs)
-        kwargs["key_name"] = key
-        super(Triple, self).__init__(*args, **kwargs)
-        self.key_name = key
-
+        
     @staticmethod
-    def get_key(one, two, three, **kwargs):
-        return "%s.%s.%s" % (one.key_name, two.key_name, three.key_name)
-    
+    def get_random_triple():
+        return Triple.all()[0]
+
+def PutTriple(one, two, three):
+    key = "%s.%s.%s" % (one.key().name(), two.key().name(), three.key().name())
+
+    triple = Triple(one=one, 
+                    two=two,
+                    three=three,
+                    key_name=key)
+    triple.put()
+    return triple
+
 class Assignment(db.Model):
     user = db.UserProperty()
 
