@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import random
+
 from google.appengine.ext import db
 
 class Entity(db.Model):
@@ -46,7 +48,11 @@ class Triple(db.Model):
         
     @staticmethod
     def get_random_triple():
-        return Triple.all()[0]
+        # TOOD(mjkelly): Make this constant, not O(triples).
+        triples = []
+        for t in Triple.all():
+            triples.append(t)
+        return random.choice(triples)
 
     def __str__(self):
         return "[Triple: %s, %s, %s]" % (self.one, self.two, self.three)
