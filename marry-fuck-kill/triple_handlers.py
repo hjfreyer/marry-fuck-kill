@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
@@ -50,4 +52,6 @@ class TripleCreationHandler(webapp.RequestHandler):
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
-        self.response.out.write("You want to view %s" % triple_id)
+        t = models.Triple.get_by_key_name(triple_id)
+        self.response.out.write("%s: %s" % (triple_id, t))
+
