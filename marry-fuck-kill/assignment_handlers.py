@@ -92,6 +92,7 @@ class AssignmentHandler(webapp.RequestHandler):
         assign = models.Assignment(marry=marry, 
                                    fuck=fuck, 
                                    kill=kill)
+        assign.put()
         
         self.response.out.write(str(assign))        
 
