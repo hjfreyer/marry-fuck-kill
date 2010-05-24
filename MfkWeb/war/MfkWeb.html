@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- The DOCTYPE declaration above will set the    -->
+<!-- browser's rendering engine into               -->
+<!-- "Standards Mode". Replacing this declaration  -->
+<!-- with a "Quirks Mode" doctype may lead to some -->
+<!-- differences in layout.                        -->
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <!--                                                               -->
+    <!-- Consider inlining CSS to reduce the number of requested files -->
+    <!--                                                               -->
+    <link type="text/css" rel="stylesheet" href="MfkWeb.css">
+
+    <!--                                           -->
+    <!-- Any title is fine                         -->
+    <!--                                           -->
+    <title>Web Application Starter Project</title>
+    
+    <!--                                           -->
+    <!-- This script loads your compiled module.   -->
+    <!-- If you add any GWT meta tags, they must   -->
+    <!-- be added before this line.                -->
+    <!--                                           -->
+    <script type="text/javascript" language="javascript" src="mfkweb/mfkweb.nocache.js"></script>
+  </head>
+
+  <!--                                           -->
+  <!-- The body can have arbitrary html, or      -->
+  <!-- you can leave the body empty if you want  -->
+  <!-- to create a completely dynamic UI.        -->
+  <!--                                           -->
+  <body>
+
+    <!-- OPTIONAL: include this if you want history support -->
+    <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
+    
+    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
+    <noscript>
+      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+        Your web browser must have JavaScript enabled
+        in order for this application to display correctly.
+      </div>
+    </noscript>
+
+    <h1>Marry! Fuck! Kill!</h1>
+    <div id="mfkContainer" style="background: red;"></div>
+    
+    <table id="mainTable">
+    	<tr>
+    		<td id="item1">
+    			<div id="item1Display"></div>
+    			<div id="item1Vote"></div>
+    		</td>
+    		<td id="item2">
+    			<div id="item2Display"></div>
+    			<div id="item2Vote"></div>
+    		</td>
+    		<td id="item3">
+    			<div id="item3Display"></div>
+    			<div id="item3Vote"></div>
+    		</td>
+    	</tr>
+    	<tr colspan="3">
+    		<td><div id="status"></div></td>
+    	</tr>
+    	<tr colspan="3">
+    		<td><div id="control"></div></td>
+    	</tr>
+    </table>
+  </body>
+</html>

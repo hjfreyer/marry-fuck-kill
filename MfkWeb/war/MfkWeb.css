@@ -1,0 +1,45 @@
+/** Add css rules here for your application. */
+
+
+/** Example rules used by the template application (remove for your app) */
+h1 {
+  font-size: 2em;
+  font-weight: bold;
+  color: #777777;
+  margin: 40px 0px 70px;
+  text-align: center;
+}
+
+.mfkButton {
+	//font-size: 20pt;
+	width: 200px;
+}
+
+#mainTable {
+	text-align: center;
+}
+
+#item1Display {
+	background: red;
+	width: 200px;
+	height: 200px;
+}
+#item2Display {
+	background: blue;
+	width: 200px;
+	height: 200px;
+}
+#item3Display {
+	background: green;
+	width: 200px;
+	height: 200px;
+}
+#item1Vote {
+	background: purple;
+}
+#item2Vote {
+	background: cyan;
+}
+#item3Vote {
+	background: yellow;
+}
