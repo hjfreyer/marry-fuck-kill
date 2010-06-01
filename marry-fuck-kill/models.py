@@ -52,7 +52,11 @@ class Triple(db.Model):
         keys = []
         for k in Triple.all(keys_only=True):
             keys.append(k)
-        return Triple.get(random.choice(keys))
+
+        if not keys:
+            return None
+        else:
+            return Triple.get(random.choice(keys))
 
     def __str__(self):
         return "[Triple: %s, %s, %s]" % (self.one, self.two, self.three)
