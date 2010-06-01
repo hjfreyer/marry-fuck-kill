@@ -47,7 +47,7 @@ class Triple(db.Model):
                                  collection_name="triple_reference_three_set")
         
     @staticmethod
-    def get_random_triple():
+    def get_random():
         # TOOD(mjkelly): Make this constant, not O(triples).
         keys = []
         for k in Triple.all(keys_only=True):

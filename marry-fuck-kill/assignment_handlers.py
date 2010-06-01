@@ -21,7 +21,7 @@ import models
 
 class AssignmentHandler(webapp.RequestHandler):
     def get(self, assignment_id=None):
-        triple = models.Triple.get_random_triple()
+        triple = models.Triple.get_random()
 
         self.response.out.write("""
 <form method="post">

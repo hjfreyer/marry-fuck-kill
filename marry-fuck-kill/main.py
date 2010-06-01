@@ -24,7 +24,7 @@ import triple_handlers
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        t = models.Triple.get_random_triple()
+        t = models.Triple.get_random()
         response = """
 <html>
 <head>
@@ -35,6 +35,7 @@ class MainHandler(webapp.RequestHandler):
 <h2>Links</h2>
 <ul>
     <li><a href="/_ah/admin">Admin</a></li>
+    <li><a href="/vote/">Vote</a></li>
     <li><a href="/triple/create">New Triple</a></li>
     <li><a href="/entity/create">New Entity</a></li>
 </ul>
