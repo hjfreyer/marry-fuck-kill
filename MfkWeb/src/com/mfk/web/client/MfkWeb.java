@@ -1,6 +1,6 @@
 package com.mfk.web.client;
 
-import com.mfk.web.shared.FieldVerifier;
+//import com.mfk.web.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -8,6 +8,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -27,6 +32,10 @@ public class MfkWeb implements EntryPoint {
 	public enum Mfk {
 		NONE, MARRY, FUCK, KILL
 	};
+	
+	// TODO(mjkelly): Can't use GWT.getModuleBaseURL() because the remote end
+	// doesn't use GWT. Is there a better way to set this?
+	public static String remoteUrl = "http://127.0.0.1:8080/";
 
 	public static Mfk votes[] = {Mfk.NONE, Mfk.NONE, Mfk.NONE};
 	
@@ -100,7 +109,33 @@ class LoadTripleHandler implements ClickHandler {
 	private int count = 0;
 	@Override
 	public void onClick(ClickEvent event) {
-		System.out.println("load new triple");
+		String url = MfkWeb.remoteUrl + "rpc/vote/";
+//		url = "http://localhost:8080/dne";
+//		url = "http://localhost:8080/vote/";
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+		System.out.println("requesting new triple from " + url);
+		
+		try {
+			builder.sendRequest(null, new RequestCallback() {
+				@Override
+				public void onError(Request request, Throwable exception) {
+					System.out.println("Error retrieving new triple!");
+				}
+
+				@Override
+				public void onResponseReceived(Request request, Response response) {
+					System.out.println("Got new triple:\n"
+							+ "code: " + response.getStatusCode() + " "
+							+ response.getStatusText() + "\n"
+							+ "headers: <" + response.getHeadersAsString() + ">\n"
+							+ "text: <" + response.getText() + ">");
+				}
+				
+			});
+		} catch (RequestException e) {
+			e.printStackTrace();
+		}
+		
 		MfkWeb.setEntities(
 				"one (" + count + ")",
 				"two (" + count + ")",
