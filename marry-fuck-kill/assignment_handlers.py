@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+import logging
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from django.utils import simplejson
@@ -100,6 +102,9 @@ class AssignmentHandler(webapp.RequestHandler):
 class AssignmentJsonHandler(webapp.RequestHandler):
     def get(self, assignment_id=None):
         triple = models.Triple.get_random()
-        self.response.out.write(simplejson.dumps(triple.json()))
+        out = simplejson.dumps(triple.json())
+        logging.info("AssignmentJsonHandler: sending: %s" % out)
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.out.write(out)
 
 
