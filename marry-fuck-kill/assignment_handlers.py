@@ -16,6 +16,7 @@
 #
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
+from django.utils import simplejson
 
 import models
 
@@ -95,5 +96,10 @@ class AssignmentHandler(webapp.RequestHandler):
         assign.put()
         
         self.response.out.write(str(assign))        
+
+class AssignmentJsonHandler(webapp.RequestHandler):
+    def get(self, assignment_id=None):
+        triple = models.Triple.get_random()
+        self.response.out.write(simplejson.dumps(triple.json()))
 
 

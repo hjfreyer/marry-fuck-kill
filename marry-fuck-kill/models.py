@@ -28,6 +28,9 @@ class Entity(db.Model):
     def __str__(self):
         return "[Entity: %s]" % self.name
 
+    def json(self):
+        return {'name': self.name}
+
 def PutEntity(name):
     entity = Entity(name=name,
                     key_name=name)
@@ -60,6 +63,12 @@ class Triple(db.Model):
 
     def __str__(self):
         return "[Triple: %s, %s, %s]" % (self.one, self.two, self.three)
+
+    def json(self):
+        return {'one': self.one.json(),
+                'two': self.two.json(),
+                'three': self.three.json(),
+                'key': self.key().name()}
 
 def PutTriple(one, two, three):
     key = "%s.%s.%s" % (one.key().name(), two.key().name(), three.key().name())

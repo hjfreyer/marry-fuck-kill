@@ -53,7 +53,8 @@ def main():
                                           ("/entity/view/(.*)", entity_handlers.EntityStatsHandler),
                                           ("/vote/(.*)", assignment_handlers.AssignmentHandler),
                                           ("/triple/create", triple_handlers.TripleCreationHandler),
-                                          ("/triple/view/(.*)", triple_handlers.TripleStatsHandler)                                         ],
+                                          ("/triple/view/(.*)", triple_handlers.TripleStatsHandler),
+                                          ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 
