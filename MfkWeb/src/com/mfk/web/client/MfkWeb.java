@@ -16,6 +16,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -28,6 +29,8 @@ public class MfkWeb implements EntryPoint {
 	};
 
 	public static Mfk votes[] = {Mfk.NONE, Mfk.NONE, Mfk.NONE};
+	
+	public static HTML entities[] = {new HTML(), new HTML(), new HTML()};
 	
 	private static Label statusLabel = new Label();
 	public static void setStatus(String status) {
@@ -62,6 +65,7 @@ public class MfkWeb implements EntryPoint {
 		MfkWeb.addVoteButtons("item3Vote", 2);
 		
 		final Button goButton = new Button("Go!");
+		final Button getButton = new Button("Get New");
 		
 		goButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -71,10 +75,38 @@ public class MfkWeb implements EntryPoint {
 			}
 		});
 		
+		getButton.addClickHandler(new LoadTripleHandler());
+		
 		RootPanel.get("status").add(MfkWeb.statusLabel);
 		RootPanel.get("control").add(goButton);
+		RootPanel.get("control").add(getButton);
+		
+		RootPanel.get("item1Display").add(entities[0]);
+		RootPanel.get("item2Display").add(entities[1]);
+		RootPanel.get("item3Display").add(entities[2]);
+		MfkWeb.setEntities("one", "two", "three");
 		
 		MfkWeb.setStatus("Welcome to MFK!");
+	}
+	
+	public static void setEntities(String one, String two, String three) {
+		entities[0].setHTML(one);
+		entities[1].setHTML(two);
+		entities[2].setHTML(three);
+	}
+}
+
+class LoadTripleHandler implements ClickHandler {
+	private int count = 0;
+	@Override
+	public void onClick(ClickEvent event) {
+		System.out.println("load new triple");
+		MfkWeb.setEntities(
+				"one (" + count + ")",
+				"two (" + count + ")",
+				"three (" + count + ")");
+		
+		count++;
 	}
 }
 
