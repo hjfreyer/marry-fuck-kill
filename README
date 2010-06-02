@@ -5,3 +5,16 @@ Tasks:
 - add images to entities
 - basic stats
   - Histogram for individual triple
+- unduplicate MfkWeb/MfkWeb.{html,css} and
+  marry-fuck-kill/gwt-war/MfkWeb.{html,css}.
+
+
+DEBUGGING NOTES:
+
+0) ./marry-fuck-kill/gwt-war/ is seeded with an ant build, and /gwt is mapped
+   to it. You shouldn't have to re-do that.
+1) Run the devmode gwt server in ./MfkWeb with -noserver, etc ("ant devmode"
+   works; or set eclipse args to be the same as build.xml)
+2) Start the appengine project in ./marry-fuck-kill.
+3) Access http://localhost:8080/gwt/MfkWeb.html?gwt.codesvr=127.0.0.1:9997 and
+   debug in style.
