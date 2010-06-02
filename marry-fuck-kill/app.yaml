@@ -4,5 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
+- url: /gwt
+  static_dir: gwt-war
+
 - url: .*
   script: main.py
+
