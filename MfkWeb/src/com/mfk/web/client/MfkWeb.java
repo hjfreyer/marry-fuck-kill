@@ -93,7 +93,7 @@ public class MfkWeb implements EntryPoint {
 		RootPanel.get("item1Display").add(entities[0]);
 		RootPanel.get("item2Display").add(entities[1]);
 		RootPanel.get("item3Display").add(entities[2]);
-		MfkWeb.setEntities("one", "two", "three");
+		MfkWeb.setEntities("foo", "bar", "baz");
 		
 		MfkWeb.setStatus("Welcome to MFK!");
 	}
