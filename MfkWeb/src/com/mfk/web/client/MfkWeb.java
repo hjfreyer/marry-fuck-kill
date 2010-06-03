@@ -13,6 +13,10 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONString;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -33,10 +37,6 @@ public class MfkWeb implements EntryPoint {
 		NONE, MARRY, FUCK, KILL
 	};
 	
-	// TODO(mjkelly): Can't use GWT.getModuleBaseURL() because the remote end
-	// doesn't use GWT. Is there a better way to set this?
-	public static String remoteUrl = "http://127.0.0.1:8080/";
-
 	public static Mfk votes[] = {Mfk.NONE, Mfk.NONE, Mfk.NONE};
 	
 	public static HTML entities[] = {new HTML(), new HTML(), new HTML()};
@@ -67,6 +67,28 @@ public class MfkWeb implements EntryPoint {
 		killButton.addClickHandler(VoteHandler.getHandler(Mfk.KILL, itemNum));
 	}
 	
+	public static DialogBox makeErrorDialog(HTML html) {
+		 // Create the popup dialog box
+	    final DialogBox dialog = new DialogBox();
+	    dialog.setText("Error!");
+	    dialog.setAnimationEnabled(false);
+	    final Button closeButton = new Button("Close");
+	    // We can set the id of a widget by accessing its Element
+	    closeButton.getElement().setId("closeButton");
+	    VerticalPanel dialogVPanel = new VerticalPanel();
+	    dialogVPanel.addStyleName("dialogVPanel");
+	    dialogVPanel.add(html);
+	    dialogVPanel.setHorizontalAlignment(VerticalPanel.ALIGN_RIGHT);
+	    dialogVPanel.add(closeButton);
+	    dialog.setWidget(dialogVPanel);
+	    closeButton.addClickHandler(new ClickHandler() {
+	      public void onClick(ClickEvent event) {
+	        dialog.hide();
+	      }   
+	    });
+	    return dialog;
+	}
+	
 	public void onModuleLoad() {
 		// TODO(mkelly) fix the numbering scheme here
 		MfkWeb.addVoteButtons("item1Vote", 0);
@@ -93,7 +115,7 @@ public class MfkWeb implements EntryPoint {
 		RootPanel.get("item1Display").add(entities[0]);
 		RootPanel.get("item2Display").add(entities[1]);
 		RootPanel.get("item3Display").add(entities[2]);
-		MfkWeb.setEntities("foo", "bar", "baz");
+		MfkWeb.setEntities("one", "two", "three");
 		
 		MfkWeb.setStatus("Welcome to MFK!");
 	}
@@ -106,12 +128,16 @@ public class MfkWeb implements EntryPoint {
 }
 
 class LoadTripleHandler implements ClickHandler {
-	private int count = 0;
+	private DialogBox errorDialog;
+	
+	public LoadTripleHandler() {
+		this.errorDialog = MfkWeb.makeErrorDialog(
+				new HTML("Error parsing JSON reply from server."));
+	}
+	
 	@Override
 	public void onClick(ClickEvent event) {
-		String url = MfkWeb.remoteUrl + "rpc/vote/";
-//		url = "http://localhost:8080/dne";
-//		url = "http://localhost:8080/vote/";
+		String url = "/rpc/vote/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 		System.out.println("requesting new triple from " + url);
 		
@@ -124,24 +150,27 @@ class LoadTripleHandler implements ClickHandler {
 
 				@Override
 				public void onResponseReceived(Request request, Response response) {
-					System.out.println("Got new triple:\n"
-							+ "code: " + response.getStatusCode() + " "
-							+ response.getStatusText() + "\n"
-							+ "headers: <" + response.getHeadersAsString() + ">\n"
-							+ "text: <" + response.getText() + ">");
+					JSONObject json = JSONParser.parse(response.getText()).isObject();
+					System.out.println("Got JSONObject: " + json);
+					try {
+						MfkWeb.setEntities(
+								json.get("one").isObject().get("name")
+										.isString().stringValue(),
+								json.get("two").isObject().get("name")
+										.isString().stringValue(),
+								json.get("three").isObject().get("name")
+										.isString().stringValue());
+					}
+					catch (NullPointerException e) {
+						System.out.println("Error parsing json reply!");
+						errorDialog.center();
+					}
 				}
 				
 			});
 		} catch (RequestException e) {
 			e.printStackTrace();
 		}
-		
-		MfkWeb.setEntities(
-				"one (" + count + ")",
-				"two (" + count + ")",
-				"three (" + count + ")");
-		
-		count++;
 	}
 }
 

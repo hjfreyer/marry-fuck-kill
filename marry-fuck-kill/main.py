@@ -38,6 +38,7 @@ class MainHandler(webapp.RequestHandler):
     <li><a href="/vote/">Vote</a></li>
     <li><a href="/triple/create">New Triple</a></li>
     <li><a href="/entity/create">New Entity</a></li>
+    <li><a href="/gwt/MfkWeb.html?gwt.codesvr=127.0.0.1:9997">GWT Debug</a></li>
 </ul>
 
 <h2>Random triple:</h2>

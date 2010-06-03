@@ -9,8 +9,7 @@ Tasks:
   marry-fuck-kill/gwt-war/MfkWeb.{html,css}.
 
 
-DEBUGGING NOTES:
-
+Hosted Mode GWT Debugging:
 0) ./marry-fuck-kill/gwt-war/ is seeded with an ant build, and /gwt is mapped
    to it. You shouldn't have to re-do that.
 1) Run the devmode gwt server in ./MfkWeb with -noserver, etc ("ant devmode"
@@ -18,3 +17,7 @@ DEBUGGING NOTES:
 2) Start the appengine project in ./marry-fuck-kill.
 3) Access http://localhost:8080/gwt/MfkWeb.html?gwt.codesvr=127.0.0.1:9997 and
    debug in style.
+
+If RPCs are blank, be wary of the browser's same-origin policy. Obviously make
+sure you're accessing the GWT app through the appengine dev webserver. Check
+"localhost" vs "127.0.0.1", if that gets embedded anywhere (it shouldn't).
