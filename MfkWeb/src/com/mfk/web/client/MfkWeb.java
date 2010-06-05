@@ -3,6 +3,7 @@ package com.mfk.web.client;
 //import com.mfk.web.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dev.util.collect.HashMap;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -32,21 +33,24 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class MfkWeb implements EntryPoint {
 	public static final String[] mfkText = { "?", "Marry", "Fuck", "Kill" };
+	public static final int MAIN_VOTE_GROUP = 0;
 
 	public enum Mfk {
 		NONE, MARRY, FUCK, KILL
 	};
 	
-	public static Mfk votes[] = {Mfk.NONE, Mfk.NONE, Mfk.NONE};
-	
 	public static HTML entities[] = {new HTML(), new HTML(), new HTML()};
+	public static VoteGroupHandler groups[] = {null, null, null};
+	
+	public static Button voteButton = new Button("Vote!");
+	public static Button skipButton = new Button("Skip!");
 	
 	private static Label statusLabel = new Label();
 	public static void setStatus(String status) {
 		MfkWeb.statusLabel.setText(status);
 	}
 	
-	private static void addVoteButtons(String id, int itemNum) {
+	private static void addVoteButtons(String id, int groupNum) {
 		Button marryButton = new Button("Marry");
 		Button fuckButton = new Button("Fuck");
 		Button killButton = new Button("Kill");
@@ -62,18 +66,17 @@ public class MfkWeb implements EntryPoint {
 		vp.add(fuckButton);
 		vp.add(killButton);
 
-		marryButton.addClickHandler(VoteHandler.getHandler(Mfk.MARRY, itemNum));
-		fuckButton.addClickHandler(VoteHandler.getHandler(Mfk.FUCK, itemNum));
-		killButton.addClickHandler(VoteHandler.getHandler(Mfk.KILL, itemNum));
+		VoteGroupHandler group = new VoteGroupHandler(groupNum);
+		marryButton.addClickHandler(new VoteChangeHandler(Mfk.MARRY, group));
+		fuckButton.addClickHandler(new VoteChangeHandler(Mfk.FUCK, group));
+		killButton.addClickHandler(new VoteChangeHandler(Mfk.KILL, group));
 	}
 	
 	public static DialogBox makeErrorDialog(HTML html) {
-		 // Create the popup dialog box
 	    final DialogBox dialog = new DialogBox();
 	    dialog.setText("Error!");
 	    dialog.setAnimationEnabled(false);
 	    final Button closeButton = new Button("Close");
-	    // We can set the id of a widget by accessing its Element
 	    closeButton.getElement().setId("closeButton");
 	    VerticalPanel dialogVPanel = new VerticalPanel();
 	    dialogVPanel.addStyleName("dialogVPanel");
@@ -84,39 +87,39 @@ public class MfkWeb implements EntryPoint {
 	    closeButton.addClickHandler(new ClickHandler() {
 	      public void onClick(ClickEvent event) {
 	        dialog.hide();
-	      }   
+	      }
 	    });
 	    return dialog;
 	}
 	
 	public void onModuleLoad() {
-		// TODO(mkelly) fix the numbering scheme here
-		MfkWeb.addVoteButtons("item1Vote", 0);
-		MfkWeb.addVoteButtons("item2Vote", 1);
-		MfkWeb.addVoteButtons("item3Vote", 2);
+		// Is the index-vs-label numbering confusing here? Maybe. Maybe not.
+		MfkWeb.addVoteButtons("e1Vote", 0);
+		MfkWeb.addVoteButtons("e2Vote", 1);
+		MfkWeb.addVoteButtons("e3Vote", 2);
 		
-		final Button goButton = new Button("Go!");
-		final Button getButton = new Button("Get New");
+		MfkWeb.voteButton.setEnabled(false);
 		
-		goButton.addClickHandler(new ClickHandler() {
+		voteButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				MfkWeb.setStatus("Vote: 1: " + MfkWeb.votes[0] +
-								  ", 2: " + MfkWeb.votes[1] +
-								  ", 3: " + MfkWeb.votes[2]);
+				MfkWeb.setStatus("Vote: 1: " + MfkWeb.groups[0] +
+								  ", 2: " + MfkWeb.groups[1] +
+								  ", 3: " + MfkWeb.groups[2]);
 			}
 		});
 		
-		getButton.addClickHandler(new LoadTripleHandler());
-		
 		RootPanel.get("status").add(MfkWeb.statusLabel);
-		RootPanel.get("control").add(goButton);
-		RootPanel.get("control").add(getButton);
+		RootPanel.get("control").add(voteButton);
+		RootPanel.get("control").add(skipButton);
 		
-		RootPanel.get("item1Display").add(entities[0]);
-		RootPanel.get("item2Display").add(entities[1]);
-		RootPanel.get("item3Display").add(entities[2]);
-		MfkWeb.setEntities("one", "two", "three");
+		RootPanel.get("e1Display").add(entities[0]);
+		RootPanel.get("e2Display").add(entities[1]);
+		RootPanel.get("e3Display").add(entities[2]);
 		
+		final ClickHandler voteHandler = new LoadTripleHandler();
+		skipButton.addClickHandler(voteHandler);
+		// get an initial item
+		voteHandler.onClick(null);
 		MfkWeb.setStatus("Welcome to MFK!");
 	}
 	
@@ -124,6 +127,22 @@ public class MfkWeb implements EntryPoint {
 		entities[0].setHTML(one);
 		entities[1].setHTML(two);
 		entities[2].setHTML(three);
+	}
+
+	public static void checkVoteStatus() {
+		// a vote must exist for all buttons
+		if (MfkWeb.groups[0].vote == MfkWeb.Mfk.NONE
+				|| MfkWeb.groups[1].vote == MfkWeb.Mfk.NONE
+				|| MfkWeb.groups[2].vote == MfkWeb.Mfk.NONE) {
+			MfkWeb.voteButton.setEnabled(false);
+		}
+		else {
+			// christ on a cracker. yes, this is it, in a nutshell.
+			boolean valid = MfkWeb.groups[0].vote != MfkWeb.groups[1].vote
+					&& MfkWeb.groups[1].vote != MfkWeb.groups[2].vote
+					&& MfkWeb.groups[2].vote != MfkWeb.groups[0].vote;
+			MfkWeb.voteButton.setEnabled(valid);
+		}
 	}
 }
 
@@ -175,31 +194,47 @@ class LoadTripleHandler implements ClickHandler {
 }
 
 /**
- * Sets text on a given label.
+ * Processes a change in current vote state (assignment, in server-side
+ * parlance).
  */
-class VoteHandler implements ClickHandler {
+class VoteChangeHandler implements ClickHandler {
 	private String msg;
 	private Label label;
 	
-	private MfkWeb.Mfk mfk;
-	private int itemNum;
+	private MfkWeb.Mfk vote;
+	
+	private VoteGroupHandler group;
 
-	// private constructor
-	private VoteHandler() {
-		super();
+	public VoteChangeHandler(MfkWeb.Mfk mfk, VoteGroupHandler group) {
+		this.vote = mfk;
+		this.group = group;
 	}
 
 	@Override
 	public void onClick(ClickEvent event) {
-		MfkWeb.votes[itemNum] = this.mfk;
-		System.out.println("Vote: " + this.mfk + " item " + itemNum);
-		MfkWeb.setStatus(this.mfk + " " + itemNum);
+		this.group.vote = this.vote;
+		System.out.println("Vote: " + this.vote + " " + this.group);
+		MfkWeb.setStatus(this.vote + " " + this.group);
+		this.group.onClick(event);
 	}
+}
 
-	public static VoteHandler getHandler(MfkWeb.Mfk mfk, int itemNum) {
-		VoteHandler h = new VoteHandler();
-		h.mfk = mfk;
-		h.itemNum = itemNum;
-		return h;
+class VoteGroupHandler implements ClickHandler {
+	public int num;
+	public MfkWeb.Mfk vote;
+	
+	public VoteGroupHandler(int groupNum) {
+		this.num = groupNum;
+		MfkWeb.groups[this.num] = this;
+	}
+	
+	@Override
+	public void onClick(ClickEvent event) {
+		System.out.println("Group " + this.num + " says hi");
+		MfkWeb.checkVoteStatus();
+	}
+	
+	public String toString() {
+		return "<Group " + this.num + ": " + this.vote + ">";
 	}
 }

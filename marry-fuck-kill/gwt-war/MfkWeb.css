@@ -19,27 +19,27 @@ h1 {
 	text-align: center;
 }
 
-#item1Display {
+#e1Display {
 	background: red;
 	width: 200px;
 	height: 200px;
 }
-#item2Display {
+#e2Display {
 	background: blue;
 	width: 200px;
 	height: 200px;
 }
-#item3Display {
+#e3Display {
 	background: green;
 	width: 200px;
 	height: 200px;
 }
-#item1Vote {
+#e1Vote {
 	background: purple;
 }
-#item2Vote {
+#e2Vote {
 	background: cyan;
 }
-#item3Vote {
+#e3Vote {
 	background: yellow;
 }
