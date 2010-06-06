@@ -33,15 +33,18 @@ import com.google.gwt.user.client.ui.Widget;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class MfkWeb implements EntryPoint {
+	/** Display names for the 4 assignment options. */
 	public static final String[] mfkText = { "?", "Marry", "Fuck", "Kill" };
-	public static final String[] mfkShortText = { "?", "m", "f", "k" };
+	/** Wire names for the 4 assignment options. */
+	public static final String[] mfkShortText = { "E", "m", "f", "k" };
 
-	public enum Mfk {
-		NONE, MARRY, FUCK, KILL
-	};
+	public enum Mfk {NONE, MARRY, FUCK, KILL};
 	
+	/** Display area for the 3 entities. */
 	public static HTML entityHtml[] = {new HTML(), new HTML(), new HTML()};
+	/** Entity IDs. */
 	public static String entities[] = {null, null, null};
+	
 	public static VoteGroupHandler groups[] = {null, null, null};
 	
 	public static DialogBox errorDialog;
