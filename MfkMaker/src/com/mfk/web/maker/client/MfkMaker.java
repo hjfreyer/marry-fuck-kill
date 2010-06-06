@@ -24,6 +24,7 @@ public class MfkMaker implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	public void onModuleLoad() {
-		
+		Button b = new Button("Foo!");
+		RootPanel.get("main").add(b);
 	}
 }
