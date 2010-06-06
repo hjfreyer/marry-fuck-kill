@@ -169,7 +169,7 @@ class LoadTripleHandler implements ClickHandler {
 		MfkWeb.groups[0].vote = MfkWeb.Mfk.NONE;
 		MfkWeb.groups[1].vote = MfkWeb.Mfk.NONE;
 		MfkWeb.groups[2].vote = MfkWeb.Mfk.NONE;
-		MfkWeb.voteButton.setEnabled(false);
+		MfkWeb.checkVoteStatus(null);
 		
 		try {
 			builder.sendRequest(null, new RequestCallback() {
