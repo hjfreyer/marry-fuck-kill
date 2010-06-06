@@ -44,12 +44,22 @@ public class MfkWeb implements EntryPoint {
 	public static String entities[] = {null, null, null};
 	public static VoteGroupHandler groups[] = {null, null, null};
 	
+	public static DialogBox errorDialog;
+	public static HTML errorHtml;
+	
 	public static Button voteButton = new Button("Vote!");
 	public static Button skipButton = new Button("Skip!");
 	
 	private static Label statusLabel = new Label();
 	public static void setStatus(String status) {
+		System.out.println("Setting status: " + status);
 		MfkWeb.statusLabel.setText(status);
+	}
+	
+	public static void showError(String errorMsg) {
+		System.out.println("Showing error: " + errorMsg);
+		MfkWeb.errorHtml.setHTML("<div class='errorText'>" + errorMsg + "</div>");
+		MfkWeb.errorDialog.center();
 	}
 	
 	private static void addVoteButtons(String id, int groupNum) {
@@ -103,6 +113,9 @@ public class MfkWeb implements EntryPoint {
 		RootPanel.get("e2Display").add(entityHtml[1]);
 		RootPanel.get("e3Display").add(entityHtml[2]);
 		
+		MfkWeb.errorHtml = new HTML("No error.");
+		MfkWeb.errorDialog = MfkWeb.makeErrorDialog(MfkWeb.errorHtml);
+		
 		final ClickHandler loadHandler = new LoadTripleHandler();
 		skipButton.addClickHandler(loadHandler);
 		// get an initial item
@@ -144,24 +157,17 @@ public class MfkWeb implements EntryPoint {
 }
 
 class LoadTripleHandler implements ClickHandler {
-	private DialogBox errorDialog;
-	
-	public LoadTripleHandler() {
-		this.errorDialog = MfkWeb.makeErrorDialog(
-				new HTML("Error parsing JSON reply from server."));
-	}
-	
 	@Override
 	public void onClick(ClickEvent event) {
 		String url = "/rpc/vote/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
-		System.out.println("requesting new triple from " + url);
+		MfkWeb.setStatus("Getting new triple...");
 		
 		try {
 			builder.sendRequest(null, new RequestCallback() {
 				@Override
 				public void onError(Request request, Throwable exception) {
-					System.out.println("Error retrieving new triple!");
+					MfkWeb.showError("Error retrieving new triple!");
 				}
 
 				@Override
@@ -172,8 +178,7 @@ class LoadTripleHandler implements ClickHandler {
 						json = JSONParser.parse(response.getText()).isObject();
 					}
 					catch (JSONException e) {
-						System.out.println("Couldn't parse JSON from server!");
-						errorDialog.center();
+						MfkWeb.showError("Couldn't parse JSON from server!");
 						return;
 					}
 					System.out.println("Got JSONObject: " + json);
@@ -186,10 +191,10 @@ class LoadTripleHandler implements ClickHandler {
 										.isString().stringValue(),
 								json.get("three").isObject().get("name")
 										.isString().stringValue());
+						MfkWeb.setStatus("Getting new triple...done.");
 					}
 					catch (NullPointerException e) {
-						System.out.println("Malformed response from server!");
-						errorDialog.center();
+						MfkWeb.showError("Malformed response from server!");
 						return;
 					}
 				}
@@ -217,7 +222,7 @@ class VoteChangeHandler implements ClickHandler {
 	public void onClick(ClickEvent event) {
 		this.group.vote = this.vote;
 		System.out.println("Vote: " + this.vote + " " + this.group);
-		MfkWeb.setStatus(this.vote + " " + this.group);
+		MfkWeb.setStatus(this.vote + " " + MfkWeb.entities[this.group.num]);
 		Button src = (Button)event.getSource();
 		this.group.onClick(event);
 	}
@@ -237,7 +242,6 @@ class VoteGroupHandler implements ClickHandler {
 	
 	@Override
 	public void onClick(ClickEvent event) {
-		System.out.println("Group " + this.num + " says hi");
 		MfkWeb.checkVoteStatus(this);
 	}
 	
@@ -251,10 +255,7 @@ class VoteGroupHandler implements ClickHandler {
  */
 class AssignmentHandler implements ClickHandler {
 	public void onClick(ClickEvent event) {
-		MfkWeb.setStatus("Vote: " + MfkWeb.groups[0] +
-						  " " + MfkWeb.groups[1] +
-						  " " + MfkWeb.groups[2]);
-		
+		MfkWeb.setStatus("Voting... ");
 		String url = "/rpc/vote/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
 		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -283,6 +284,7 @@ class AssignmentHandler implements ClickHandler {
 					if (response.getStatusCode() == 200) {
 						System.out.println("Successful assignment request: "
 								+ response.getText());
+						MfkWeb.setStatus("Voting... success!");
 					}
 					else {
 						System.out.println("Failed request: "
