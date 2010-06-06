@@ -54,11 +54,7 @@ class Triple(db.Model):
         
     @staticmethod
     def get_random():
-        # TOOD(mjkelly): Make this constant, not O(triples).
-        keys = []
-        for k in Triple.all(keys_only=True):
-            keys.append(k)
-
+        keys = [k for k in db.Query(Triple, keys_only=True).filter('quality >', 0.0)]
         if not keys:
             return None
         else:
