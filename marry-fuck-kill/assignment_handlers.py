@@ -54,19 +54,26 @@ class AssignmentHandler(webapp.RequestHandler):
        triple.three.key().name()))
 
     def post(self, assignment_id):
-        one_id = self.request.get('one_id')
-        one_value = self.request.get('one_value')
-
-        two_id = self.request.get('two_id')
-        two_value = self.request.get('two_value')
-
-        three_id = self.request.get('three_id')
-        three_value = self.request.get('three_value')
-
-        if len(set([one_value, two_value, three_value])) != 3:
-            self.response.out.write("select one of each!")
+        assign = AssignmentHandler.make_assignment(self.request)
+        if assign is not None:
+            self.response.out.write(str(assign))        
+        else:
             self.response.set_status(406)
-            return
+            self.response.out.write("select one of each!")
+
+    @staticmethod
+    def make_assignment(request):
+        one_id = request.get('one_id')
+        one_value = request.get('one_value')
+        two_id = request.get('two_id')
+        two_value = request.get('two_value')
+        three_id = request.get('three_id')
+        three_value = request.get('three_value')
+
+        #models.Triple.get_by_key_name(
+
+        if set([one_value, two_value, three_value]) != set(['Marry', 'Fuck', 'Kill']):
+            return None
 
         if one_value == 'Marry':
             marry = one_id
@@ -96,8 +103,7 @@ class AssignmentHandler(webapp.RequestHandler):
                                    fuck=fuck, 
                                    kill=kill)
         assign.put()
-        
-        self.response.out.write(str(assign))        
+        return assign
 
 class AssignmentJsonHandler(webapp.RequestHandler):
     def get(self, assignment_id=None):
@@ -107,4 +113,11 @@ class AssignmentJsonHandler(webapp.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(out)
 
-
+    def post(self, triple_id=None):
+        logging.info("got assignment from client: %s", self.request)
+        assign = AssignmentHandler.make_assignment(self.request)
+        if assign is not None:
+            self.response.out.write('ok')
+        else:
+            self.response.set_status(406)
+            self.response.out.write('bad')
