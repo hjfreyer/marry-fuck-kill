@@ -118,8 +118,8 @@ public class MfkWeb implements EntryPoint {
 		voteButton.addClickHandler(new AssignmentHandler());
 		
 		RootPanel.get("status").add(MfkWeb.statusLabel);
-		RootPanel.get("control").add(voteButton);
-		RootPanel.get("control").add(skipButton);
+		RootPanel.get("voteButton").add(voteButton);
+		RootPanel.get("skipButton").add(skipButton);
 		
 		RootPanel.get("e1Display").add(entityHtml[0]);
 		RootPanel.get("e2Display").add(entityHtml[1]);
@@ -154,7 +154,7 @@ public class MfkWeb implements EntryPoint {
 		if (MfkWeb.groups[0].vote() == MfkWeb.Mfk.NONE
 				|| MfkWeb.groups[1].vote() == MfkWeb.Mfk.NONE
 				|| MfkWeb.groups[2].vote() == MfkWeb.Mfk.NONE) {
-			System.out.println("NOT enabled!");
+			System.out.println("Vote button NOT enabled!");
 			MfkWeb.voteButton.setEnabled(false);
 		}
 		else {
@@ -162,7 +162,7 @@ public class MfkWeb implements EntryPoint {
 			boolean valid = MfkWeb.groups[0].vote() != MfkWeb.groups[1].vote()
 					&& MfkWeb.groups[1].vote() != MfkWeb.groups[2].vote()
 					&& MfkWeb.groups[2].vote() != MfkWeb.groups[0].vote();
-			System.out.println("Set enabled = " + valid);
+			System.out.println("Vote button set enabled = " + valid);
 			MfkWeb.voteButton.setEnabled(valid);
 		}
 	}
@@ -245,14 +245,13 @@ class VoteChangeHandler implements ClickHandler {
 		this.group.setVote(this.vote);
 		System.out.println("Vote: " + this.vote + " " + this.group);
 		MfkWeb.setStatus(this.vote + " " + MfkWeb.entities[this.group.num]);
-		//this.group.onClick(event);
 	}
 }
 
 /**
  * Handler for group of M/F/K buttons for one entity.
  */
-class VoteGroupHandler implements ClickHandler {
+class VoteGroupHandler {
 	public int num;
 	private MfkWeb.Mfk vote = MfkWeb.Mfk.NONE;
 	
@@ -262,22 +261,6 @@ class VoteGroupHandler implements ClickHandler {
 	public VoteGroupHandler(int groupNum) {
 		this.num = groupNum;
 		MfkWeb.groups[this.num] = this;
-	}
-	
-	@Override
-	public void onClick(ClickEvent event) {
-		for (int i = 0; i < 3; i++) {
-			Button b = this.buttons[i];
-			if (event.getSource() == b) {
-				System.out.println(b + " matches");
-				b.setHTML(MfkWeb.mfkSelected[i+1]);
-			}
-			else {
-				b.setHTML(MfkWeb.mfkText[i+1]);
-				System.out.println(b + " doesn't match");
-			}
-		}
-		MfkWeb.checkVoteStatus(this);
 	}
 	
 	public void setVote(MfkWeb.Mfk vote) {
@@ -316,6 +299,7 @@ class VoteGroupHandler implements ClickHandler {
  */
 class AssignmentHandler implements ClickHandler {
 	public void onClick(ClickEvent event) {
+		MfkWeb.voteButton.setEnabled(false);
 		MfkWeb.setStatus("Voting... ");
 		String url = "/rpc/vote/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
@@ -333,7 +317,8 @@ class AssignmentHandler implements ClickHandler {
 			builder.sendRequest(reqData.toString(), new RequestCallback() {
 				@Override
 				public void onError(Request request, Throwable exception) {
-					System.out.println("Error sending assignment request");
+					MfkWeb.showError("Error sending vote to server.");
+					MfkWeb.checkVoteStatus(null);
 				}
 
 				@Override
@@ -343,18 +328,18 @@ class AssignmentHandler implements ClickHandler {
 						System.out.println("Successful assignment request: "
 								+ response.getText());
 						MfkWeb.setStatus("Voting... success!");
+						LoadTripleHandler.loadNew();
 					}
 					else {
-						System.out.println("Failed request: "
-								+ response.getStatusCode() + ": "
-								+ response.getText());
+						MfkWeb.showError("Server didn't like our vote. "
+								+ "Response code: " + response.getStatusCode()
+								+ ". Response text: " + response.getText());
+						MfkWeb.checkVoteStatus(null);
 					}
 				}
 			});
 		} catch (RequestException e) {
-			System.out.println("Error sending assignment: " + e);
+			MfkWeb.showError("Error sending vote: " + e);
 		}
-		
-		LoadTripleHandler.loadNew();
 	}
 }
