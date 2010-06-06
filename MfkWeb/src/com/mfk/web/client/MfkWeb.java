@@ -34,7 +34,7 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class MfkWeb implements EntryPoint {
 	public static final String[] mfkText = { "?", "Marry", "Fuck", "Kill" };
-	public static final int MAIN_VOTE_GROUP = 0;
+	public static final String[] mfkShortText = { "?", "m", "f", "k" };
 
 	public enum Mfk {
 		NONE, MARRY, FUCK, KILL
@@ -53,25 +53,17 @@ public class MfkWeb implements EntryPoint {
 	}
 	
 	private static void addVoteButtons(String id, int groupNum) {
-		Button marryButton = new Button("Marry");
-		Button fuckButton = new Button("Fuck");
-		Button killButton = new Button("Kill");
-		marryButton.setWidth("200px");
-		fuckButton.setWidth("200px");
-		killButton.setWidth("200px");
-
 		RootPanel rp = RootPanel.get(id);
 		VerticalPanel vp = new VerticalPanel();
 		rp.add(vp);
-		
-		vp.add(marryButton);
-		vp.add(fuckButton);
-		vp.add(killButton);
-
 		VoteGroupHandler group = new VoteGroupHandler(groupNum);
-		marryButton.addClickHandler(new VoteChangeHandler(Mfk.MARRY, group));
-		fuckButton.addClickHandler(new VoteChangeHandler(Mfk.FUCK, group));
-		killButton.addClickHandler(new VoteChangeHandler(Mfk.KILL, group));
+		
+		for (int i = 1; i < 4; i++) {
+			Button b = new Button(MfkWeb.mfkText[i]);
+			b.setWidth("200px");
+			b.addClickHandler(new VoteChangeHandler(MfkWeb.Mfk.values()[i], group));
+			vp.add(b);
+		}
 	}
 	
 	public static DialogBox makeErrorDialog(HTML html) {
@@ -209,11 +201,7 @@ class LoadTripleHandler implements ClickHandler {
  * Handler for individual button.
  */
 class VoteChangeHandler implements ClickHandler {
-	private String msg;
-	private Label label;
-	
 	private MfkWeb.Mfk vote;
-	
 	private VoteGroupHandler group;
 
 	public VoteChangeHandler(MfkWeb.Mfk mfk, VoteGroupHandler group) {
