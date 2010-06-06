@@ -23,16 +23,15 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  */
 public class MfkWeb implements EntryPoint {
 	/** Display names for the 4 assignment options. */
-	public static final String[] mfkText = { "?", "Marry", "Fuck", "Kill" };
+	public static final String[] mfkText = { "Marry", "Fuck", "Kill" };
 	
-	public static final String[] mfkSelected = { "?",
-		                                         "<b>Marry</b>",
+	public static final String[] mfkSelected = {"<b>Marry</b>",
 		                                         "<b>Fuck</b>",
 		                                         "<b>Kill</b>" };
 	/** Wire names for the 4 assignment options. */
-	public static final String[] mfkShortText = { "E", "m", "f", "k" };
+	public static final String[] mfkShortText = { "m", "f", "k" };
 
-	public enum Mfk {NONE, MARRY, FUCK, KILL};
+	public enum Mfk {MARRY, FUCK, KILL};
 	
 	/** Display area for the 3 entities. */
 	public static HTML entityHtml[] = {new HTML(), new HTML(), new HTML()};
@@ -67,11 +66,10 @@ public class MfkWeb implements EntryPoint {
 		Button buttons[] = {null, null, null};
 		
 		for (int i = 0; i < 3; i++) {
-			// TODO(mjkelly): fix this off-by-one business by deleting Mfk.NONE
-			Button b = new Button(MfkWeb.mfkText[i+1]);
+			Button b = new Button(MfkWeb.mfkText[i]);
 			buttons[i] = b;
 			b.setWidth("200px");
-			b.addClickHandler(new VoteChangeHandler(MfkWeb.Mfk.values()[i+1], group));
+			b.addClickHandler(new VoteChangeHandler(MfkWeb.Mfk.values()[i], group));
 			vp.add(b);
 		}
 		group.buttons = buttons;
@@ -140,9 +138,9 @@ public class MfkWeb implements EntryPoint {
 		System.out.println("checkVoteStatus: " + MfkWeb.groups[0].vote()
 				+ " " + MfkWeb.groups[1].vote() + " " + MfkWeb.groups[2].vote());
 		// a vote must exist for all buttons
-		if (MfkWeb.groups[0].vote() == MfkWeb.Mfk.NONE
-				|| MfkWeb.groups[1].vote() == MfkWeb.Mfk.NONE
-				|| MfkWeb.groups[2].vote() == MfkWeb.Mfk.NONE) {
+		if (MfkWeb.groups[0].vote() == null
+				|| MfkWeb.groups[1].vote() == null
+				|| MfkWeb.groups[2].vote() == null) {
 			System.out.println("Vote button NOT enabled!");
 			MfkWeb.voteButton.setEnabled(false);
 		}
@@ -164,9 +162,9 @@ class LoadTripleHandler implements ClickHandler {
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 		MfkWeb.setStatus("Getting new triple...");
 		
-		MfkWeb.groups[0].setVote(MfkWeb.Mfk.NONE);
-		MfkWeb.groups[1].setVote(MfkWeb.Mfk.NONE);
-		MfkWeb.groups[2].setVote(MfkWeb.Mfk.NONE);
+		MfkWeb.groups[0].setVote(null);
+		MfkWeb.groups[1].setVote(null);
+		MfkWeb.groups[2].setVote(null);
 		MfkWeb.checkVoteStatus(null);
 		
 		try {
@@ -242,7 +240,7 @@ class VoteChangeHandler implements ClickHandler {
  */
 class VoteGroupHandler {
 	public int num;
-	private MfkWeb.Mfk vote = MfkWeb.Mfk.NONE;
+	private MfkWeb.Mfk vote = null;
 	
 	/** The list of buttons that could send us events. */
 	public Button buttons[];
@@ -257,21 +255,20 @@ class VoteGroupHandler {
 			this.vote = vote;
 			for (int i = 0; i < 3; i++) {
 				Button b = this.buttons[i];
-				if (this.vote.ordinal() == i+1) {
-					System.out.println(b + " matches");
-					b.setHTML(MfkWeb.mfkSelected[i+1]);
-				}
-				else {
-					b.setHTML(MfkWeb.mfkText[i+1]);
-					System.out.println(b + " doesn't match");
-				}
+				if (this.vote != null && this.vote.ordinal() == i)
+					b.setHTML(MfkWeb.mfkSelected[i]);
+				else 
+					b.setHTML(MfkWeb.mfkText[i]);
 			}
 		}
 		MfkWeb.checkVoteStatus(this);
 	}
 	
 	public String voteStr() {
-		return MfkWeb.mfkShortText[this.vote.ordinal()];
+		if (this.vote != null)
+			return MfkWeb.mfkShortText[this.vote.ordinal()];
+		else
+			return "E";
 	}
 	
 	public MfkWeb.Mfk vote() {
