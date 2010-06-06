@@ -261,13 +261,13 @@ class AssignmentHandler implements ClickHandler {
 		reqData.append("e3=").append(MfkWeb.entities[2]).append("&");
 		
 		reqData.append("v1=");
-		reqData.append(MfkWeb.mfkText[MfkWeb.groups[0].vote.ordinal()]);
+		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[0].vote.ordinal()]);
 		reqData.append("&");
 		reqData.append("v2=");
-		reqData.append(MfkWeb.mfkText[MfkWeb.groups[1].vote.ordinal()]);
+		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[1].vote.ordinal()]);
 		reqData.append("&");
 		reqData.append("v3=");
-		reqData.append(MfkWeb.mfkText[MfkWeb.groups[2].vote.ordinal()]);
+		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[2].vote.ordinal()]);
 		
 		try {
 			builder.sendRequest(reqData.toString(), new RequestCallback() {
