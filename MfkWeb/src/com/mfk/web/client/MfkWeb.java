@@ -256,17 +256,17 @@ class AssignmentHandler implements ClickHandler {
 		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		StringBuffer reqData = new StringBuffer();
 		
-		reqData.append("one_id=").append(MfkWeb.entities[0]).append("&");
-		reqData.append("two_id=").append(MfkWeb.entities[1]).append("&");
-		reqData.append("three_id=").append(MfkWeb.entities[2]).append("&");
+		reqData.append("e1=").append(MfkWeb.entities[0]).append("&");
+		reqData.append("e2=").append(MfkWeb.entities[1]).append("&");
+		reqData.append("e3=").append(MfkWeb.entities[2]).append("&");
 		
-		reqData.append("one_value=");
+		reqData.append("v1=");
 		reqData.append(MfkWeb.mfkText[MfkWeb.groups[0].vote.ordinal()]);
 		reqData.append("&");
-		reqData.append("two_value=");
+		reqData.append("v2=");
 		reqData.append(MfkWeb.mfkText[MfkWeb.groups[1].vote.ordinal()]);
 		reqData.append("&");
-		reqData.append("three_value=");
+		reqData.append("v3=");
 		reqData.append(MfkWeb.mfkText[MfkWeb.groups[2].vote.ordinal()]);
 		
 		try {

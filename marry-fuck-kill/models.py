@@ -70,13 +70,24 @@ class Triple(db.Model):
                 'three': self.three.json(),
                 'key': self.key().name()}
 
-def PutTriple(one, two, three):
-    key = "%s.%s.%s" % (one.key().name(), two.key().name(), three.key().name())
+    @staticmethod
+    def key_name_from_entities(one, two, three):
+        """Given three Entities, generate the canonical key name for a Triple
+        containing them.
+        """
+        keys = [one.key().name(), two.key().name(), three.key().name()]
+        keys.sort()
+        return "%s.%s.%s" % (keys[0], keys[1], keys[2])
 
+def PutTriple(one, two, three):
+    """Put a triple in the DB with canonical key.
+
+    See Triple.key_name_from_entities().
+    """
     triple = Triple(one=one, 
                     two=two,
                     three=three,
-                    key_name=key)
+                    key_name=Triple.key_name_from_entities(one, two, three))
     triple.put()
     return triple
 

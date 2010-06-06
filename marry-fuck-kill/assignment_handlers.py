@@ -29,22 +29,22 @@ class AssignmentHandler(webapp.RequestHandler):
         self.response.out.write("""
 <form method="post">
 %s
-<input type="hidden" name="one_id" value="%s"><br>
-<input type="radio" name="one_value" value="Marry"> Marry<br>
-<input type="radio" name="one_value" value="Fuck" checked> Fuck<br>
-<input type="radio" name="one_value" value="Kill"> Kill
+<input type="hidden" name="e1" value="%s"><br>
+<input type="radio" name="v1" value="m"> Marry<br>
+<input type="radio" name="v1" value="f" checked> Fuck<br>
+<input type="radio" name="v1" value="k"> Kill
 <hr>
 %s
-<input type="hidden" name="two_id" value="%s"><br>
-<input type="radio" name="two_value" value="Marry"> Marry<br>
-<input type="radio" name="two_value" value="Fuck"> Fuck<br>
-<input type="radio" name="two_value" value="Kill" checked> Kill<br>
+<input type="hidden" name="e2" value="%s"><br>
+<input type="radio" name="v2" value="m"> Marry<br>
+<input type="radio" name="v2" value="f"> Fuck<br>
+<input type="radio" name="v2" value="k" checked> Kill<br>
 <hr>
 %s
-<input type="hidden" name="three_id" value="%s"><br>
-<input type="radio" name="three_value" value="Marry"> Marry<br>
-<input type="radio" name="three_value" value="Fuck"> Fuck<br>
-<input type="radio" name="three_value" value="Kill" checked> Kill<br>
+<input type="hidden" name="e3" value="%s"><br>
+<input type="radio" name="v3" value="m"> Marry<br>
+<input type="radio" name="v3" value="f"> Fuck<br>
+<input type="radio" name="v3" value="k" checked> Kill<br>
 <input type="submit">
 """ % (triple.one.key().name(),
        triple.one.key().name(),
@@ -63,46 +63,33 @@ class AssignmentHandler(webapp.RequestHandler):
 
     @staticmethod
     def make_assignment(request):
-        one_id = request.get('one_id')
-        one_value = request.get('one_value')
-        two_id = request.get('two_id')
-        two_value = request.get('two_value')
-        three_id = request.get('three_id')
-        three_value = request.get('three_value')
+        ids = [request.get('e1'), request.get('e2'), request.get('e3')]
+        values = [request.get('v1'), request.get('v2'), request.get('v3')]
 
-        #models.Triple.get_by_key_name(
-
-        if set([one_value, two_value, three_value]) != set(['Marry', 'Fuck', 'Kill']):
+        if set(values) != set(['m', 'f', 'k']):
             return None
 
-        if one_value == 'Marry':
-            marry = one_id
-        if one_value == 'Fuck':
-            fuck = one_id
-        if one_value == 'Kill':
-            kill = one_id
+        marry = models.Entity.get_by_key_name(ids[values.index('m')])
+        fuck = models.Entity.get_by_key_name(ids[values.index('f')])
+        kill = models.Entity.get_by_key_name(ids[values.index('k')])
 
-        if two_value == 'Marry':
-            marry = two_id
-        if two_value == 'Fuck':
-            fuck = two_id
-        if two_value == 'Kill':
-            kill = two_id
-        if three_value == 'Marry':
-            marry = three_id
-        if three_value == 'Fuck':
-            fuck = three_id
-        if three_value == 'Kill':
-            kill = three_id
+        if marry is None or fuck is None or kill is None:
+            logging.error("Not all non-None: marry = %s, fuck = %s, kill = %s",
+                          marry, fuck, kill)
+            return None
 
-        marry = models.Entity.get_by_key_name(marry)
-        fuck = models.Entity.get_by_key_name(fuck)
-        kill = models.Entity.get_by_key_name(kill)
+        triple_key = models.Triple.key_name_from_entities(marry, fuck, kill)
+        triple = models.Triple.get_by_key_name(triple_key)
+        if triple is None:
+            logging.error("No triple with key %s", triple_key)
+            return None
 
         assign = models.Assignment(marry=marry, 
                                    fuck=fuck, 
                                    kill=kill)
         assign.put()
+        logging.info("Assigned m=%s, f=%s, k=%s to %s", marry.key().name(),
+                fuck.key().name(), kill.key().name(), triple.key().name())
         return assign
 
 class AssignmentJsonHandler(webapp.RequestHandler):
