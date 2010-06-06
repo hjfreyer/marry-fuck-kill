@@ -1,12 +1,8 @@
-
 Tasks:
-- canonical triple order
 - pretty it
 - add images to entities
 - basic stats
   - Histogram for individual triple
-- unduplicate MfkWeb/MfkWeb.{html,css} and
-  marry-fuck-kill/gwt-war/MfkWeb.{html,css}.
 
 
 Hosted Mode GWT Debugging:
