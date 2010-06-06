@@ -26,7 +26,10 @@ class Entity(db.Model):
     type = db.StringProperty(choices=set(["abstract", "person", "object"]))
    
     def __str__(self):
-        return "[Entity: %s]" % self.name
+        return self.name
+
+    def __str__(self):
+        return "Entity(%r)" % self.name
 
     def json(self):
         return {'name': self.name}
@@ -62,7 +65,10 @@ class Triple(db.Model):
             return Triple.get(random.choice(keys))
 
     def __str__(self):
-        return "[Triple: %s, %s, %s]" % (self.one, self.two, self.three)
+        return Triple.key_name_from_entities(self.one, self.two, self.three)
+
+    def __repr__(self):
+        return "Triple(one=%r, two=%r, three=%r)" % (self.one, self.two, self.three)
 
     def json(self):
         return {'one': self.one.json(),
@@ -104,4 +110,10 @@ class Assignment(db.Model):
                                  collection_name="assignment_reference_kill_set")
 
     def __str__(self):
-        return "[Assignment: %s, %s, %s]" % (self.marry, self.fuck, self.kill)
+        return "Assignment(marry=%s, fuck=%s, kill=%s)" % (
+                self.marry.key().name(),
+                self.fuck.key().name(),
+                self.kill.key().name())
+
+    def __repr__(self):
+        return str(self)
