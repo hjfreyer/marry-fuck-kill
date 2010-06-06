@@ -160,11 +160,16 @@ public class MfkWeb implements EntryPoint {
 }
 
 class LoadTripleHandler implements ClickHandler {
-	@Override
-	public void onClick(ClickEvent event) {
+	
+	public static void loadNew() {
 		String url = "/rpc/vote/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 		MfkWeb.setStatus("Getting new triple...");
+		
+		MfkWeb.groups[0].vote = MfkWeb.Mfk.NONE;
+		MfkWeb.groups[1].vote = MfkWeb.Mfk.NONE;
+		MfkWeb.groups[2].vote = MfkWeb.Mfk.NONE;
+		MfkWeb.voteButton.setEnabled(false);
 		
 		try {
 			builder.sendRequest(null, new RequestCallback() {
@@ -206,6 +211,11 @@ class LoadTripleHandler implements ClickHandler {
 		} catch (RequestException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void onClick(ClickEvent event) {
+		LoadTripleHandler.loadNew();
 	}
 }
 
@@ -300,5 +310,6 @@ class AssignmentHandler implements ClickHandler {
 			System.out.println("Error sending assignment: " + e);
 		}
 		
+		LoadTripleHandler.loadNew();
 	}
 }
