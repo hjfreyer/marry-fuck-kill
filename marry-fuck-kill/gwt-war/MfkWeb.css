@@ -1,18 +1,17 @@
-/** Add css rules here for your application. */
-
-
-/** Example rules used by the template application (remove for your app) */
 h1 {
-  font-size: 2em;
+  font-size: 30px;
   font-weight: bold;
-  color: #777777;
-  margin: 40px 0px 70px;
+  color: #330033;
+  margin: 20px;
   text-align: center;
+  border-bottom: 1px solid #330033;
 }
 
+.body {
+    background: #8800aa;
+} 
+
 .mfkButton {
-	//font-size: 20pt;
-	width: 200px;
 }
 
 .errorText {
@@ -23,27 +22,24 @@ h1 {
 	text-align: center;
 }
 
-#e1Display {
-	background: red;
+.entity {
 	width: 200px;
 	height: 200px;
+    font-weight: bold;
+    font-size: 20px;
+    border: 1px solid #330033;
+}
+
+#e1Display {
 }
 #e2Display {
-	background: blue;
-	width: 200px;
-	height: 200px;
 }
 #e3Display {
-	background: green;
-	width: 200px;
-	height: 200px;
 }
+
 #e1Vote {
-	background: purple;
 }
 #e2Vote {
-	background: cyan;
 }
 #e3Vote {
-	background: yellow;
 }
