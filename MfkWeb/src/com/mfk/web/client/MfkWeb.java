@@ -1,6 +1,5 @@
 package com.mfk.web.client;
 
-//import com.mfk.web.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dev.util.collect.HashMap;
@@ -14,6 +13,8 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.json.client.JSONException;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONString;
@@ -39,7 +40,8 @@ public class MfkWeb implements EntryPoint {
 		NONE, MARRY, FUCK, KILL
 	};
 	
-	public static HTML entities[] = {new HTML(), new HTML(), new HTML()};
+	public static HTML entityHtml[] = {new HTML(), new HTML(), new HTML()};
+	public static String entities[] = {null, null, null};
 	public static VoteGroupHandler groups[] = {null, null, null};
 	
 	public static Button voteButton = new Button("Vote!");
@@ -99,37 +101,36 @@ public class MfkWeb implements EntryPoint {
 		MfkWeb.addVoteButtons("e3Vote", 2);
 		
 		MfkWeb.voteButton.setEnabled(false);
-		
-		voteButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				MfkWeb.setStatus("Vote: 1: " + MfkWeb.groups[0] +
-								  ", 2: " + MfkWeb.groups[1] +
-								  ", 3: " + MfkWeb.groups[2]);
-			}
-		});
+		voteButton.addClickHandler(new AssignmentHandler());
 		
 		RootPanel.get("status").add(MfkWeb.statusLabel);
 		RootPanel.get("control").add(voteButton);
 		RootPanel.get("control").add(skipButton);
 		
-		RootPanel.get("e1Display").add(entities[0]);
-		RootPanel.get("e2Display").add(entities[1]);
-		RootPanel.get("e3Display").add(entities[2]);
+		RootPanel.get("e1Display").add(entityHtml[0]);
+		RootPanel.get("e2Display").add(entityHtml[1]);
+		RootPanel.get("e3Display").add(entityHtml[2]);
 		
-		final ClickHandler voteHandler = new LoadTripleHandler();
-		skipButton.addClickHandler(voteHandler);
+		final ClickHandler loadHandler = new LoadTripleHandler();
+		skipButton.addClickHandler(loadHandler);
 		// get an initial item
-		voteHandler.onClick(null);
+		loadHandler.onClick(null);
 		MfkWeb.setStatus("Welcome to MFK!");
 	}
 	
 	public static void setEntities(String one, String two, String three) {
-		entities[0].setHTML(one);
-		entities[1].setHTML(two);
-		entities[2].setHTML(three);
+		// save entity IDs
+		MfkWeb.entities[0] = one;
+		MfkWeb.entities[1] = two;
+		MfkWeb.entities[2] = three;
+		
+		// change the display itself
+		MfkWeb.entityHtml[0].setHTML(one);
+		MfkWeb.entityHtml[1].setHTML(two);
+		MfkWeb.entityHtml[2].setHTML(three);
 	}
 
-	public static void checkVoteStatus() {
+	public static void checkVoteStatus(VoteGroupHandler changedVote) {
 		// a vote must exist for all buttons
 		if (MfkWeb.groups[0].vote == MfkWeb.Mfk.NONE
 				|| MfkWeb.groups[1].vote == MfkWeb.Mfk.NONE
@@ -169,8 +170,18 @@ class LoadTripleHandler implements ClickHandler {
 
 				@Override
 				public void onResponseReceived(Request request, Response response) {
-					JSONObject json = JSONParser.parse(response.getText()).isObject();
+					
+					JSONObject json;
+					try {
+						json = JSONParser.parse(response.getText()).isObject();
+					}
+					catch (JSONException e) {
+						System.out.println("Couldn't parse JSON from server!");
+						errorDialog.center();
+						return;
+					}
 					System.out.println("Got JSONObject: " + json);
+					
 					try {
 						MfkWeb.setEntities(
 								json.get("one").isObject().get("name")
@@ -181,8 +192,9 @@ class LoadTripleHandler implements ClickHandler {
 										.isString().stringValue());
 					}
 					catch (NullPointerException e) {
-						System.out.println("Error parsing json reply!");
+						System.out.println("Malformed response from server!");
 						errorDialog.center();
+						return;
 					}
 				}
 				
@@ -194,8 +206,7 @@ class LoadTripleHandler implements ClickHandler {
 }
 
 /**
- * Processes a change in current vote state (assignment, in server-side
- * parlance).
+ * Handler for individual button.
  */
 class VoteChangeHandler implements ClickHandler {
 	private String msg;
@@ -215,10 +226,14 @@ class VoteChangeHandler implements ClickHandler {
 		this.group.vote = this.vote;
 		System.out.println("Vote: " + this.vote + " " + this.group);
 		MfkWeb.setStatus(this.vote + " " + this.group);
+		Button src = (Button)event.getSource();
 		this.group.onClick(event);
 	}
 }
 
+/**
+ * Handler for group of M/F/K buttons for one entity.
+ */
 class VoteGroupHandler implements ClickHandler {
 	public int num;
 	public MfkWeb.Mfk vote;
@@ -231,10 +246,65 @@ class VoteGroupHandler implements ClickHandler {
 	@Override
 	public void onClick(ClickEvent event) {
 		System.out.println("Group " + this.num + " says hi");
-		MfkWeb.checkVoteStatus();
+		MfkWeb.checkVoteStatus(this);
 	}
 	
 	public String toString() {
 		return "<Group " + this.num + ": " + this.vote + ">";
+	}
+}
+
+/**
+ * Handler for making an actual assignment.
+ */
+class AssignmentHandler implements ClickHandler {
+	public void onClick(ClickEvent event) {
+		MfkWeb.setStatus("Vote: " + MfkWeb.groups[0] +
+						  " " + MfkWeb.groups[1] +
+						  " " + MfkWeb.groups[2]);
+		
+		String url = "/rpc/vote/";
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
+		StringBuffer reqData = new StringBuffer();
+		
+		reqData.append("one_id=").append(MfkWeb.entities[0]).append("&");
+		reqData.append("two_id=").append(MfkWeb.entities[1]).append("&");
+		reqData.append("three_id=").append(MfkWeb.entities[2]).append("&");
+		
+		reqData.append("one_value=");
+		reqData.append(MfkWeb.mfkText[MfkWeb.groups[0].vote.ordinal()]);
+		reqData.append("&");
+		reqData.append("two_value=");
+		reqData.append(MfkWeb.mfkText[MfkWeb.groups[1].vote.ordinal()]);
+		reqData.append("&");
+		reqData.append("three_value=");
+		reqData.append(MfkWeb.mfkText[MfkWeb.groups[2].vote.ordinal()]);
+		
+		try {
+			builder.sendRequest(reqData.toString(), new RequestCallback() {
+				@Override
+				public void onError(Request request, Throwable exception) {
+					System.out.println("Error sending assignment request");
+				}
+
+				@Override
+				public void onResponseReceived(Request request,
+						Response response) {
+					if (response.getStatusCode() == 200) {
+						System.out.println("Successful assignment request: "
+								+ response.getText());
+					}
+					else {
+						System.out.println("Failed request: "
+								+ response.getStatusCode() + ": "
+								+ response.getText());
+					}
+				}
+			});
+		} catch (RequestException e) {
+			System.out.println("Error sending assignment: " + e);
+		}
+		
 	}
 }
