@@ -35,6 +35,11 @@ import com.google.gwt.user.client.ui.Widget;
 public class MfkWeb implements EntryPoint {
 	/** Display names for the 4 assignment options. */
 	public static final String[] mfkText = { "?", "Marry", "Fuck", "Kill" };
+	
+	public static final String[] mfkSelected = { "?",
+		                                         "<b>Marry</b>",
+		                                         "<b>Fuck</b>",
+		                                         "<b>Kill</b>" };
 	/** Wire names for the 4 assignment options. */
 	public static final String[] mfkShortText = { "E", "m", "f", "k" };
 
@@ -50,8 +55,8 @@ public class MfkWeb implements EntryPoint {
 	public static DialogBox errorDialog;
 	public static HTML errorHtml;
 	
-	public static Button voteButton = new Button("Vote!");
-	public static Button skipButton = new Button("Skip!");
+	public static Button voteButton = new Button("<b>Vote!</b>");
+	public static Button skipButton = new Button("Skip");
 	
 	private static Label statusLabel = new Label();
 	public static void setStatus(String status) {
@@ -70,13 +75,17 @@ public class MfkWeb implements EntryPoint {
 		VerticalPanel vp = new VerticalPanel();
 		rp.add(vp);
 		VoteGroupHandler group = new VoteGroupHandler(groupNum);
+		Button buttons[] = {null, null, null};
 		
-		for (int i = 1; i < 4; i++) {
-			Button b = new Button(MfkWeb.mfkText[i]);
+		for (int i = 0; i < 3; i++) {
+			// TODO(mjkelly): fix this off-by-one business by deleting Mfk.NONE
+			Button b = new Button(MfkWeb.mfkText[i+1]);
+			buttons[i] = b;
 			b.setWidth("200px");
-			b.addClickHandler(new VoteChangeHandler(MfkWeb.Mfk.values()[i], group));
+			b.addClickHandler(new VoteChangeHandler(MfkWeb.Mfk.values()[i+1], group));
 			vp.add(b);
 		}
+		group.buttons = buttons;
 	}
 	
 	public static DialogBox makeErrorDialog(HTML html) {
@@ -139,20 +148,20 @@ public class MfkWeb implements EntryPoint {
 	}
 
 	public static void checkVoteStatus(VoteGroupHandler changedVote) {
-		System.out.println("checkVoteStatus: " + MfkWeb.groups[0].vote
-				+ " " + MfkWeb.groups[1].vote + " " + MfkWeb.groups[2].vote);
+		System.out.println("checkVoteStatus: " + MfkWeb.groups[0].vote()
+				+ " " + MfkWeb.groups[1].vote() + " " + MfkWeb.groups[2].vote());
 		// a vote must exist for all buttons
-		if (MfkWeb.groups[0].vote == MfkWeb.Mfk.NONE
-				|| MfkWeb.groups[1].vote == MfkWeb.Mfk.NONE
-				|| MfkWeb.groups[2].vote == MfkWeb.Mfk.NONE) {
+		if (MfkWeb.groups[0].vote() == MfkWeb.Mfk.NONE
+				|| MfkWeb.groups[1].vote() == MfkWeb.Mfk.NONE
+				|| MfkWeb.groups[2].vote() == MfkWeb.Mfk.NONE) {
 			System.out.println("NOT enabled!");
 			MfkWeb.voteButton.setEnabled(false);
 		}
 		else {
 			// christ on a cracker. yes, this is it, in a nutshell.
-			boolean valid = MfkWeb.groups[0].vote != MfkWeb.groups[1].vote
-					&& MfkWeb.groups[1].vote != MfkWeb.groups[2].vote
-					&& MfkWeb.groups[2].vote != MfkWeb.groups[0].vote;
+			boolean valid = MfkWeb.groups[0].vote() != MfkWeb.groups[1].vote()
+					&& MfkWeb.groups[1].vote() != MfkWeb.groups[2].vote()
+					&& MfkWeb.groups[2].vote() != MfkWeb.groups[0].vote();
 			System.out.println("Set enabled = " + valid);
 			MfkWeb.voteButton.setEnabled(valid);
 		}
@@ -166,9 +175,9 @@ class LoadTripleHandler implements ClickHandler {
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 		MfkWeb.setStatus("Getting new triple...");
 		
-		MfkWeb.groups[0].vote = MfkWeb.Mfk.NONE;
-		MfkWeb.groups[1].vote = MfkWeb.Mfk.NONE;
-		MfkWeb.groups[2].vote = MfkWeb.Mfk.NONE;
+		MfkWeb.groups[0].setVote(MfkWeb.Mfk.NONE);
+		MfkWeb.groups[1].setVote(MfkWeb.Mfk.NONE);
+		MfkWeb.groups[2].setVote(MfkWeb.Mfk.NONE);
 		MfkWeb.checkVoteStatus(null);
 		
 		try {
@@ -233,11 +242,10 @@ class VoteChangeHandler implements ClickHandler {
 
 	@Override
 	public void onClick(ClickEvent event) {
-		this.group.vote = this.vote;
+		this.group.setVote(this.vote);
 		System.out.println("Vote: " + this.vote + " " + this.group);
 		MfkWeb.setStatus(this.vote + " " + MfkWeb.entities[this.group.num]);
-		Button src = (Button)event.getSource();
-		this.group.onClick(event);
+		//this.group.onClick(event);
 	}
 }
 
@@ -246,7 +254,10 @@ class VoteChangeHandler implements ClickHandler {
  */
 class VoteGroupHandler implements ClickHandler {
 	public int num;
-	public MfkWeb.Mfk vote = MfkWeb.Mfk.NONE;
+	private MfkWeb.Mfk vote = MfkWeb.Mfk.NONE;
+	
+	/** The list of buttons that could send us events. */
+	public Button buttons[];
 	
 	public VoteGroupHandler(int groupNum) {
 		this.num = groupNum;
@@ -255,7 +266,44 @@ class VoteGroupHandler implements ClickHandler {
 	
 	@Override
 	public void onClick(ClickEvent event) {
+		for (int i = 0; i < 3; i++) {
+			Button b = this.buttons[i];
+			if (event.getSource() == b) {
+				System.out.println(b + " matches");
+				b.setHTML(MfkWeb.mfkSelected[i+1]);
+			}
+			else {
+				b.setHTML(MfkWeb.mfkText[i+1]);
+				System.out.println(b + " doesn't match");
+			}
+		}
 		MfkWeb.checkVoteStatus(this);
+	}
+	
+	public void setVote(MfkWeb.Mfk vote) {
+		if (this.vote != vote) {
+			this.vote = vote;
+			for (int i = 0; i < 3; i++) {
+				Button b = this.buttons[i];
+				if (this.vote.ordinal() == i+1) {
+					System.out.println(b + " matches");
+					b.setHTML(MfkWeb.mfkSelected[i+1]);
+				}
+				else {
+					b.setHTML(MfkWeb.mfkText[i+1]);
+					System.out.println(b + " doesn't match");
+				}
+			}
+		}
+		MfkWeb.checkVoteStatus(this);
+	}
+	
+	public String voteStr() {
+		return MfkWeb.mfkShortText[this.vote.ordinal()];
+	}
+	
+	public MfkWeb.Mfk vote() {
+		return this.vote;
 	}
 	
 	public String toString() {
@@ -277,12 +325,9 @@ class AssignmentHandler implements ClickHandler {
 		reqData.append("e1=").append(MfkWeb.entities[0]);
 		reqData.append("&e2=").append(MfkWeb.entities[1]);
 		reqData.append("&e3=").append(MfkWeb.entities[2]);
-		reqData.append("&v1=");
-		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[0].vote.ordinal()]);
-		reqData.append("&v2=");
-		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[1].vote.ordinal()]);
-		reqData.append("&v3=");
-		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[2].vote.ordinal()]);
+		reqData.append("&v1=").append(MfkWeb.groups[0].voteStr());
+		reqData.append("&v2=").append(MfkWeb.groups[1].voteStr());
+		reqData.append("&v3=").append(MfkWeb.groups[2].voteStr());
 		
 		try {
 			builder.sendRequest(reqData.toString(), new RequestCallback() {
