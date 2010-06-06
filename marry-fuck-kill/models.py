@@ -28,7 +28,7 @@ class Entity(db.Model):
     def __str__(self):
         return self.name
 
-    def __str__(self):
+    def __repr__(self):
         return "Entity(%r)" % self.name
 
     def json(self):
