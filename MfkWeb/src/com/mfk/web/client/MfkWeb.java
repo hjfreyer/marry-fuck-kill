@@ -123,10 +123,13 @@ public class MfkWeb implements EntryPoint {
 	}
 
 	public static void checkVoteStatus(VoteGroupHandler changedVote) {
+		System.out.println("checkVoteStatus: " + MfkWeb.groups[0].vote
+				+ " " + MfkWeb.groups[1].vote + " " + MfkWeb.groups[2].vote);
 		// a vote must exist for all buttons
 		if (MfkWeb.groups[0].vote == MfkWeb.Mfk.NONE
 				|| MfkWeb.groups[1].vote == MfkWeb.Mfk.NONE
 				|| MfkWeb.groups[2].vote == MfkWeb.Mfk.NONE) {
+			System.out.println("NOT enabled!");
 			MfkWeb.voteButton.setEnabled(false);
 		}
 		else {
@@ -134,6 +137,7 @@ public class MfkWeb implements EntryPoint {
 			boolean valid = MfkWeb.groups[0].vote != MfkWeb.groups[1].vote
 					&& MfkWeb.groups[1].vote != MfkWeb.groups[2].vote
 					&& MfkWeb.groups[2].vote != MfkWeb.groups[0].vote;
+			System.out.println("Set enabled = " + valid);
 			MfkWeb.voteButton.setEnabled(valid);
 		}
 	}
@@ -224,7 +228,7 @@ class VoteChangeHandler implements ClickHandler {
  */
 class VoteGroupHandler implements ClickHandler {
 	public int num;
-	public MfkWeb.Mfk vote;
+	public MfkWeb.Mfk vote = MfkWeb.Mfk.NONE;
 	
 	public VoteGroupHandler(int groupNum) {
 		this.num = groupNum;
@@ -256,17 +260,14 @@ class AssignmentHandler implements ClickHandler {
 		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		StringBuffer reqData = new StringBuffer();
 		
-		reqData.append("e1=").append(MfkWeb.entities[0]).append("&");
-		reqData.append("e2=").append(MfkWeb.entities[1]).append("&");
-		reqData.append("e3=").append(MfkWeb.entities[2]).append("&");
-		
-		reqData.append("v1=");
+		reqData.append("e1=").append(MfkWeb.entities[0]);
+		reqData.append("&e2=").append(MfkWeb.entities[1]);
+		reqData.append("&e3=").append(MfkWeb.entities[2]);
+		reqData.append("&v1=");
 		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[0].vote.ordinal()]);
-		reqData.append("&");
-		reqData.append("v2=");
+		reqData.append("&v2=");
 		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[1].vote.ordinal()]);
-		reqData.append("&");
-		reqData.append("v3=");
+		reqData.append("&v3=");
 		reqData.append(MfkWeb.mfkShortText[MfkWeb.groups[2].vote.ordinal()]);
 		
 		try {
