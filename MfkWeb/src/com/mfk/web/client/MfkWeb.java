@@ -171,12 +171,10 @@ class LoadTripleHandler implements ClickHandler {
 		
 		try {
 			builder.sendRequest(null, new RequestCallback() {
-				@Override
 				public void onError(Request request, Throwable exception) {
 					MfkWeb.showError("Error retrieving new triple!");
 				}
 
-				@Override
 				public void onResponseReceived(Request request, Response response) {
 					
 					JSONObject json;
@@ -211,7 +209,6 @@ class LoadTripleHandler implements ClickHandler {
 		}
 	}
 	
-	@Override
 	public void onClick(ClickEvent event) {
 		LoadTripleHandler.loadNew();
 	}
@@ -229,7 +226,6 @@ class VoteChangeHandler implements ClickHandler {
 		this.group = group;
 	}
 
-	@Override
 	public void onClick(ClickEvent event) {
 		this.group.setVote(this.vote);
 		System.out.println("Vote: " + this.vote + " " + this.group);
@@ -303,13 +299,11 @@ class AssignmentHandler implements ClickHandler {
 		
 		try {
 			builder.sendRequest(reqData.toString(), new RequestCallback() {
-				@Override
 				public void onError(Request request, Throwable exception) {
 					MfkWeb.showError("Error sending vote to server.");
 					MfkWeb.checkVoteStatus(null);
 				}
 
-				@Override
 				public void onResponseReceived(Request request,
 						Response response) {
 					if (response.getStatusCode() == 200) {
