@@ -22,14 +22,16 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * Entry point classes define <code>onModuleLoad()</code>.
  */
 public class MfkWeb implements EntryPoint {
-	/** Display names for the 4 assignment options. */
+	/** Display names for the 3 assignment options. */
 	public static final String[] mfkText = { "Marry", "Fuck", "Kill" };
 	
 	public static final String[] mfkSelected = {"<b>Marry</b>",
 		                                         "<b>Fuck</b>",
 		                                         "<b>Kill</b>" };
-	/** Wire names for the 4 assignment options. */
+	/** Wire names for the 3 assignment options. */
 	public static final String[] mfkShortText = { "m", "f", "k" };
+	/** Undefined assignment state wire value. */
+	public static final String mfkShortTextError = "E";
 
 	public enum Mfk {MARRY, FUCK, KILL};
 	
@@ -268,7 +270,7 @@ class VoteGroupHandler {
 		if (this.vote != null)
 			return MfkWeb.mfkShortText[this.vote.ordinal()];
 		else
-			return "E";
+			return MfkWeb.mfkShortTextError;
 	}
 	
 	public MfkWeb.Mfk vote() {
