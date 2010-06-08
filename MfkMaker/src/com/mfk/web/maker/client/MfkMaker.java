@@ -13,6 +13,7 @@ import com.google.gwt.search.client.ImageResult;
 import com.google.gwt.search.client.ImageSearch;
 import com.google.gwt.search.client.Result;
 import com.google.gwt.search.client.ResultSetSize;
+import com.google.gwt.search.client.SafeSearchValue;
 import com.google.gwt.search.client.SearchControl;
 import com.google.gwt.search.client.SearchControlOptions;
 import com.google.gwt.search.client.SearchResultsHandler;
@@ -40,6 +41,7 @@ public class MfkMaker implements EntryPoint {
 		
 	    SearchControlOptions options = new SearchControlOptions();
 	    ImageSearch imageSearch = new ImageSearch();
+	    imageSearch.setSafeSearch(SafeSearchValue.STRICT);
 	    imageSearch.setResultSetSize(ResultSetSize.LARGE);
 	    options.add(imageSearch, ExpandMode.CLOSED);
 	    final SearchControl control = new SearchControl(options);
