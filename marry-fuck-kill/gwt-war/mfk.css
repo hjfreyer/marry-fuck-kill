@@ -1,10 +1,10 @@
 h1 {
-  font-size: 30px;
-  font-weight: bold;
-  color: #330033;
-  margin: 20px;
-  text-align: center;
-  border-bottom: 1px solid #330033;
+    font-size: 30px;
+    font-weight: bold;
+    color: #330033;
+    margin: 20px;
+    text-align: center;
+    border-bottom: 1px solid #330033;
 }
 
 .body {
@@ -50,3 +50,19 @@ h1 {
 .control {
     margin: 10px;
 }
+
+.search {
+    margin: 5px;
+    padding: 5px;
+    border: 1px solid #330033;
+}
+
+#search-control {
+}
+
+#search-results {
+}
+
+.search-result {
+    margin: 5px;
+} 
