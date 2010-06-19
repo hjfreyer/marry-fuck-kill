@@ -44,6 +44,9 @@ class TripleCreationHandler(webapp.RequestHandler):
         one = request.get("one")
         two = request.get("two")
         three = request.get("three")
+
+        if not one or not two or not three:
+            raise ValueError("request name")
         
         one = models.PutEntity(one, request.get("one_url")) 
         two = models.PutEntity(two, request.get("two_url"))
@@ -55,8 +58,12 @@ class TripleCreationHandler(webapp.RequestHandler):
 
 
 class TripleJsonHandler(webapp.RequestHandler):
-    pass
-
+    def post(self):
+        try:
+            triple = TripleCreationHandler.MakeTriple(self.request) 
+        except ValueError:
+            self.response.out.write("bad url")
+        self.response.out.write("ok")
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
