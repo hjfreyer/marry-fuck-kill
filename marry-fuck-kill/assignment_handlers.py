@@ -31,23 +31,23 @@ class AssignmentHandler(webapp.RequestHandler):
 %(1_name)s
 <img src="%(1_url)s" alt="%(1_name)s">
 <input type="hidden" name="e1" value="%(1_name)s"><br>
-<input type="radio" name="v1" value="m"> Marry<br>
-<input type="radio" name="v1" value="f"> Fuck<br>
-<input type="radio" name="v1" value="k"> Kill
+<label><input type="radio" name="v1" value="m"> Marry</label><br>
+<label><input type="radio" name="v1" value="f"> Fuck</label><br>
+<label><input type="radio" name="v1" value="k"> Kill</label><br>
 <hr>
 %(2_name)s
 <img src="%(2_url)s" alt="%(2_name)s">
 <input type="hidden" name="e2" value="%(2_name)s"><br>
-<input type="radio" name="v2" value="m"> Marry<br>
-<input type="radio" name="v2" value="f"> Fuck<br>
-<input type="radio" name="v2" value="k"> Kill<br>
+<label><input type="radio" name="v2" value="m"> Marry</label><br>
+<label><input type="radio" name="v2" value="f"> Fuck</label><br>
+<label><input type="radio" name="v2" value="k"> Kill</label><br>
 <hr>
 %(3_name)s
 <img src="%(3_url)s" alt="%(3_name)s">
 <input type="hidden" name="e3" value="%(3_name)s"><br>
-<input type="radio" name="v3" value="m"> Marry<br>
-<input type="radio" name="v3" value="f"> Fuck<br>
-<input type="radio" name="v3" value="k"> Kill<br>
+<label><input type="radio" name="v3" value="m"> Marry</label><br>
+<label><input type="radio" name="v3" value="f"> Fuck</label><br>
+<label><input type="radio" name="v3" value="k"> Kill</label><br>
 <input type="submit">
 """ % {'1_name': triple.one.key().name(),
        '1_url': triple.one.get_full_url(),
