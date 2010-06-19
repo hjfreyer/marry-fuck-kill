@@ -65,4 +65,26 @@ h1 {
 
 .search-result {
     margin: 5px;
-} 
+    border: 0px;
+}
+
+.search-result-sel {
+    margin: 3px;
+    border: 2px solid black;
+}
+
+.saved {
+    float: left;
+    font-weight: bold;
+    font-size: 20px;
+    border: 1px solid #330033;
+    padding: 10px;
+}
+
+.saved-inner {
+	width: 200px;
+	height: 200px;
+    font-weight: bold;
+    font-size: 20px;
+    border: 1px solid #330033;
+}
