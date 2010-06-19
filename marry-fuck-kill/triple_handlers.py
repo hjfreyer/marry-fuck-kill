@@ -28,27 +28,42 @@ class TripleCreationHandler(webapp.RequestHandler):
         self.response.out.write("""
 <h1>Create a Triple!</h1>
 <form method="post">
-  One: <input type="text" name="one"></input><br/>
-  Two: <input type="text" name="two"></input><br/>
-  Three: <input type="text" name="three"></input><br/>
+  One: name=<input type="text" name="one"></input> url=<input type="text" name="one_url"></input><br/>
+  Two: name=<input type="text" name="two"></input>url=<input type="text" name="two_url"></input><br/>
+  Three: name=<input type="text" name="three"></input>url=<input type="text" name="three_url"></input><br/>
   <input type="submit"></input>
 </form>
 """)
 
     def post(self):
-        one = self.request.get("one")
-        two = self.request.get("two")
-        three = self.request.get("three")
+        triple = TripleCreationHandler.MakeTriple(self.request) 
+        utils.redirect(self, '/triple/view/' + triple.key().name())  
+
+    @staticmethod
+    def MakeTriple(request):
+        one = request.get("one")
+        two = request.get("two")
+        three = request.get("three")
         
         one = models.PutEntity(one) 
         two = models.PutEntity(two)
         three = models.PutEntity(three)
 
-        triple = models.PutTriple(one=one, 
-                                  two=two, 
-                                  three=three)
+        if request.get("one_url"):
+            one.set_full_url(request.get("one_url"))
+        if request.get("two_url"):
+            two.set_full_url(request.get("two_url"))
+        if request.get("three_url"):
+            three.set_full_url(request.get("three_url"))
 
-        utils.redirect(self, '/triple/view/' + triple.key().name())  
+        return models.PutTriple(one=one, 
+                                two=two, 
+                                three=three)
+
+
+class TripleJsonHandler(webapp.RequestHandler):
+    pass
+
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
