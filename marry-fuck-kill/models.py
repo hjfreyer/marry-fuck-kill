@@ -21,8 +21,13 @@ from google.appengine.ext import db
 
 class Entity(db.Model):
     name = db.StringProperty(required=True)
+    url = db.StringProperty(required=False)
     creator = db.UserProperty()    
 
+    # TODO(mjk): Consider whether this is really necessary. Right now it's
+    # cheap paranoia.
+    URL_BASE = 'http://images.google.com/images?q='
+    
     type = db.StringProperty(choices=set(["abstract", "person", "object"]))
    
     def __str__(self):
@@ -33,6 +38,22 @@ class Entity(db.Model):
 
     def json(self):
         return {'name': self.name}
+
+    def get_full_url(self):
+        """Get the full URL including the prefix."""
+        return self.URL_BASE + self.url
+
+    def set_full_url(self, url):
+        """Given a full URL, set the url property.
+
+        We raise a ValueError if the URL does not begin with
+        Entity.URL_BASE.
+        """
+        if url.startswith(self.URL_BASE):
+            self.url = url[len(self.URL_BASE):]
+        else:
+            raise ValueError(url)
+        
 
 def PutEntity(name):
     entity = Entity(name=name,
