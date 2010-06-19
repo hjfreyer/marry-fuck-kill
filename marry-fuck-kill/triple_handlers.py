@@ -45,16 +45,9 @@ class TripleCreationHandler(webapp.RequestHandler):
         two = request.get("two")
         three = request.get("three")
         
-        one = models.PutEntity(one) 
-        two = models.PutEntity(two)
-        three = models.PutEntity(three)
-
-        if request.get("one_url"):
-            one.set_full_url(request.get("one_url"))
-        if request.get("two_url"):
-            two.set_full_url(request.get("two_url"))
-        if request.get("three_url"):
-            three.set_full_url(request.get("three_url"))
+        one = models.PutEntity(one, request.get("one_url")) 
+        two = models.PutEntity(two, request.get("two_url"))
+        three = models.PutEntity(three, request.get("three_url"))
 
         return models.PutTriple(one=one, 
                                 two=two, 

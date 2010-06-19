@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import logging
 import random
 
 from google.appengine.ext import db
@@ -41,7 +42,10 @@ class Entity(db.Model):
 
     def get_full_url(self):
         """Get the full URL including the prefix."""
-        return self.URL_BASE + self.url
+        if self.url:
+            return self.URL_BASE + self.url
+        else:
+            return None
 
     def set_full_url(self, url):
         """Given a full URL, set the url property.
@@ -49,15 +53,18 @@ class Entity(db.Model):
         We raise a ValueError if the URL does not begin with
         Entity.URL_BASE.
         """
+        logging.info('set_full_url: url=%s', url)
         if url.startswith(self.URL_BASE):
+            logging.info('set_full_url: setting %s', url)
             self.url = url[len(self.URL_BASE):]
         else:
             raise ValueError(url)
         
 
-def PutEntity(name):
+def PutEntity(name, url=None):
     entity = Entity(name=name,
                     key_name=name)
+    entity.set_full_url(url)
     entity.put()
     return entity
     
