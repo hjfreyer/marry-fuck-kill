@@ -38,7 +38,7 @@ class Entity(db.Model):
         return "Entity(%r)" % self.name
 
     def json(self):
-        return {'name': self.name}
+        return {'name': self.name, 'url': self.get_full_url()}
 
     def get_full_url(self):
         """Get the full URL including the prefix."""
