@@ -48,6 +48,8 @@ public class MfkMaker implements EntryPoint {
 		                             new TextBox(),
 		                             new TextBox()};
 	
+	public static Image images[] = {null, null, null};
+	
 	public static Button setButtons[] = {new Button("Set Item 1"),
 									     new Button("Set Item 2"),
 									     new Button("Set Item 3")};
@@ -110,6 +112,12 @@ public class MfkMaker implements EntryPoint {
 	    
 	    RootPanel.get("saved-3-name").add(names[2]);
 	    RootPanel.get("saved-3-button").add(MfkMaker.setButtons[2]);
+	    
+	    
+	    final Button submitButton = new Button("Create!");
+	    submitButton.addClickHandler(new SubmitHandler());
+	    
+	    RootPanel.get("submit-button").add(submitButton);
 	}
 }
 
@@ -145,7 +153,22 @@ class SetImageHandler implements ClickHandler {
 		System.out.println("Click #" + this.itemIndex + " -> " + this.id);
 		RootPanel p = RootPanel.get(this.id);
 		p.clear();
-		p.clear();
-		p.add(new Image(MfkMaker.selected.getUrl()));
+		
+		Image img = new Image(MfkMaker.selected.getUrl());
+		p.add(img);
+		MfkMaker.images[this.itemIndex] = img;
+	}
+}
+
+class SubmitHandler implements ClickHandler {
+	@Override
+	public void onClick(ClickEvent event) {
+		System.out.println("Want to create:\n"
+				+ "{n:" + MfkMaker.names[0].getText()
+				+ ", u:" + MfkMaker.images[0].getUrl() + "}\n"
+				+ "{n:" + MfkMaker.names[1].getText()
+				+ ", u:" + MfkMaker.images[1].getUrl() + "}\n"
+				+ "{n:" + MfkMaker.names[2].getText()
+				+ ", u:" + MfkMaker.images[2].getUrl() + "}");
 	}
 }
