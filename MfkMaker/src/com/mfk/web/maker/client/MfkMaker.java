@@ -43,8 +43,21 @@ public class MfkMaker implements EntryPoint {
 	public static Vector<Image> results = new Vector<Image>();
 	public static Image selected;
 	
+	public static TextBox names[] = {new TextBox(),
+		                             new TextBox(),
+		                             new TextBox()};
+	
+	public static Button setButtons[] = {new Button("Set Item 1"),
+									     new Button("Set Item 2"),
+									     new Button("Set Item 3")};
+	
 	public void onModuleLoad() {
 		final RootPanel resultPanel = RootPanel.get("search-results");
+		
+		
+		MfkMaker.names[0].setText("item one name");
+		MfkMaker.names[1].setText("item two name");
+		MfkMaker.names[2].setText("item three name");
 		
 	    SearchControlOptions options = new SearchControlOptions();
 	    ImageSearch imageSearch = new ImageSearch();
@@ -62,6 +75,7 @@ public class MfkMaker implements EntryPoint {
 				MfkMaker.results.clear();
 			}
 	    });
+	    
 	    control.addSearchResultsHandler(new SearchResultsHandler() {
 			@Override
 			public void onSearchResults(SearchResultsEvent event) {
@@ -82,17 +96,23 @@ public class MfkMaker implements EntryPoint {
 	    control.execute("treehouse");
 	    RootPanel.get("search-control").add(control);
 	    
-	    final Button set1 = new Button("Set Item 1");
-	    final Button set2 = new Button("Set Item 2");
-	    final Button set3 = new Button("Set Item 3");
+
 	    
-	    set1.setEnabled(false);
-	    set2.setEnabled(false);
-	    set3.setEnabled(false);
+	    MfkMaker.setButtons[0].setEnabled(false);
+	    MfkMaker.setButtons[1].setEnabled(false);
+	    MfkMaker.setButtons[2].setEnabled(false);
 	    
-	    RootPanel.get("saved-1").add(set1);
-	    RootPanel.get("saved-2").add(set2);
-	    RootPanel.get("saved-3").add(set3);
+	    RootPanel.get("saved-1").add(names[0]);
+	    RootPanel.get("saved-1").add(new HTML(""));
+	    RootPanel.get("saved-1").add(MfkMaker.setButtons[0]);
+	    
+	    RootPanel.get("saved-2").add(names[1]);
+	    RootPanel.get("saved-2").add(new HTML(""));
+	    RootPanel.get("saved-2").add(MfkMaker.setButtons[1]);
+	    
+	    RootPanel.get("saved-3").add(names[2]);
+	    RootPanel.get("saved-3").add(new HTML(""));
+	    RootPanel.get("saved-3").add(MfkMaker.setButtons[2]);
 	}
 }
 
@@ -102,13 +122,16 @@ class ResultClickHandler implements ClickHandler {
 		for (Image img: MfkMaker.results) {
 			img.setStylePrimaryName("search-result");
 		}
-		
+				
 		Image source = (Image)event.getSource();
 		source.setStylePrimaryName("search-result-sel");
 		MfkMaker.selected = source;
 
+		for (Button b: MfkMaker.setButtons) {
+			b.setEnabled(true);
+		}
+		
 		System.out.println("Clicked on " + source.getUrl());
 	}
 }
-
 
