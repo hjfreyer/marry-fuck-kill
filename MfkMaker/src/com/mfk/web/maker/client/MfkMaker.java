@@ -96,11 +96,10 @@ public class MfkMaker implements EntryPoint {
 	    control.execute("treehouse");
 	    RootPanel.get("search-control").add(control);
 	    
-
-	    
-	    MfkMaker.setButtons[0].setEnabled(false);
-	    MfkMaker.setButtons[1].setEnabled(false);
-	    MfkMaker.setButtons[2].setEnabled(false);
+	    for (int i = 0; i < 3; i++) {
+	    	MfkMaker.setButtons[i].setEnabled(false);
+	    	MfkMaker.setButtons[i].addClickHandler(new SetImageHandler(i));
+	    }
 	    
 	    RootPanel.get("saved-1").add(names[0]);
 	    RootPanel.get("saved-1").add(new HTML(""));
@@ -135,3 +134,16 @@ class ResultClickHandler implements ClickHandler {
 	}
 }
 
+class SetImageHandler implements ClickHandler {
+	private int itemIndex;
+	private String id;
+	public SetImageHandler(int itemIndex) {
+		this.itemIndex = itemIndex;
+		this.id = "saved-" + Integer.toString(this.itemIndex+1) + "-inner";
+	}
+
+	@Override
+	public void onClick(ClickEvent event) {
+		System.out.println("Click #" + this.itemIndex + " -> " + this.id);
+	}
+}
