@@ -10,6 +10,11 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.search.client.ExpandMode;
 import com.google.gwt.search.client.ImageResult;
 import com.google.gwt.search.client.ImageSearch;
@@ -160,6 +165,7 @@ class SetImageHandler implements ClickHandler {
 	}
 }
 
+// TODO(mjkelly): Do client-side validation here.
 class SubmitHandler implements ClickHandler {
 	@Override
 	public void onClick(ClickEvent event) {
@@ -170,5 +176,42 @@ class SubmitHandler implements ClickHandler {
 				+ ", u:" + MfkMaker.images[1].getUrl() + "}\n"
 				+ "{n:" + MfkMaker.names[2].getText()
 				+ ", u:" + MfkMaker.images[2].getUrl() + "}");
+		
+		
+		String url = "/rpc/create/";
+		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
+		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
+		StringBuffer reqData = new StringBuffer();
+		
+		reqData.append("n1=").append(MfkMaker.names[0].getText());
+		reqData.append("&n2=").append(MfkMaker.names[1].getText());
+		reqData.append("&n3=").append(MfkMaker.names[2].getText());
+		reqData.append("&u1=").append(MfkMaker.images[0].getUrl());
+		reqData.append("&u2=").append(MfkMaker.images[1].getUrl());
+		reqData.append("&u3=").append(MfkMaker.images[2].getUrl());
+		
+		try {
+			builder.sendRequest(reqData.toString(), new RequestCallback() {
+				public void onError(Request request, Throwable exception) {
+					System.out.println("Error creating new Triple");
+				}
+
+				public void onResponseReceived(Request request,
+						Response response) {
+					if (response.getStatusCode() == 200) {
+						System.out.println("Successful creation request: "
+								+ response.getText());
+					}
+					else {
+						System.out.println("Server didn't like our new triple. "
+								+ "Response code: " + response.getStatusCode()
+								+ ". Response text: " + response.getText());
+					}
+				}
+			});
+		} catch (RequestException e) {
+			System.out.println("Error sending vote: " + e);
+		}
+		
 	}
 }
