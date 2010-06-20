@@ -74,17 +74,6 @@ h1 {
 }
 
 .saved {
-    float: left;
-    font-weight: bold;
-    font-size: 20px;
-    border: 1px solid #330033;
-    padding: 5px;
-}
-
-.saved-inner {
 	width: 200px;
 	height: 200px;
-    font-weight: bold;
-    font-size: 20px;
-    border: 1px solid #330033;
 }

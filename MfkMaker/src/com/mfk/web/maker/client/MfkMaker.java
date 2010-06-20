@@ -27,6 +27,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.UIObject;
@@ -101,17 +102,14 @@ public class MfkMaker implements EntryPoint {
 	    	MfkMaker.setButtons[i].addClickHandler(new SetImageHandler(i));
 	    }
 	    
-	    RootPanel.get("saved-1").add(names[0]);
-	    RootPanel.get("saved-1").add(new HTML(""));
-	    RootPanel.get("saved-1").add(MfkMaker.setButtons[0]);
+	    RootPanel.get("saved-1-name").add(names[0]);
+	    RootPanel.get("saved-1-button").add(MfkMaker.setButtons[0]);
 	    
-	    RootPanel.get("saved-2").add(names[1]);
-	    RootPanel.get("saved-2").add(new HTML(""));
-	    RootPanel.get("saved-2").add(MfkMaker.setButtons[1]);
+	    RootPanel.get("saved-2-name").add(names[1]);
+	    RootPanel.get("saved-2-button").add(MfkMaker.setButtons[1]);
 	    
-	    RootPanel.get("saved-3").add(names[2]);
-	    RootPanel.get("saved-3").add(new HTML(""));
-	    RootPanel.get("saved-3").add(MfkMaker.setButtons[2]);
+	    RootPanel.get("saved-3-name").add(names[2]);
+	    RootPanel.get("saved-3-button").add(MfkMaker.setButtons[2]);
 	}
 }
 
@@ -145,5 +143,9 @@ class SetImageHandler implements ClickHandler {
 	@Override
 	public void onClick(ClickEvent event) {
 		System.out.println("Click #" + this.itemIndex + " -> " + this.id);
+		RootPanel p = RootPanel.get(this.id);
+		p.clear();
+		p.clear();
+		p.add(new Image(MfkMaker.selected.getUrl()));
 	}
 }
