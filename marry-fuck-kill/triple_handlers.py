@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import logging
+
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -58,7 +60,7 @@ class TripleCreationHandler(webapp.RequestHandler):
 
 
 class TripleJsonHandler(webapp.RequestHandler):
-    def post(self):
+    def post(self, unused_id):
         try:
             triple = TripleCreationHandler.MakeTriple(self.request) 
         except ValueError:
