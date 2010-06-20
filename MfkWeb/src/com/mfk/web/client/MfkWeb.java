@@ -14,6 +14,7 @@ import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -36,7 +37,9 @@ public class MfkWeb implements EntryPoint {
 	public enum Mfk {MARRY, FUCK, KILL};
 	
 	/** Display area for the 3 entities. */
-	public static HTML entityHtml[] = {new HTML(), new HTML(), new HTML()};
+	public static VerticalPanel entityHtml[] = {new VerticalPanel(),
+												new VerticalPanel(),
+												new VerticalPanel()};
 	/** Entity IDs. */
 	public static String entities[] = {null, null, null};
 	
@@ -124,16 +127,26 @@ public class MfkWeb implements EntryPoint {
 		MfkWeb.setStatus("Welcome to MFK!");
 	}
 	
-	public static void setEntities(String one, String two, String three) {
+	public static void setEntities(String one, String url1,
+			String two, String url2, String three, String url3) {
 		// save entity IDs
 		MfkWeb.entities[0] = one;
 		MfkWeb.entities[1] = two;
 		MfkWeb.entities[2] = three;
 		
+		
 		// change the display itself
-		MfkWeb.entityHtml[0].setHTML(one);
-		MfkWeb.entityHtml[1].setHTML(two);
-		MfkWeb.entityHtml[2].setHTML(three);
+		MfkWeb.entityHtml[0].clear();
+		MfkWeb.entityHtml[0].add(new Label(one));
+		MfkWeb.entityHtml[0].add(new Image(url1));
+		
+		MfkWeb.entityHtml[1].clear();
+		MfkWeb.entityHtml[1].add(new Label(two));
+		MfkWeb.entityHtml[1].add(new Image(url2));
+		
+		MfkWeb.entityHtml[2].clear();
+		MfkWeb.entityHtml[2].add(new Label(three));
+		MfkWeb.entityHtml[2].add(new Image(url3));
 	}
 
 	public static void checkVoteStatus(VoteGroupHandler changedVote) {
@@ -191,9 +204,15 @@ class LoadTripleHandler implements ClickHandler {
 						MfkWeb.setEntities(
 								json.get("one").isObject().get("name")
 										.isString().stringValue(),
+								json.get("one").isObject().get("url")
+										.isString().stringValue(),
 								json.get("two").isObject().get("name")
 										.isString().stringValue(),
+								json.get("two").isObject().get("url")
+										.isString().stringValue(),
 								json.get("three").isObject().get("name")
+										.isString().stringValue(),
+								json.get("three").isObject().get("url")
 										.isString().stringValue());
 						MfkWeb.setStatus("Getting new triple...done.");
 					}
