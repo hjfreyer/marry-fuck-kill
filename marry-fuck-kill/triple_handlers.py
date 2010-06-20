@@ -28,9 +28,9 @@ class TripleCreationHandler(webapp.RequestHandler):
         self.response.out.write("""
 <h1>Create a Triple!</h1>
 <form method="post">
-  One: name=<input type="text" name="one"></input> url=<input type="text" name="one_url"></input><br/>
-  Two: name=<input type="text" name="two"></input>url=<input type="text" name="two_url"></input><br/>
-  Three: name=<input type="text" name="three"></input>url=<input type="text" name="three_url"></input><br/>
+  One: name=<input type="text" name="n1"></input> url=<input type="text" name="u1"></input><br/>
+  Two: name=<input type="text" name="n2"></input>url=<input type="text" name="u2"></input><br/>
+  Three: name=<input type="text" name="n3"></input>url=<input type="text" name="u3"></input><br/>
   <input type="submit"></input>
 </form>
 """)
@@ -41,16 +41,16 @@ class TripleCreationHandler(webapp.RequestHandler):
 
     @staticmethod
     def MakeTriple(request):
-        one = request.get("one")
-        two = request.get("two")
-        three = request.get("three")
+        one = request.get("n1")
+        two = request.get("n2")
+        three = request.get("n3")
 
         if not one or not two or not three:
             raise ValueError("request name")
         
-        one = models.PutEntity(one, request.get("one_url")) 
-        two = models.PutEntity(two, request.get("two_url"))
-        three = models.PutEntity(three, request.get("three_url"))
+        one = models.PutEntity(one, request.get("u1")) 
+        two = models.PutEntity(two, request.get("u2"))
+        three = models.PutEntity(three, request.get("u3"))
 
         return models.PutTriple(one=one, 
                                 two=two, 
