@@ -69,6 +69,14 @@ class TripleJsonHandler(webapp.RequestHandler):
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
-        t = models.Triple.get_by_key_name(triple_id)
-        self.response.out.write("%s: %s" % (triple_id, t))
-
+        if triple_id:
+            t = models.Triple.get_by_key_name(triple_id)
+            self.response.out.write("%s: %s" % (triple_id, t))
+        else:
+            all_triples = [t for t in models.Triple.all()]
+            self.response.out.write("""
+<h1>All Triples:</h1>
+<ul>
+%s
+</ul>
+""" % ''.join(['<li><a href="%s">%s</li>\n' % (t, t) for t in all_triples]))
