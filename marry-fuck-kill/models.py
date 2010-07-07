@@ -27,7 +27,8 @@ class Entity(db.Model):
 
     # TODO(mjk): Consider whether this is really necessary. Right now it's
     # cheap paranoia.
-    URL_BASE = 'http://images.google.com/images?q='
+    #URL_BASE = 'http://images.google.com/images?q='
+    URL_BASE = 'http://localhost:8080/gwt/images/'
     
     type = db.StringProperty(choices=set(["abstract", "person", "object"]))
    
