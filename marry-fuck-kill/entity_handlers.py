@@ -41,7 +41,7 @@ class EntityCreationHandler(webapp.RequestHandler):
 
 class EntityStatsHandler(webapp.RequestHandler):
     def get(self, entity_id):
-        entity = models.Entity.get_by_key_name(entity_id)
+        entity = models.Entity.get_by_key_name(urllib.unquote(entity_id))
 
         self.response.out.write('Hello world! ' + entity.key_name)
  
