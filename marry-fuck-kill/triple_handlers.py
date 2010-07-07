@@ -31,8 +31,8 @@ class TripleCreationHandler(webapp.RequestHandler):
 <h1>Create a Triple!</h1>
 <form method="post">
   One: name=<input type="text" name="n1"></input> url=<input type="text" name="u1"></input><br/>
-  Two: name=<input type="text" name="n2"></input>url=<input type="text" name="u2"></input><br/>
-  Three: name=<input type="text" name="n3"></input>url=<input type="text" name="u3"></input><br/>
+  Two: name=<input type="text" name="n2"></input> url=<input type="text" name="u2"></input><br/>
+  Three: name=<input type="text" name="n3"></input> url=<input type="text" name="u3"></input><br/>
   <input type="submit"></input>
 </form>
 """)
