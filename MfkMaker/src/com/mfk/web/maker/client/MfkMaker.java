@@ -49,13 +49,11 @@ public class MfkMaker implements EntryPoint {
 	    final ResultClickHandler resultClick = new ResultClickHandler();
 	    
 	    control.addSearchStartingHandler(new SearchStartingHandler() {
-			@Override
 			public void onSearchStarting(SearchStartingEvent event) {
 				resultPanel.clear();
 			}
 	    });
 	    control.addSearchResultsHandler(new SearchResultsHandler() {
-			@Override
 			public void onSearchResults(SearchResultsEvent event) {
 				JsArray<? extends Result> results = event.getResults();
 				System.out.println("Handler! #results = " + results.length());
@@ -76,7 +74,6 @@ public class MfkMaker implements EntryPoint {
 }
 
 class ResultClickHandler implements ClickHandler {
-	@Override
 	public void onClick(ClickEvent event) {
 		Image source = (Image)event.getSource();
 		System.out.println("Clicked on " + source.getUrl());
