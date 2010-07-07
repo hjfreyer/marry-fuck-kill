@@ -28,30 +28,33 @@ class AssignmentHandler(webapp.RequestHandler):
 
         self.response.out.write("""
 <form method="post">
-%s
-<input type="hidden" name="e1" value="%s"><br>
-<input type="radio" name="v1" value="m"> Marry<br>
-<input type="radio" name="v1" value="f" checked> Fuck<br>
-<input type="radio" name="v1" value="k"> Kill
+%(1_name)s
+<img src="%(1_url)s" alt="%(1_name)s">
+<input type="hidden" name="e1" value="%(1_name)s"><br>
+<label><input type="radio" name="v1" value="m"> Marry</label><br>
+<label><input type="radio" name="v1" value="f"> Fuck</label><br>
+<label><input type="radio" name="v1" value="k"> Kill</label><br>
 <hr>
-%s
-<input type="hidden" name="e2" value="%s"><br>
-<input type="radio" name="v2" value="m"> Marry<br>
-<input type="radio" name="v2" value="f"> Fuck<br>
-<input type="radio" name="v2" value="k" checked> Kill<br>
+%(2_name)s
+<img src="%(2_url)s" alt="%(2_name)s">
+<input type="hidden" name="e2" value="%(2_name)s"><br>
+<label><input type="radio" name="v2" value="m"> Marry</label><br>
+<label><input type="radio" name="v2" value="f"> Fuck</label><br>
+<label><input type="radio" name="v2" value="k"> Kill</label><br>
 <hr>
-%s
-<input type="hidden" name="e3" value="%s"><br>
-<input type="radio" name="v3" value="m"> Marry<br>
-<input type="radio" name="v3" value="f"> Fuck<br>
-<input type="radio" name="v3" value="k" checked> Kill<br>
+%(3_name)s
+<img src="%(3_url)s" alt="%(3_name)s">
+<input type="hidden" name="e3" value="%(3_name)s"><br>
+<label><input type="radio" name="v3" value="m"> Marry</label><br>
+<label><input type="radio" name="v3" value="f"> Fuck</label><br>
+<label><input type="radio" name="v3" value="k"> Kill</label><br>
 <input type="submit">
-""" % (triple.one.key().name(),
-       triple.one.key().name(),
-       triple.two.key().name(),
-       triple.two.key().name(),
-       triple.three.key().name(),
-       triple.three.key().name()))
+""" % {'1_name': triple.one.key().name(),
+       '1_url': triple.one.get_full_url(),
+       '2_name': triple.two.key().name(),
+       '2_url': triple.two.get_full_url(),
+       '3_name': triple.three.key().name(),
+       '3_url': triple.three.get_full_url()})
 
     def post(self, assignment_id):
         assign = AssignmentHandler.make_assignment(self.request)

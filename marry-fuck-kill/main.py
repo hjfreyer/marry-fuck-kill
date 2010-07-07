@@ -56,7 +56,8 @@ def main():
                                           ("/vote/(.*)", assignment_handlers.AssignmentHandler),
                                           ("/triple/create", triple_handlers.TripleCreationHandler),
                                           ("/triple/view/(.*)", triple_handlers.TripleStatsHandler),
-                                          ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler)],
+                                          ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
+                                          ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 

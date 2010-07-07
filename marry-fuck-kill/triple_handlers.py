@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+import logging
+
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -28,27 +30,42 @@ class TripleCreationHandler(webapp.RequestHandler):
         self.response.out.write("""
 <h1>Create a Triple!</h1>
 <form method="post">
-  One: <input type="text" name="one"></input><br/>
-  Two: <input type="text" name="two"></input><br/>
-  Three: <input type="text" name="three"></input><br/>
+  One: name=<input type="text" name="n1"></input> url=<input type="text" name="u1"></input><br/>
+  Two: name=<input type="text" name="n2"></input>url=<input type="text" name="u2"></input><br/>
+  Three: name=<input type="text" name="n3"></input>url=<input type="text" name="u3"></input><br/>
   <input type="submit"></input>
 </form>
 """)
 
     def post(self):
-        one = self.request.get("one")
-        two = self.request.get("two")
-        three = self.request.get("three")
-        
-        one = models.PutEntity(one) 
-        two = models.PutEntity(two)
-        three = models.PutEntity(three)
-
-        triple = models.PutTriple(one=one, 
-                                  two=two, 
-                                  three=three)
-
+        triple = TripleCreationHandler.MakeTriple(self.request) 
         utils.redirect(self, '/triple/view/' + triple.key().name())  
+
+    @staticmethod
+    def MakeTriple(request):
+        one = request.get("n1")
+        two = request.get("n2")
+        three = request.get("n3")
+
+        if not one or not two or not three:
+            raise ValueError("request name")
+        
+        one = models.PutEntity(one, request.get("u1")) 
+        two = models.PutEntity(two, request.get("u2"))
+        three = models.PutEntity(three, request.get("u3"))
+
+        return models.PutTriple(one=one, 
+                                two=two, 
+                                three=three)
+
+
+class TripleJsonHandler(webapp.RequestHandler):
+    def post(self, unused_id):
+        try:
+            triple = TripleCreationHandler.MakeTriple(self.request) 
+        except ValueError:
+            self.response.out.write("bad url")
+        self.response.out.write("ok")
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):

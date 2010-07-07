@@ -65,4 +65,15 @@ h1 {
 
 .search-result {
     margin: 5px;
-} 
+    border: 0px;
+}
+
+.search-result-sel {
+    margin: 3px;
+    border: 2px solid black;
+}
+
+.saved {
+	width: 200px;
+	height: 200px;
+}
