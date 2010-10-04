@@ -41,6 +41,9 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
 
+// TODO(mjkelly): See this example:
+// https://code.google.com/apis/ajax/playground/#raw_search
+
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
  */
@@ -157,7 +160,7 @@ class ResultClickHandler implements ClickHandler {
 		for (Image img: MfkMaker.results) {
 			img.setStylePrimaryName("search-result");
 		}
-				
+		
 		Image source = (Image)event.getSource();
 		source.setStylePrimaryName("search-result-sel");
 		MfkMaker.selected = source;
