@@ -69,17 +69,15 @@ public class MfkMaker implements EntryPoint {
 	
 	final static Button searchButton = new Button("Search");
     final static TextBox searchBox = new TextBox();
+    final static RootPanel resultPanel = RootPanel.get("search-results");
+	final static ImageSearch imageSearch = new ImageSearch();
 	
 	public void onModuleLoad() {
-		final RootPanel resultPanel = RootPanel.get("search-results");
-		
-		
 		MfkMaker.names[0].setText("item one name");
 		MfkMaker.names[1].setText("item two name");
 		MfkMaker.names[2].setText("item three name");
 		
 	    final SearchControlOptions options = new SearchControlOptions();
-	    final ImageSearch imageSearch = new ImageSearch();
 	    imageSearch.setSafeSearch(SafeSearchValue.STRICT);
 	    imageSearch.setResultSetSize(ResultSetSize.LARGE);
 	    options.add(imageSearch, ExpandMode.OPEN);
