@@ -8,6 +8,8 @@ import com.google.gwt.core.client.JsArray;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyPressEvent;
+import com.google.gwt.event.dom.client.KeyPressHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.http.client.Request;
@@ -65,6 +67,9 @@ public class MfkMaker implements EntryPoint {
 									     new Button("Set Item 2"),
 									     new Button("Set Item 3")};
 	
+	final static Button searchButton = new Button("Search");
+    final static TextBox searchBox = new TextBox();
+	
 	public void onModuleLoad() {
 		final RootPanel resultPanel = RootPanel.get("search-results");
 		
@@ -80,26 +85,7 @@ public class MfkMaker implements EntryPoint {
 	    options.add(imageSearch, ExpandMode.OPEN);
 	    options.setKeepLabel("<b>Keep It!</b>");
 	    options.setLinkTarget(LinkTarget.BLANK);
-	    
-	    
-	    // this is probably the default
-	    //options.setDrawMode(DrawMode.LINEAR);
-//	    final SearchControl control = new SearchControl(options);
-//	    control.addKeepHandler(new KeepHandler() {
-//			public void onKeep(KeepEvent event) {
-//				ImageResult r = (ImageResult) (event.getResult());
-//				System.out.println("Keep handler: " + r.getUnescapedUrl());
-//			}
-//	    });
-//	    
 	    final ResultClickHandler resultClick = new ResultClickHandler();
-	    
-//	    control.addSearchStartingHandler(new SearchStartingHandler() {
-//			public void onSearchStarting(SearchStartingEvent event) {
-//				resultPanel.clear();
-//				MfkMaker.results.clear();
-//			}
-//	    });
 	    
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
@@ -118,8 +104,7 @@ public class MfkMaker implements EntryPoint {
 			}
 	    });
 	    imageSearch.execute("treehouse");
-	    final Button searchButton = new Button("Search");
-	    final TextBox searchBox = new TextBox();
+	    
 	    searchBox.setText("treehouse");
 	    
 	    searchButton.addClickHandler(new ClickHandler() {
@@ -127,6 +112,16 @@ public class MfkMaker implements EntryPoint {
 				resultPanel.clear();
 				MfkMaker.results.clear();
 				imageSearch.execute(searchBox.getText());
+			}
+	    });
+	    
+	    searchBox.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				if (event.getCharCode() == '\n' || event.getCharCode() == '\r') {
+					resultPanel.clear();
+					MfkMaker.results.clear();
+					imageSearch.execute(searchBox.getText());
+				}
 			}
 	    });
 	    
