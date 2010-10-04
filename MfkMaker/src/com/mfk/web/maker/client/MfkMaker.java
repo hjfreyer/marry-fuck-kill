@@ -15,9 +15,12 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.search.client.DrawMode;
 import com.google.gwt.search.client.ExpandMode;
 import com.google.gwt.search.client.ImageResult;
 import com.google.gwt.search.client.ImageSearch;
+import com.google.gwt.search.client.KeepHandler;
+import com.google.gwt.search.client.LinkTarget;
 import com.google.gwt.search.client.Result;
 import com.google.gwt.search.client.ResultSetSize;
 import com.google.gwt.search.client.SafeSearchValue;
@@ -67,23 +70,35 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.names[1].setText("item two name");
 		MfkMaker.names[2].setText("item three name");
 		
-	    SearchControlOptions options = new SearchControlOptions();
-	    ImageSearch imageSearch = new ImageSearch();
+	    final SearchControlOptions options = new SearchControlOptions();
+	    final ImageSearch imageSearch = new ImageSearch();
 	    imageSearch.setSafeSearch(SafeSearchValue.STRICT);
 	    imageSearch.setResultSetSize(ResultSetSize.LARGE);
-	    options.add(imageSearch, ExpandMode.CLOSED);
-	    final SearchControl control = new SearchControl(options);
+	    options.add(imageSearch, ExpandMode.OPEN);
+	    options.setKeepLabel("<b>Keep It!</b>");
+	    options.setLinkTarget(LinkTarget.BLANK);
 	    
+	    
+	    // this is probably the default
+	    //options.setDrawMode(DrawMode.LINEAR);
+//	    final SearchControl control = new SearchControl(options);
+//	    control.addKeepHandler(new KeepHandler() {
+//			public void onKeep(KeepEvent event) {
+//				ImageResult r = (ImageResult) (event.getResult());
+//				System.out.println("Keep handler: " + r.getUnescapedUrl());
+//			}
+//	    });
+//	    
 	    final ResultClickHandler resultClick = new ResultClickHandler();
 	    
-	    control.addSearchStartingHandler(new SearchStartingHandler() {
-			public void onSearchStarting(SearchStartingEvent event) {
-				resultPanel.clear();
-				MfkMaker.results.clear();
-			}
-	    });
+//	    control.addSearchStartingHandler(new SearchStartingHandler() {
+//			public void onSearchStarting(SearchStartingEvent event) {
+//				resultPanel.clear();
+//				MfkMaker.results.clear();
+//			}
+//	    });
 	    
-	    control.addSearchResultsHandler(new SearchResultsHandler() {
+	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
 				JsArray<? extends Result> results = event.getResults();
 				System.out.println("Handler! #results = " + results.length());
@@ -99,8 +114,21 @@ public class MfkMaker implements EntryPoint {
 				}
 			}
 	    });
-	    control.execute("treehouse");
-	    RootPanel.get("search-control").add(control);
+	    imageSearch.execute("treehouse");
+	    final Button searchButton = new Button("Search");
+	    final TextBox searchBox = new TextBox();
+	    searchBox.setText("treehouse");
+	    
+	    searchButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				resultPanel.clear();
+				MfkMaker.results.clear();
+				imageSearch.execute(searchBox.getText());
+			}
+	    });
+	    
+	    RootPanel.get("search-control").add(searchBox);
+	    RootPanel.get("search-control").add(searchButton);
 	    
 	    for (int i = 0; i < 3; i++) {
 	    	MfkMaker.setButtons[i].setEnabled(false);
@@ -150,7 +178,6 @@ class SetImageHandler implements ClickHandler {
 		this.id = "saved-" + Integer.toString(this.itemIndex+1) + "-inner";
 	}
 
-	@Override
 	public void onClick(ClickEvent event) {
 		System.out.println("Click #" + this.itemIndex + " -> " + this.id);
 		RootPanel p = RootPanel.get(this.id);
@@ -164,7 +191,6 @@ class SetImageHandler implements ClickHandler {
 
 // TODO(mjkelly): Do client-side validation here.
 class SubmitHandler implements ClickHandler {
-	@Override
 	public void onClick(ClickEvent event) {
 		System.out.println("Want to create:\n"
 				+ "{n:" + MfkMaker.names[0].getText()
