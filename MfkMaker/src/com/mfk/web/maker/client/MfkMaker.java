@@ -54,30 +54,46 @@ public class MfkMaker implements EntryPoint {
 	 * This is the entry point method.
 	 */
 	
-	public static Vector<Image> results = new Vector<Image>();
 	public static Image selected;
-	
+
+	// arrays holding the attributes of the 3 items in the new triple
 	public static TextBox names[] = {new TextBox(),
 		                             new TextBox(),
 		                             new TextBox()};
-	
 	public static Image images[] = {null, null, null};
-	
 	public static Button setButtons[] = {new Button("Set Item 1"),
 									     new Button("Set Item 2"),
 									     new Button("Set Item 3")};
 	
-	final static Button searchButton = new Button("Search");
-    final static TextBox searchBox = new TextBox();
-    final static RootPanel resultPanel = RootPanel.get("search-results");
-	final static ImageSearch imageSearch = new ImageSearch();
+	// the actual image results
+	public static Vector<Image> results = new Vector<Image>();
+	// the UI panel that displays the search results
+    static RootPanel resultPanel = RootPanel.get("search-results");
+    
+    // a pane shown only when loading results
+    static RootPanel resultsLoadingPanel = RootPanel.get("results-loading");
+    
+	static ImageSearch imageSearch = new ImageSearch();
 	
+	static Button searchButton = new Button("Search");
+	static TextBox searchBox = new TextBox();
+	
+	static final String DEFAULT_SEARCH = "treehouse";
+	static final HTML LOADING =
+		new HTML("<img src=\"/gwt/loading.gif\" alt=\"\"> Loading...");
+
 	public void onModuleLoad() {
+		MfkMaker.searchButton = new Button("Search");
+		MfkMaker.searchBox = new TextBox();
+		MfkMaker.resultPanel = RootPanel.get("search-results");
+		MfkMaker.imageSearch = new ImageSearch();
+		
 		MfkMaker.names[0].setText("item one name");
 		MfkMaker.names[1].setText("item two name");
 		MfkMaker.names[2].setText("item three name");
 		
 	    final SearchControlOptions options = new SearchControlOptions();
+	    
 	    imageSearch.setSafeSearch(SafeSearchValue.STRICT);
 	    imageSearch.setResultSetSize(ResultSetSize.LARGE);
 	    options.add(imageSearch, ExpandMode.OPEN);
@@ -87,6 +103,7 @@ public class MfkMaker implements EntryPoint {
 	    
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
+				MfkMaker.resultsLoadingPanel.setVisible(false);
 				JsArray<? extends Result> results = event.getResults();
 				System.out.println("Handler! #results = " + results.length());
 				for (int i = 0; i < results.length(); i++) {
@@ -101,24 +118,16 @@ public class MfkMaker implements EntryPoint {
 				}
 			}
 	    });
-	    imageSearch.execute("treehouse");
-	    
-	    searchBox.setText("treehouse");
 	    
 	    searchButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				resultPanel.clear();
-				MfkMaker.results.clear();
-				imageSearch.execute(searchBox.getText());
+				MfkMaker.DoSearch();
 			}
 	    });
-	    
 	    searchBox.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
 				if (event.getCharCode() == '\n' || event.getCharCode() == '\r') {
-					resultPanel.clear();
-					MfkMaker.results.clear();
-					imageSearch.execute(searchBox.getText());
+					MfkMaker.DoSearch();
 				}
 			}
 	    });
@@ -145,6 +154,16 @@ public class MfkMaker implements EntryPoint {
 	    submitButton.addClickHandler(new SubmitHandler());
 	    
 	    RootPanel.get("submit-button").add(submitButton);
+	    
+	    searchBox.setText(MfkMaker.DEFAULT_SEARCH);
+	    MfkMaker.DoSearch();
+	}
+	
+	private static void DoSearch() {
+		MfkMaker.resultsLoadingPanel.setVisible(true);
+		MfkMaker.resultPanel.clear();
+		MfkMaker.results.clear();
+		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
 	}
 }
 
