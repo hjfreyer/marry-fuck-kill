@@ -35,6 +35,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -42,6 +43,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 // TODO(mjkelly): See this example:
 // https://code.google.com/apis/ajax/playground/#raw_search
@@ -65,6 +67,8 @@ public class MfkMaker implements EntryPoint {
 									     new Button("Set Item 2"),
 									     new Button("Set Item 3")};
 	
+	public static MfkPanel items[] = {null, null, null};
+	
 	// the actual image results
 	public static Vector<Image> results = new Vector<Image>();
 	// the UI panel that displays the search results
@@ -75,8 +79,12 @@ public class MfkMaker implements EntryPoint {
     
 	static ImageSearch imageSearch = new ImageSearch();
 	
-	static Button searchButton = new Button("Search");
-	static TextBox searchBox = new TextBox();
+	static public Button searchButton = new Button("Search");
+	static public TextBox searchBox = new TextBox();
+	
+	static final DialogBox box = new DialogBox(true);
+	
+	static final HorizontalPanel itemPanel = new HorizontalPanel();
 	
 	static final String DEFAULT_SEARCH = "treehouse";
 	static final HTML LOADING =
@@ -87,10 +95,18 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.searchBox = new TextBox();
 		MfkMaker.resultPanel = RootPanel.get("search-results");
 		MfkMaker.imageSearch = new ImageSearch();
+		RootPanel.get("created-items").add(MfkMaker.itemPanel);
+		MfkMaker.itemPanel.setSpacing(10);
 		
 		MfkMaker.names[0].setText("item one name");
 		MfkMaker.names[1].setText("item two name");
 		MfkMaker.names[2].setText("item three name");
+		
+		for (int i = 1; i <= 3; i++) {
+			Image img = new Image("/gwt/images/treehouse-" + i + ".jpeg");
+			MfkPanel item = new MfkPanel("Treehouse " + i, img);
+			MfkMaker.addItem(item);
+		}
 		
 	    final SearchControlOptions options = new SearchControlOptions();
 	    
@@ -99,7 +115,8 @@ public class MfkMaker implements EntryPoint {
 	    options.add(imageSearch, ExpandMode.OPEN);
 	    options.setKeepLabel("<b>Keep It!</b>");
 	    options.setLinkTarget(LinkTarget.BLANK);
-	    final ResultClickHandler resultClick = new ResultClickHandler();
+	    MfkMaker.box.setAnimationEnabled(true);
+	    //final ShowImageDialogHandler resultClick = new ShowImageDialogHandler();
 	    
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
@@ -112,7 +129,7 @@ public class MfkMaker implements EntryPoint {
 					thumb.setHeight(String.valueOf(r.getThumbnailHeight()));
 					thumb.setWidth(String.valueOf(r.getThumbnailWidth()));
 					thumb.addStyleName("search-result");
-					thumb.addClickHandler(resultClick);
+					//thumb.addClickHandler(resultClick);
 					resultPanel.add(thumb);
 					MfkMaker.results.add(thumb);
 				}
@@ -135,26 +152,6 @@ public class MfkMaker implements EntryPoint {
 	    RootPanel.get("search-control").add(searchBox);
 	    RootPanel.get("search-control").add(searchButton);
 	    
-	    for (int i = 0; i < 3; i++) {
-	    	MfkMaker.setButtons[i].setEnabled(false);
-	    	MfkMaker.setButtons[i].addClickHandler(new SetImageHandler(i));
-	    }
-	    
-	    RootPanel.get("saved-1-name").add(names[0]);
-	    RootPanel.get("saved-1-button").add(MfkMaker.setButtons[0]);
-	    
-	    RootPanel.get("saved-2-name").add(names[1]);
-	    RootPanel.get("saved-2-button").add(MfkMaker.setButtons[1]);
-	    
-	    RootPanel.get("saved-3-name").add(names[2]);
-	    RootPanel.get("saved-3-button").add(MfkMaker.setButtons[2]);
-	    
-	    
-	    final Button submitButton = new Button("Create!");
-	    submitButton.addClickHandler(new SubmitHandler());
-	    
-	    RootPanel.get("submit-button").add(submitButton);
-	    
 	    searchBox.setText(MfkMaker.DEFAULT_SEARCH);
 	    MfkMaker.DoSearch();
 	}
@@ -165,42 +162,146 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.results.clear();
 		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
 	}
-}
-
-class ResultClickHandler implements ClickHandler {
-	public void onClick(ClickEvent event) {
-		for (Image img: MfkMaker.results) {
-			img.setStylePrimaryName("search-result");
-		}
-		
-		Image source = (Image)event.getSource();
-		source.setStylePrimaryName("search-result-sel");
-		MfkMaker.selected = source;
-
-		for (Button b: MfkMaker.setButtons) {
-			b.setEnabled(true);
-		}
-		
-		System.out.println("Clicked on " + source.getUrl());
+	
+	/**
+	 * Add an item to the page.
+	 * @param item the MfkPanel to add
+	 */
+	public static void addItem(MfkPanel item) {
+		item.addToPanel(MfkMaker.itemPanel);
 	}
-}
-
-class SetImageHandler implements ClickHandler {
-	private int itemIndex;
-	private String id;
-	public SetImageHandler(int itemIndex) {
-		this.itemIndex = itemIndex;
-		this.id = "saved-" + Integer.toString(this.itemIndex+1) + "-inner";
+	
+	/**
+	 * Update the page's status with instructions, or how many items left to
+	 * create.
+	 */
+	public static void updateStatus() {
+		if (MfkPanel.count > 0) {
+			MfkMaker.setStatus((3 - MfkPanel.count) + " items remaining.");
+		}
+		else {
+			MfkMaker.setStatus("Click an image to create an item.");
+		}
+	}
+	
+	/**
+	 * Set the page's status.
+	 * @param s status string
+	 */
+	private static void setStatus(String s) {
+		Panel counter = RootPanel.get("counter");
+		counter.clear();
+		counter.add(new HTML("<h2>" + s + "</h2>"));
 	}
 
-	public void onClick(ClickEvent event) {
-		System.out.println("Click #" + this.itemIndex + " -> " + this.id);
-		RootPanel p = RootPanel.get(this.id);
-		p.clear();
+	public static void editItem(final MfkPanel item) {
+		// TODO Auto-generated method stub
+		System.out.println("Showing dialog for :" + item);
+		final Image img = new Image(item.image.getUrl());
+		final TextBox t = new TextBox();
+		t.setText(item.title);
 		
-		Image img = new Image(MfkMaker.selected.getUrl());
+		VerticalPanel p = new VerticalPanel();
+		p.setSpacing(5);
+		
+		Button create = new Button("<b>Save</b>");
+		create.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				System.out.println("Should create item here");
+				MfkMaker.box.hide();
+				// update the existing item
+				item.update(t.getText(), img);
+			}
+		});
+		
+		Button cancel = new Button("Cancel");
+		cancel.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				MfkMaker.box.hide();
+			}
+		});
+		
+		p.add(new HTML("<b>Name:</b>"));
+		p.add(t);
+		p.add(new HTML("<b>Image:</b>"));
 		p.add(img);
-		MfkMaker.images[this.itemIndex] = img;
+		p.add(new HTML("Not the image you wanted?<br>See more images."));
+		
+		HorizontalPanel buttonPanel = new HorizontalPanel();
+		buttonPanel.setSpacing(5);
+		buttonPanel.add(create);
+		buttonPanel.add(cancel);
+		p.add(buttonPanel);
+		
+		MfkMaker.box.setWidget(p);
+		MfkMaker.box.show();
+		MfkMaker.box.center();
+	}
+}
+
+class MfkPanel extends VerticalPanel {
+	public String title;
+	public Image image;
+	private Panel parent;
+	
+	// How many MfkPanels have been shown (i.e., added to another panel).
+	static int count = 0;
+	
+	public MfkPanel(String title, Image image) {
+		this.title = title;
+		this.image = image;
+		this.populate();
+		System.out.println("MfkPanel: title:" + title +
+				           ", count:" + MfkPanel.count); 
+	}
+	
+	public void update(String title, Image image) {
+		this.title = title;
+		this.image = image;
+		this.populate();
+	}
+	
+	/**
+	 * Add this object to another panel. This is a grab-bag of misc logic
+	 * associated with the MfkMaker.
+	 * @param p
+	 */
+	public void addToPanel(Panel p) {
+		this.parent = p;
+		MfkPanel.count++;
+		this.parent.add(this);
+		MfkMaker.updateStatus();
+	}
+	
+	/**
+	 * Remove this object from whatever panel it was added to. (It *must* have
+	 * been previously added.)
+	 */
+	public void remove() {
+		this.parent.remove(this);
+		MfkPanel.count--;
+		MfkMaker.updateStatus();
+	}
+	
+	private void populate() {
+		this.clear();
+		final MfkPanel outerThis = this;
+		Button editButton = new Button("Edit");
+		editButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				System.out.println("Delete " + this);
+				MfkMaker.editItem(outerThis);
+				//edit();
+			}
+		});
+		this.add(editButton);
+		this.add(new HTML("<i>" + this.title + "</i>"));
+		this.add(this.image);
+	}
+	
+	public String toString() {
+		return "<MfkPanel: " + this.title +
+		       ", url=" + this.image.getUrl() + ">";
 	}
 }
 
