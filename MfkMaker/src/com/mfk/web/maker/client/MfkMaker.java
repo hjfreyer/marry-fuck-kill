@@ -67,7 +67,7 @@ public class MfkMaker implements EntryPoint {
 									     new Button("Set Item 2"),
 									     new Button("Set Item 3")};
 	
-	public static MfkItem items[] = {null, null, null};
+	public static MfkPanel items[] = {null, null, null};
 	
 	// the actual image results
 	public static Vector<Image> results = new Vector<Image>();
@@ -84,6 +84,8 @@ public class MfkMaker implements EntryPoint {
 	
 	static final DialogBox box = new DialogBox(true);
 	
+	static final HorizontalPanel itemPanel = new HorizontalPanel();
+	
 	static final String DEFAULT_SEARCH = "treehouse";
 	static final HTML LOADING =
 		new HTML("<img src=\"/gwt/loading.gif\" alt=\"\"> Loading...");
@@ -93,6 +95,8 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.searchBox = new TextBox();
 		MfkMaker.resultPanel = RootPanel.get("search-results");
 		MfkMaker.imageSearch = new ImageSearch();
+		RootPanel.get("created-items").add(MfkMaker.itemPanel);
+		MfkMaker.itemPanel.setSpacing(10);
 		
 		MfkMaker.names[0].setText("item one name");
 		MfkMaker.names[1].setText("item two name");
@@ -154,8 +158,8 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
 	}
 	
-	public static void addItem(MfkItem item) {
-		RootPanel.get("created-items").add(item.getWidget());
+	public static void addItem(MfkPanel item) {
+		item.addToPanel(MfkMaker.itemPanel);
 	}
 }
 
@@ -174,7 +178,7 @@ class ShowImageDialogHandler implements ClickHandler {
 			public void onClick(ClickEvent e) {
 				System.out.println("Should create item here");
 				MfkMaker.box.hide();
-				MfkMaker.addItem(new MfkItem(t.getText(), img));
+				MfkMaker.addItem(new MfkPanel(t.getText(), img));
 			}
 		});
 		
@@ -224,20 +228,49 @@ class SetImageHandler implements ClickHandler {
 	}
 }
 
-class MfkItem {
+class MfkPanel extends VerticalPanel {
 	public String title;
 	public Image image;
+	private Panel parent;
 	
-	public MfkItem(String title, Image image) {
+	// How many MfkPanels have been shown (i.e., added to another panel).
+	static int count = 0;
+	
+	public MfkPanel(String title, Image image) {
 		this.title = title;
 		this.image = image;
+		this.populate();
+		System.out.println("MfkPanel: title:" + title +
+				           ", count:" + MfkPanel.count); 
 	}
 	
-	public Widget getWidget() {
-		VerticalPanel panel = new VerticalPanel();
-		panel.add(new HTML("<i>" + this.title + "</i>"));
-		panel.add(this.image);
-		return panel;
+	public void addToPanel(Panel p) {
+		this.parent = p;
+		MfkPanel.count++;
+		this.parent.add(this);
+	}
+	
+	public void remove() {
+		this.parent.remove(this);
+		MfkPanel.count--;
+	}
+		
+	private void populate() {
+		Button deleteButton = new Button("Delete");
+		deleteButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				System.out.println("Delete " + this);
+				remove();
+			}
+		});
+		this.add(new HTML("<i>" + this.title + "</i>"));
+		this.add(this.image);
+		this.add(deleteButton);
+	}
+	
+	public String toString() {
+		return "<MfkPanel: " + this.title +
+		       ", url=" + this.image.getUrl() + ">";
 	}
 }
 
