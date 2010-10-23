@@ -43,6 +43,7 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.UIObject;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 
 // TODO(mjkelly): See this example:
 // https://code.google.com/apis/ajax/playground/#raw_search
@@ -65,6 +66,8 @@ public class MfkMaker implements EntryPoint {
 	public static Button setButtons[] = {new Button("Set Item 1"),
 									     new Button("Set Item 2"),
 									     new Button("Set Item 3")};
+	
+	public static MfkItem items[] = {null, null, null};
 	
 	// the actual image results
 	public static Vector<Image> results = new Vector<Image>();
@@ -167,6 +170,10 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.results.clear();
 		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
 	}
+	
+	public static void addItem(MfkItem item) {
+		RootPanel.get("created-items").add(item.getWidget());
+	}
 }
 
 //class ResultClickHandler implements ClickHandler {
@@ -191,6 +198,8 @@ class ShowImageDialogHandler implements ClickHandler {
 	public void onClick(ClickEvent event){
 		Image source = (Image)event.getSource();
 		System.out.println("Showing dialog for :" + source.getUrl());
+		final Image img = new Image(source.getUrl());
+		final TextBox t = new TextBox();
 		
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
@@ -200,6 +209,7 @@ class ShowImageDialogHandler implements ClickHandler {
 			public void onClick(ClickEvent e) {
 				System.out.println("Should create item here");
 				MfkMaker.box.hide();
+				MfkMaker.addItem(new MfkItem(t.getText(), img));
 			}
 		});
 		
@@ -210,9 +220,6 @@ class ShowImageDialogHandler implements ClickHandler {
 			}
 		});
 		
-		Image img = new Image(source.getUrl());
-
-		TextBox t = new TextBox();
 		t.setText("my thing");
 		
 		
@@ -249,6 +256,23 @@ class SetImageHandler implements ClickHandler {
 		Image img = new Image(MfkMaker.selected.getUrl());
 		p.add(img);
 		MfkMaker.images[this.itemIndex] = img;
+	}
+}
+
+class MfkItem {
+	public String title;
+	public Image image;
+	
+	public MfkItem(String title, Image image) {
+		this.title = title;
+		this.image = image;
+	}
+	
+	public Widget getWidget() {
+		VerticalPanel panel = new VerticalPanel();
+		panel.add(new HTML("<i>" + this.title + "</i>"));
+		panel.add(this.image);
+		return panel;
 	}
 }
 
