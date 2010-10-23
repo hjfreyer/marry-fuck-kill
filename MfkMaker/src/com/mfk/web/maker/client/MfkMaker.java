@@ -157,10 +157,18 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
 	}
 	
+	/**
+	 * Add an item to the page.
+	 * @param item the MfkPanel to add
+	 */
 	public static void addItem(MfkPanel item) {
 		item.addToPanel(MfkMaker.itemPanel);
 	}
 	
+	/**
+	 * Update the page's status with instructions, or how many items left to
+	 * create.
+	 */
 	public static void updateStatus() {
 		if (MfkPanel.count > 0) {
 			MfkMaker.setStatus((3 - MfkPanel.count) + " items remaining.");
@@ -169,6 +177,11 @@ public class MfkMaker implements EntryPoint {
 			MfkMaker.setStatus("Click an image to create an item.");
 		}
 	}
+	
+	/**
+	 * Set the page's status.
+	 * @param s status string
+	 */
 	private static void setStatus(String s) {
 		Panel counter = RootPanel.get("counter");
 		counter.clear();
@@ -237,6 +250,11 @@ class MfkPanel extends VerticalPanel {
 				           ", count:" + MfkPanel.count); 
 	}
 	
+	/**
+	 * Add this object to another panel. This is a grab-bag of misc logic
+	 * associated with the MfkMaker.
+	 * @param p
+	 */
 	public void addToPanel(Panel p) {
 		this.parent = p;
 		MfkPanel.count++;
@@ -244,6 +262,10 @@ class MfkPanel extends VerticalPanel {
 		MfkMaker.updateStatus();
 	}
 	
+	/**
+	 * Remove this object from whatever panel it was added to. (It *must* have
+	 * been previously added.)
+	 */
 	public void remove() {
 		this.parent.remove(this);
 		MfkPanel.count--;
