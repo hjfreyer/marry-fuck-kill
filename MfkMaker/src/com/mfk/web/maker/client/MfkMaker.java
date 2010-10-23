@@ -140,25 +140,22 @@ public class MfkMaker implements EntryPoint {
 	    RootPanel.get("search-control").add(searchBox);
 	    RootPanel.get("search-control").add(searchButton);
 	    
-	    for (int i = 0; i < 3; i++) {
-	    	MfkMaker.setButtons[i].setEnabled(false);
-	    	MfkMaker.setButtons[i].addClickHandler(new SetImageHandler(i));
-	    }
-	    
-	    RootPanel.get("saved-1-name").add(names[0]);
-	    RootPanel.get("saved-1-button").add(MfkMaker.setButtons[0]);
-	    
-	    RootPanel.get("saved-2-name").add(names[1]);
-	    RootPanel.get("saved-2-button").add(MfkMaker.setButtons[1]);
-	    
-	    RootPanel.get("saved-3-name").add(names[2]);
-	    RootPanel.get("saved-3-button").add(MfkMaker.setButtons[2]);
-	    
-	    
-	    final Button submitButton = new Button("Create!");
-	    submitButton.addClickHandler(new SubmitHandler());
-	    
-	    RootPanel.get("submit-button").add(submitButton);
+//	    for (int i = 0; i < 3; i++) {
+//	    	MfkMaker.setButtons[i].setEnabled(false);
+//	    	MfkMaker.setButtons[i].addClickHandler(new SetImageHandler(i));
+//	    }
+//	    
+//	    RootPanel.get("saved-1-name").add(names[0]);
+//	    RootPanel.get("saved-1-button").add(MfkMaker.setButtons[0]);
+//	    
+//	    RootPanel.get("saved-2-name").add(names[1]);
+//	    RootPanel.get("saved-2-button").add(MfkMaker.setButtons[1]);
+//	    
+//	    RootPanel.get("saved-3-name").add(names[2]);
+//	    RootPanel.get("saved-3-button").add(MfkMaker.setButtons[2]);
+//	    final Button submitButton = new Button("Create!");
+//	    submitButton.addClickHandler(new SubmitHandler());
+//	    RootPanel.get("submit-button").add(submitButton);
 	    
 	    searchBox.setText(MfkMaker.DEFAULT_SEARCH);
 	    MfkMaker.DoSearch();
@@ -172,23 +169,23 @@ public class MfkMaker implements EntryPoint {
 	}
 }
 
-class ResultClickHandler implements ClickHandler {
-	public void onClick(ClickEvent event) {
-		for (Image img: MfkMaker.results) {
-			img.setStylePrimaryName("search-result");
-		}
-		
-		Image source = (Image)event.getSource();
-		source.setStylePrimaryName("search-result-sel");
-		MfkMaker.selected = source;
-
-		for (Button b: MfkMaker.setButtons) {
-			b.setEnabled(true);
-		}
-		
-		System.out.println("Clicked on " + source.getUrl());
-	}
-}
+//class ResultClickHandler implements ClickHandler {
+//	public void onClick(ClickEvent event) {
+//		for (Image img: MfkMaker.results) {
+//			img.setStylePrimaryName("search-result");
+//		}
+//		
+//		Image source = (Image)event.getSource();
+//		source.setStylePrimaryName("search-result-sel");
+//		MfkMaker.selected = source;
+//
+//		for (Button b: MfkMaker.setButtons) {
+//			b.setEnabled(true);
+//		}
+//		
+//		System.out.println("Clicked on " + source.getUrl());
+//	}
+//}
 
 class ShowImageDialogHandler implements ClickHandler {
 	public void onClick(ClickEvent event){
@@ -201,6 +198,7 @@ class ShowImageDialogHandler implements ClickHandler {
 		Button create = new Button("<b>Create</b>");
 		create.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent e) {
+				System.out.println("Should create item here");
 				MfkMaker.box.hide();
 			}
 		});
