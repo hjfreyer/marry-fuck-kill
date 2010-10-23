@@ -196,12 +196,14 @@ public class MfkMaker implements EntryPoint {
 		// TODO Auto-generated method stub
 		System.out.println("Showing dialog for :" + item);
 		final Image img = new Image(item.image.getUrl());
-		final TextBox t = new TextBox();
-		t.setText(item.title);
+		final TextBox titleBox = new TextBox();
+		final Panel search = new VerticalPanel();
+		titleBox.setText(item.title);
 		
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
-		p.setWidth("400px");
+		// TODO: put this in CSS, come up with a well-reasoned value
+		p.setWidth("600px");
 		
 		Button create = new Button("<b>Save</b>");
 		create.addClickHandler(new ClickHandler() {
@@ -209,7 +211,7 @@ public class MfkMaker implements EntryPoint {
 				System.out.println("Should create item here");
 				MfkMaker.box.hide();
 				// update the existing item
-				item.update(t.getText(), img);
+				item.update(titleBox.getText(), img);
 			}
 		});
 		
@@ -221,32 +223,37 @@ public class MfkMaker implements EntryPoint {
 		});
 		
 		p.add(new HTML("<b>Name:</b>"));
-		p.add(t);
+		p.add(titleBox);
 		p.add(new HTML("<b>Image:</b>"));
 		p.add(img);
 		p.add(new HTML("Not the image you wanted?"));
 		HTML link = new HTML("See more images.");
 		link.addClickHandler(new ClickHandler (){
 			public void onClick(ClickEvent event) {
-				System.out.println("Should expand view for: " + t.getText());
+				search.setVisible(!search.isVisible());
+				if (search.isVisible()) {
+					searchBox.setText(titleBox.getText());
+					MfkMaker.DoSearch();
+				}
 			}
 		});
 		link.setStylePrimaryName("fakelink");
 		p.add(link);
 		
-		HorizontalPanel searchPanel = new HorizontalPanel();
-		searchPanel.add(MfkMaker.searchBox);
-		searchPanel.add(MfkMaker.searchButton);
+		HorizontalPanel searchControls = new HorizontalPanel();
+		searchControls.add(MfkMaker.searchBox);
+		searchControls.add(MfkMaker.searchButton);
+		search.add(new HTML("<hr>Search for more images:"));
+		search.add(searchControls);
+		search.add(MfkMaker.resultPanel);
+		search.setVisible(false);
 		
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(5);
 		buttonPanel.add(create);
 		buttonPanel.add(cancel);
 		p.add(buttonPanel);
-		p.add(new HTML("<hr>Search for more images:"));
-		p.add(searchPanel);
-		p.add(MfkMaker.resultPanel);
-		
+		p.add(search);
 		
 		MfkMaker.box.setWidget(p);
 		MfkMaker.box.show();
