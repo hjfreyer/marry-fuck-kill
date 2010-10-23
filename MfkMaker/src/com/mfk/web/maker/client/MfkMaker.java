@@ -35,6 +35,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
@@ -78,6 +79,8 @@ public class MfkMaker implements EntryPoint {
 	static Button searchButton = new Button("Search");
 	static TextBox searchBox = new TextBox();
 	
+	static final DialogBox box = new DialogBox(true);
+	
 	static final String DEFAULT_SEARCH = "treehouse";
 	static final HTML LOADING =
 		new HTML("<img src=\"/gwt/loading.gif\" alt=\"\"> Loading...");
@@ -99,7 +102,9 @@ public class MfkMaker implements EntryPoint {
 	    options.add(imageSearch, ExpandMode.OPEN);
 	    options.setKeepLabel("<b>Keep It!</b>");
 	    options.setLinkTarget(LinkTarget.BLANK);
-	    final ResultClickHandler resultClick = new ResultClickHandler();
+	    //final ResultClickHandler resultClick = new ResultClickHandler();
+	    MfkMaker.box.setAnimationEnabled(true);
+	    final ShowImageDialogHandler resultClick = new ShowImageDialogHandler();
 	    
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
@@ -182,6 +187,51 @@ class ResultClickHandler implements ClickHandler {
 		}
 		
 		System.out.println("Clicked on " + source.getUrl());
+	}
+}
+
+class ShowImageDialogHandler implements ClickHandler {
+	public void onClick(ClickEvent event){
+		Image source = (Image)event.getSource();
+		System.out.println("Showing dialog for :" + source.getUrl());
+		
+		VerticalPanel p = new VerticalPanel();
+		p.setSpacing(5);
+		
+		Button create = new Button("<b>Create</b>");
+		create.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				MfkMaker.box.hide();
+			}
+		});
+		
+		Button cancel = new Button("Cancel");
+		cancel.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				MfkMaker.box.hide();
+			}
+		});
+		
+		Image img = new Image(source.getUrl());
+
+		TextBox t = new TextBox();
+		t.setText("my thing");
+		
+		
+		p.add(new HTML("<b>Image:</b>"));
+		p.add(img);
+		p.add(new HTML("<b>Name:</b>"));
+		p.add(t);
+		
+		HorizontalPanel buttonPanel = new HorizontalPanel();
+		buttonPanel.setSpacing(5);
+		buttonPanel.add(create);
+		buttonPanel.add(cancel);
+		p.add(buttonPanel);
+		
+		MfkMaker.box.setWidget(p);
+		MfkMaker.box.show();
+		MfkMaker.box.center();
 	}
 }
 
