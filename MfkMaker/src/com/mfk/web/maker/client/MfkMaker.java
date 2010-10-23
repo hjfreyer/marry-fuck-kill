@@ -34,7 +34,9 @@ import com.google.gwt.search.client.WebSearch;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HTMLPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -72,7 +74,7 @@ public class MfkMaker implements EntryPoint {
 	// the actual image results
 	public static Vector<Image> results = new Vector<Image>();
 	// the UI panel that displays the search results
-    static RootPanel resultPanel = RootPanel.get("search-results");
+    static Panel resultPanel;
     
     // a pane shown only when loading results
     static RootPanel resultsLoadingPanel = RootPanel.get("results-loading");
@@ -93,7 +95,7 @@ public class MfkMaker implements EntryPoint {
 	public void onModuleLoad() {
 		MfkMaker.searchButton = new Button("Search");
 		MfkMaker.searchBox = new TextBox();
-		MfkMaker.resultPanel = RootPanel.get("search-results");
+		MfkMaker.resultPanel = new FlowPanel();
 		MfkMaker.imageSearch = new ImageSearch();
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
 		MfkMaker.itemPanel.setSpacing(10);
@@ -116,7 +118,6 @@ public class MfkMaker implements EntryPoint {
 	    options.setKeepLabel("<b>Keep It!</b>");
 	    options.setLinkTarget(LinkTarget.BLANK);
 	    MfkMaker.box.setAnimationEnabled(true);
-	    //final ShowImageDialogHandler resultClick = new ShowImageDialogHandler();
 	    
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
@@ -148,9 +149,6 @@ public class MfkMaker implements EntryPoint {
 				}
 			}
 	    });
-	    
-	    RootPanel.get("search-control").add(searchBox);
-	    RootPanel.get("search-control").add(searchButton);
 	    
 	    searchBox.setText(MfkMaker.DEFAULT_SEARCH);
 	    MfkMaker.DoSearch();
@@ -203,6 +201,7 @@ public class MfkMaker implements EntryPoint {
 		
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
+		p.setWidth("400px");
 		
 		Button create = new Button("<b>Save</b>");
 		create.addClickHandler(new ClickHandler() {
@@ -235,11 +234,19 @@ public class MfkMaker implements EntryPoint {
 		link.setStylePrimaryName("fakelink");
 		p.add(link);
 		
+		HorizontalPanel searchPanel = new HorizontalPanel();
+		searchPanel.add(MfkMaker.searchBox);
+		searchPanel.add(MfkMaker.searchButton);
+		
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(5);
 		buttonPanel.add(create);
 		buttonPanel.add(cancel);
 		p.add(buttonPanel);
+		p.add(new HTML("<hr>Search for more images:"));
+		p.add(searchPanel);
+		p.add(MfkMaker.resultPanel);
+		
 		
 		MfkMaker.box.setWidget(p);
 		MfkMaker.box.show();
