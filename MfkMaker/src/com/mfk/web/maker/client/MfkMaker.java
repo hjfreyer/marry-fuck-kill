@@ -109,7 +109,6 @@ public class MfkMaker implements EntryPoint {
 	    options.add(imageSearch, ExpandMode.OPEN);
 	    options.setKeepLabel("<b>Keep It!</b>");
 	    options.setLinkTarget(LinkTarget.BLANK);
-	    //final ResultClickHandler resultClick = new ResultClickHandler();
 	    MfkMaker.box.setAnimationEnabled(true);
 	    final ShowImageDialogHandler resultClick = new ShowImageDialogHandler();
 	    
@@ -157,10 +156,6 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.results.clear();
 		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
 	}
-	
-	public static void addItem(MfkPanel item) {
-		item.addToPanel(MfkMaker.itemPanel);
-	}
 }
 
 class ShowImageDialogHandler implements ClickHandler {
@@ -169,6 +164,7 @@ class ShowImageDialogHandler implements ClickHandler {
 		System.out.println("Showing dialog for :" + source.getUrl());
 		final Image img = new Image(source.getUrl());
 		final TextBox t = new TextBox();
+		t.setText("my thing");
 		
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
@@ -178,7 +174,8 @@ class ShowImageDialogHandler implements ClickHandler {
 			public void onClick(ClickEvent e) {
 				System.out.println("Should create item here");
 				MfkMaker.box.hide();
-				MfkMaker.addItem(new MfkPanel(t.getText(), img));
+				MfkPanel item = new MfkPanel(t.getText(), img);
+				item.addToPanel(MfkMaker.itemPanel);
 			}
 		});
 		
@@ -188,9 +185,6 @@ class ShowImageDialogHandler implements ClickHandler {
 				MfkMaker.box.hide();
 			}
 		});
-		
-		t.setText("my thing");
-		
 		
 		p.add(new HTML("<b>Image:</b>"));
 		p.add(img);
@@ -206,25 +200,6 @@ class ShowImageDialogHandler implements ClickHandler {
 		MfkMaker.box.setWidget(p);
 		MfkMaker.box.show();
 		MfkMaker.box.center();
-	}
-}
-
-class SetImageHandler implements ClickHandler {
-	private int itemIndex;
-	private String id;
-	public SetImageHandler(int itemIndex) {
-		this.itemIndex = itemIndex;
-		this.id = "saved-" + Integer.toString(this.itemIndex+1) + "-inner";
-	}
-
-	public void onClick(ClickEvent event) {
-		System.out.println("Click #" + this.itemIndex + " -> " + this.id);
-		RootPanel p = RootPanel.get(this.id);
-		p.clear();
-		
-		Image img = new Image(MfkMaker.selected.getUrl());
-		p.add(img);
-		MfkMaker.images[this.itemIndex] = img;
 	}
 }
 
