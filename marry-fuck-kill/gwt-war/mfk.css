@@ -82,3 +82,9 @@ h1 {
     font-size: 14px;
     padding: 8px 4px 4px 4px;
 }
+
+.fakelink {
+    text-decoration: underline;
+    cursor: pointer; 
+    color: blue;
+}

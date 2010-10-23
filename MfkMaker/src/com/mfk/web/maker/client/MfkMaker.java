@@ -225,7 +225,15 @@ public class MfkMaker implements EntryPoint {
 		p.add(t);
 		p.add(new HTML("<b>Image:</b>"));
 		p.add(img);
-		p.add(new HTML("Not the image you wanted?<br>See more images."));
+		p.add(new HTML("Not the image you wanted?"));
+		HTML link = new HTML("See more images.");
+		link.addClickHandler(new ClickHandler (){
+			public void onClick(ClickEvent event) {
+				System.out.println("Should expand view for: " + t.getText());
+			}
+		});
+		link.setStylePrimaryName("fakelink");
+		p.add(link);
 		
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(5);
