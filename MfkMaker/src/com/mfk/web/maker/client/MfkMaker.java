@@ -79,8 +79,8 @@ public class MfkMaker implements EntryPoint {
     
 	static ImageSearch imageSearch = new ImageSearch();
 	
-	static Button searchButton = new Button("Search");
-	static TextBox searchBox = new TextBox();
+	static public Button searchButton = new Button("Search");
+	static public TextBox searchBox = new TextBox();
 	
 	static final DialogBox box = new DialogBox(true);
 	
@@ -191,11 +191,21 @@ public class MfkMaker implements EntryPoint {
 
 class ShowImageDialogHandler implements ClickHandler {
 	public void onClick(ClickEvent event){
-		Image source = (Image)event.getSource();
+		if (MfkPanel.count < 3) {
+			Image img = (Image)event.getSource();
+			String search = MfkMaker.searchBox.getText();
+			this.makeCreationDialog(search, img);
+		}
+		else {
+			this.makeFullDialog();
+		}
+	}
+	
+	private void makeCreationDialog(String name, Image source) {
 		System.out.println("Showing dialog for :" + source.getUrl());
 		final Image img = new Image(source.getUrl());
 		final TextBox t = new TextBox();
-		t.setText("my thing");
+		t.setText(name);
 		
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
@@ -227,6 +237,23 @@ class ShowImageDialogHandler implements ClickHandler {
 		buttonPanel.add(create);
 		buttonPanel.add(cancel);
 		p.add(buttonPanel);
+		
+		MfkMaker.box.setWidget(p);
+		MfkMaker.box.show();
+		MfkMaker.box.center();
+	}
+	
+	private void makeFullDialog() {
+		VerticalPanel p = new VerticalPanel();
+		Button button = new Button("Aww, snap!");
+		button.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent e) {
+				MfkMaker.box.hide();
+			}
+		});
+		p.add(new HTML("<b>You've already created 3 items! "
+				     + " Delete some below.</b>"));
+		p.add(button);
 		
 		MfkMaker.box.setWidget(p);
 		MfkMaker.box.show();
