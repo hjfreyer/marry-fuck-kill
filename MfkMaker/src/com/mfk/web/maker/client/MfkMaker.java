@@ -102,6 +102,12 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.names[1].setText("item two name");
 		MfkMaker.names[2].setText("item three name");
 		
+		for (int i = 1; i <= 3; i++) {
+			Image img = new Image("/gwt/images/treehouse-" + i + ".jpeg");
+			MfkPanel item = new MfkPanel("Treehouse " + i, img);
+			MfkMaker.addItem(item);
+		}
+		
 	    final SearchControlOptions options = new SearchControlOptions();
 	    
 	    imageSearch.setSafeSearch(SafeSearchValue.STRICT);
@@ -110,7 +116,7 @@ public class MfkMaker implements EntryPoint {
 	    options.setKeepLabel("<b>Keep It!</b>");
 	    options.setLinkTarget(LinkTarget.BLANK);
 	    MfkMaker.box.setAnimationEnabled(true);
-	    final ShowImageDialogHandler resultClick = new ShowImageDialogHandler();
+	    //final ShowImageDialogHandler resultClick = new ShowImageDialogHandler();
 	    
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
@@ -123,7 +129,7 @@ public class MfkMaker implements EntryPoint {
 					thumb.setHeight(String.valueOf(r.getThumbnailHeight()));
 					thumb.setWidth(String.valueOf(r.getThumbnailWidth()));
 					thumb.addStyleName("search-result");
-					thumb.addClickHandler(resultClick);
+					//thumb.addClickHandler(resultClick);
 					resultPanel.add(thumb);
 					MfkMaker.results.add(thumb);
 				}
@@ -187,36 +193,24 @@ public class MfkMaker implements EntryPoint {
 		counter.clear();
 		counter.add(new HTML("<h2>" + s + "</h2>"));
 	}
-}
 
-class ShowImageDialogHandler implements ClickHandler {
-	public void onClick(ClickEvent event){
-		if (MfkPanel.count < 3) {
-			Image img = (Image)event.getSource();
-			String search = MfkMaker.searchBox.getText();
-			this.makeCreationDialog(search, img);
-		}
-		else {
-			this.makeFullDialog();
-		}
-	}
-	
-	private void makeCreationDialog(String name, Image source) {
-		System.out.println("Showing dialog for :" + source.getUrl());
-		final Image img = new Image(source.getUrl());
+	public static void editItem(final MfkPanel item) {
+		// TODO Auto-generated method stub
+		System.out.println("Showing dialog for :" + item);
+		final Image img = new Image(item.image.getUrl());
 		final TextBox t = new TextBox();
-		t.setText(name);
+		t.setText(item.title);
 		
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
 		
-		Button create = new Button("<b>Create</b>");
+		Button create = new Button("<b>Save</b>");
 		create.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent e) {
 				System.out.println("Should create item here");
 				MfkMaker.box.hide();
-				MfkPanel item = new MfkPanel(t.getText(), img);
-				MfkMaker.addItem(item);
+				// update the existing item
+				item.update(t.getText(), img);
 			}
 		});
 		
@@ -227,33 +221,17 @@ class ShowImageDialogHandler implements ClickHandler {
 			}
 		});
 		
-		p.add(new HTML("<b>Image:</b>"));
-		p.add(img);
 		p.add(new HTML("<b>Name:</b>"));
 		p.add(t);
+		p.add(new HTML("<b>Image:</b>"));
+		p.add(img);
+		p.add(new HTML("Not the image you wanted?<br>See more images."));
 		
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(5);
 		buttonPanel.add(create);
 		buttonPanel.add(cancel);
 		p.add(buttonPanel);
-		
-		MfkMaker.box.setWidget(p);
-		MfkMaker.box.show();
-		MfkMaker.box.center();
-	}
-	
-	private void makeFullDialog() {
-		VerticalPanel p = new VerticalPanel();
-		Button button = new Button("Aww, snap!");
-		button.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent e) {
-				MfkMaker.box.hide();
-			}
-		});
-		p.add(new HTML("<b>You've already created 3 items! "
-				     + " Delete some below.</b>"));
-		p.add(button);
 		
 		MfkMaker.box.setWidget(p);
 		MfkMaker.box.show();
@@ -277,6 +255,12 @@ class MfkPanel extends VerticalPanel {
 				           ", count:" + MfkPanel.count); 
 	}
 	
+	public void update(String title, Image image) {
+		this.title = title;
+		this.image = image;
+		this.populate();
+	}
+	
 	/**
 	 * Add this object to another panel. This is a grab-bag of misc logic
 	 * associated with the MfkMaker.
@@ -298,18 +282,21 @@ class MfkPanel extends VerticalPanel {
 		MfkPanel.count--;
 		MfkMaker.updateStatus();
 	}
-		
+	
 	private void populate() {
-		Button deleteButton = new Button("Delete");
-		deleteButton.addClickHandler(new ClickHandler() {
+		this.clear();
+		final MfkPanel outerThis = this;
+		Button editButton = new Button("Edit");
+		editButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				System.out.println("Delete " + this);
-				remove();
+				MfkMaker.editItem(outerThis);
+				//edit();
 			}
 		});
+		this.add(editButton);
 		this.add(new HTML("<i>" + this.title + "</i>"));
 		this.add(this.image);
-		this.add(deleteButton);
 	}
 	
 	public String toString() {
