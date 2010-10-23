@@ -156,6 +156,24 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.results.clear();
 		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
 	}
+	
+	public static void addItem(MfkPanel item) {
+		item.addToPanel(MfkMaker.itemPanel);
+	}
+	
+	public static void updateStatus() {
+		if (MfkPanel.count > 0) {
+			MfkMaker.setStatus((3 - MfkPanel.count) + " items remaining.");
+		}
+		else {
+			MfkMaker.setStatus("Click an image to create an item.");
+		}
+	}
+	private static void setStatus(String s) {
+		Panel counter = RootPanel.get("counter");
+		counter.clear();
+		counter.add(new HTML("<h2>" + s + "</h2>"));
+	}
 }
 
 class ShowImageDialogHandler implements ClickHandler {
@@ -175,7 +193,7 @@ class ShowImageDialogHandler implements ClickHandler {
 				System.out.println("Should create item here");
 				MfkMaker.box.hide();
 				MfkPanel item = new MfkPanel(t.getText(), img);
-				item.addToPanel(MfkMaker.itemPanel);
+				MfkMaker.addItem(item);
 			}
 		});
 		
@@ -223,11 +241,13 @@ class MfkPanel extends VerticalPanel {
 		this.parent = p;
 		MfkPanel.count++;
 		this.parent.add(this);
+		MfkMaker.updateStatus();
 	}
 	
 	public void remove() {
 		this.parent.remove(this);
 		MfkPanel.count--;
+		MfkMaker.updateStatus();
 	}
 		
 	private void populate() {
