@@ -66,3 +66,13 @@ h1 {
     cursor: pointer; 
     color: blue;
 }
+
+.mfkpanel {
+    padding: 5px;
+    height: 200px;
+    border: 1px solid #660066;
+}
+
+.mfkpanel:hover {
+    border: 1px solid black;
+}
