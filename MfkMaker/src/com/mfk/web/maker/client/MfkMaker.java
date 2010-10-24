@@ -63,6 +63,8 @@ public class MfkMaker implements EntryPoint {
 	
 	public static Image selected;
 
+	// XXX: These aren't used in the current UI.
+	// TODO: Remove them and rewrite the RPC logic to use MfkPanels.
 	// arrays holding the attributes of the 3 items in the new triple
 	public static TextBox names[] = {new TextBox(),
 		                             new TextBox(),
@@ -189,29 +191,6 @@ public class MfkMaker implements EntryPoint {
 	 */
 	public static void addItem(MfkPanel item) {
 		item.addToPanel(MfkMaker.itemPanel);
-	}
-	
-	/**
-	 * Update the page's status with instructions, or how many items left to
-	 * create.
-	 */
-	public static void updateStatus() {
-		if (MfkPanel.count > 0) {
-			MfkMaker.setStatus((3 - MfkPanel.count) + " items remaining.");
-		}
-		else {
-			MfkMaker.setStatus("Click an image to create an item.");
-		}
-	}
-	
-	/**
-	 * Set the page's status.
-	 * @param s status string
-	 */
-	private static void setStatus(String s) {
-		Panel counter = RootPanel.get("counter");
-		counter.clear();
-		counter.add(new HTML("<h2>" + s + "</h2>"));
 	}
 }
 
@@ -387,14 +366,10 @@ class MfkPanel extends VerticalPanel {
 	public Image image = new Image();
 	private Panel parent;
 	
-	// How many MfkPanels have been shown (i.e., added to another panel).
-	static int count = 0;
-	
 	public MfkPanel(String title, Image image) {
 		this.setTitle(title);
 		this.setImage(image);
-		System.out.println("MfkPanel: title:" + title +
-				           ", count:" + MfkPanel.count); 
+		System.out.println("MfkPanel: title:" + title); 
 	}
 	
 	public void setImage(Image image) {
@@ -414,9 +389,7 @@ class MfkPanel extends VerticalPanel {
 	 */
 	public void addToPanel(Panel p) {
 		this.parent = p;
-		MfkPanel.count++;
 		this.parent.add(this);
-		MfkMaker.updateStatus();
 	}
 	
 	/**
@@ -425,8 +398,6 @@ class MfkPanel extends VerticalPanel {
 	 */
 	public void remove() {
 		this.parent.remove(this);
-		MfkPanel.count--;
-		MfkMaker.updateStatus();
 	}
 	
 	/**
