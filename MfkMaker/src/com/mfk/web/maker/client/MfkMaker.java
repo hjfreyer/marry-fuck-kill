@@ -157,6 +157,7 @@ public class MfkMaker implements EntryPoint {
 					ImageResult r = (ImageResult)results.get(0);
 					Image image = new Image(r.getThumbnailUrl());
 					MfkMaker.editDialog.setImage(image);
+					MfkMaker.editDialog.setThrobber(false);
 				}
 			}
 	    });
@@ -351,14 +352,13 @@ class EditDialog extends DialogBox {
 		String text = this.editTitle.getText();
 		MfkMaker.searchBox.setText(text);
 		MfkMaker.doSearch();
-		this.setThrobber(false);
 	}
 	
 	/**
 	 * Turn on or off the throbber.
 	 * @param enabled
 	 */
-	private void setThrobber(boolean enabled) {
+	public void setThrobber(boolean enabled) {
 		this.throbber.setVisible(enabled);
 	}
 	
