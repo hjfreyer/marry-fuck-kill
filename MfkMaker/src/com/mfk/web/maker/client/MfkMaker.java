@@ -79,7 +79,7 @@ public class MfkMaker implements EntryPoint {
 	// the actual image results
 	public static Vector<Image> results = new Vector<Image>();
 	// the UI panel that displays the search results
-    static Panel resultPanel;
+    static Panel resultPanel = new FlowPanel();
     
     // a pane shown only when loading results
     static RootPanel resultsLoadingPanel = RootPanel.get("results-loading");
@@ -99,10 +99,6 @@ public class MfkMaker implements EntryPoint {
 
 	public void onModuleLoad() {
 		MfkMaker.resultsLoadingPanel.setVisible(false);
-		MfkMaker.searchButton = new Button("Search");
-		MfkMaker.searchBox = new TextBox();
-		MfkMaker.resultPanel = new FlowPanel();
-		MfkMaker.imageSearch = new ImageSearch();
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
 		MfkMaker.itemPanel.setSpacing(10);
 		
@@ -158,7 +154,7 @@ public class MfkMaker implements EntryPoint {
 				if (results.length() >= 1) {
 					ImageResult r = (ImageResult)results.get(0);
 					Image image = new Image(r.getThumbnailUrl());
-					MfkMaker.editDialog.setImage(image);
+					MfkMaker.editDialog.autoSetImage(image);
 					MfkMaker.editDialog.setThrobber(false);
 				}
 			}
@@ -190,7 +186,7 @@ public class MfkMaker implements EntryPoint {
 	 * @param item the MfkPanel to add
 	 */
 	public static void addItem(MfkPanel item) {
-		item.addToPanel(MfkMaker.itemPanel);
+		MfkMaker.itemPanel.add(item);
 	}
 }
 
@@ -212,8 +208,18 @@ class EditDialog extends DialogBox {
 	// Timer that drives actual searching.
 	private Timer repeatingTimer;
 	
+	// The expanding search panel.
+	private Panel search = new VerticalPanel();
+	
 	public EditDialog(boolean b) {
 		super(b);
+		
+		HorizontalPanel searchControls = new HorizontalPanel();
+		searchControls.add(MfkMaker.searchBox);
+		searchControls.add(MfkMaker.searchButton);
+		this.search.add(new HTML("<hr>Search for more images:"));
+		this.search.add(searchControls);
+		this.search.add(MfkMaker.resultPanel);
 	}
 
 	public void editItem(final MfkPanel item) {
@@ -222,6 +228,7 @@ class EditDialog extends DialogBox {
 		this.editImage.setUrl(item.image.getUrl());
 		this.editTitle.setText(item.title);
 		this.throbber.setVisible(false);
+		this.search.setVisible(false);
 		
 		long now = System.currentTimeMillis();
 		this.lastSearch = item.title;
@@ -245,7 +252,6 @@ class EditDialog extends DialogBox {
 		};
 		this.repeatingTimer.scheduleRepeating(250);
 		
-		final Panel search = new VerticalPanel();
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
 		// TODO: put this in CSS, come up with a well-reasoned value
@@ -289,14 +295,6 @@ class EditDialog extends DialogBox {
 		});
 		link.setStylePrimaryName("fakelink");
 		p.add(link);
-		
-		HorizontalPanel searchControls = new HorizontalPanel();
-		searchControls.add(MfkMaker.searchBox);
-		searchControls.add(MfkMaker.searchButton);
-		search.add(new HTML("<hr>Search for more images:"));
-		search.add(searchControls);
-		search.add(MfkMaker.resultPanel);
-		search.setVisible(false);
 		
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(5);
@@ -352,6 +350,16 @@ class EditDialog extends DialogBox {
 		this.editImage.setUrl(image.getUrl());
 	}
 	
+	public void autoSetImage(Image image) {
+		if (this.shouldAutoSet()) {
+			this.setImage(image);
+		}
+	}
+	
+	private boolean shouldAutoSet() {
+		return !this.search.isVisible();
+	}
+	
 	public void hide() {
 		super.hide();
 		this.item = null;
@@ -367,7 +375,6 @@ class EditDialog extends DialogBox {
 class MfkPanel extends VerticalPanel {
 	public String title;
 	public Image image = new Image();
-	private Panel parent;
 	
 	public MfkPanel(String title, Image image) {
 		this.setTitle(title);
@@ -383,24 +390,6 @@ class MfkPanel extends VerticalPanel {
 	public void setTitle(String title) {
 		this.title = title;
 		this.refresh();
-	}
-	
-	/**
-	 * Add this object to another panel. This is a grab-bag of misc logic
-	 * associated with the MfkMaker.
-	 * @param p
-	 */
-	public void addToPanel(Panel p) {
-		this.parent = p;
-		this.parent.add(this);
-	}
-	
-	/**
-	 * Remove this object from whatever panel it was added to. (It *must* have
-	 * been previously added.)
-	 */
-	public void remove() {
-		this.parent.remove(this);
 	}
 	
 	/**
