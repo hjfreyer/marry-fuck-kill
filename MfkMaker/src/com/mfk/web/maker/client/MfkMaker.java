@@ -302,6 +302,7 @@ class EditDialog extends DialogBox {
 		this.setWidget(p);
 		this.show();
 		this.center();
+		this.editTitle.setFocus(true);
 	}
 	
 	/**
