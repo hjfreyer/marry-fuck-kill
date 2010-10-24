@@ -217,12 +217,15 @@ class EditDialog extends DialogBox {
 	}
 
 	public void editItem(final MfkPanel item) {
-		// TODO Auto-generated method stub
 		this.item = item;
 		System.out.println("Showing dialog for :" + item);
 		this.editImage.setUrl(item.image.getUrl());
 		this.editTitle.setText(item.title);
 		this.throbber.setVisible(false);
+		
+		long now = System.currentTimeMillis();
+		this.lastSearch = item.title;
+		this.lastChangeMillis = this.lastSearchMillis = now;
 
 		// This just keeps track of when the last change in the box was.
 		// If it misses a keystroke, our time is a little old, but that's okay.
