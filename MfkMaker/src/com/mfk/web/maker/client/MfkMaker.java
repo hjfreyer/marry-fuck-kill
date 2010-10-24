@@ -96,7 +96,7 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.names[2].setText("item three name");
 		
 		for (int i = 1; i <= 3; i++) {
-			Image img = new Image("/gwt/images/treehouse-" + i + ".jpeg");
+			SearchImage img = new SearchImage("/gwt/images/treehouse-" + i + ".jpeg");
 			MfkPanel item = new MfkPanel("Treehouse " + i, img);
 			MfkMaker.addItem(item);
 		}
@@ -163,7 +163,7 @@ public class MfkMaker implements EntryPoint {
 class EditDialog extends DialogBox {
 	private static String THROBBER_URL = "/gwt/loading.gif";
 	private MfkPanel item = null;
-	private Image editImage = new Image();
+	private SearchImage editImage = new SearchImage();
 	private TextBox editTitle = new TextBox();
 	private Image autoThrobber = new Image(EditDialog.THROBBER_URL);
 	private HorizontalPanel searchThrobber = new HorizontalPanel();
@@ -399,10 +399,10 @@ class EditDialog extends DialogBox {
 
 class MfkPanel extends VerticalPanel {
 	public String title;
-	public Image image = new Image();
+	public SearchImage image = new SearchImage();
 	private ClickHandler editMe;
 	
-	public MfkPanel(String title, Image image) {
+	public MfkPanel(String title, SearchImage image) {
 		this.setTitle(title);
 		this.setImage(image);
 		System.out.println("MfkPanel: title:" + title); 
@@ -410,7 +410,7 @@ class MfkPanel extends VerticalPanel {
 		
 	}
 	
-	public void setImage(Image image) {
+	public void setImage(SearchImage image) {
 		this.image.setUrl(image.getUrl());
 		this.refresh();
 	}
@@ -493,3 +493,35 @@ class SubmitHandler implements ClickHandler {
 	}
 }
 
+/**
+ * A simple image-holder with constant width and height, designed specifically
+ * to hold the images from an image search.
+ */
+class SearchImage extends FlowPanel {
+	private Image image;
+	public SearchImage(String url) {
+		this.image = new Image(url);
+		this.add(this.image);
+		this.autoSize();
+	}
+	
+	public SearchImage() {
+		this.image = new Image();
+		this.add(this.image);
+		this.autoSize();
+	}
+	
+	public void setUrl(String url){	
+		this.image.setUrl(url);
+	}
+	
+	public String getUrl() {
+		return this.image.getUrl();
+	}
+	
+	private void autoSize() {
+		this.setWidth("145px");
+		this.setHeight("145px");
+		this.addStyleName("searchimage");
+	}
+}
