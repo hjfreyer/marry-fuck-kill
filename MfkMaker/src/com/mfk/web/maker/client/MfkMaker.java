@@ -219,10 +219,17 @@ class EditDialog extends DialogBox {
 	private Image editImage = new Image();
 	private TextBox editTitle = new TextBox();
 	
-	// These are all bookkeeping for auto-search.
-	private long lastSearchTimeMillis = 0;
+	// These are all bookkeeping for auto-search:
+	
+	// Last time we sent a search. Maintained by maybeSearch.
+	private long lastSearchMillis = 0;
+	// Last time the text box changed. Maintained by repeatingTimer.
+	private long lastChangeMillis = 0;
+	// Last search text. Maintained by maybeSearch.
 	private String lastSearch = "";
-	private Timer timer;
+	
+	// Timer that drives actual searching.
+	private Timer repeatingTimer;
 	
 	public EditDialog(boolean b) {
 		super(b);
@@ -234,19 +241,24 @@ class EditDialog extends DialogBox {
 		System.out.println("Showing dialog for :" + item);
 		this.editImage.setUrl(item.image.getUrl());
 		this.editTitle.setText(item.title);
-		
-		// TODO: We are *not* guaranteed to get the final state until the
-		// search box loses focus! Fix this if deploying this UI!
-		this.editTitle.addChangeHandler(new ChangeHandler() {
-			public void onChange(ChangeEvent event) {
-				maybeSetImageFromTitle();
-			}
-		});
+
+		// This just keeps track of when the last change in the box was.
+		// If it misses a keystroke, our time is a little old, but that's okay.
+		// (We still throttle searches.)
 		this.editTitle.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
-				maybeSetImageFromTitle();
+				lastChangeMillis = System.currentTimeMillis();
 			}
 		});
+
+		// This checks repeatedly if we should search.
+		this.repeatingTimer = new Timer() {
+			public void run() {
+				maybeSearch();
+			}
+		};
+		this.repeatingTimer.scheduleRepeating(250);
+		
 		final Panel search = new VerticalPanel();
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
@@ -311,35 +323,28 @@ class EditDialog extends DialogBox {
 	}
 	
 	/**
-	 * Check the time since the last time we auto-searched, perform a
-	 * search for the title string, and set the image to the top result.
-	 * 
-	 * If don't perform the search if we just searched recently.
+	 * This is the logic that determines if we should search.
 	 */
-	public void maybeSetImageFromTitle() {
+	public void maybeSearch() {
 		long now = System.currentTimeMillis();
 		String text = this.editTitle.getText();
 		
-		if (now - this.lastSearchTimeMillis > 1000) {
-			this.lastSearchTimeMillis = now;
-			if (!text.equals(this.lastSearch) && !text.isEmpty()) {
-				this.lastSearch = text;
-				MfkMaker.searchBox.setText(text);
-				MfkMaker.doSearch();
-				System.out.println("Auto-search: " + text + ">");
+		if (now - this.lastChangeMillis > 250) {
+			if (now - this.lastSearchMillis > 1000) {
+				this.lastSearchMillis = now;
+				if (!text.equals(this.lastSearch) && !text.isEmpty()) {
+					this.lastSearch = text;
+					System.out.println("maybeSearch: <" + text + ">");
+					this.doAutoSearch();
+				}
 			}
 		}
-		
-		if (this.timer == null && !text.equals(this.lastSearch)) {
-			this.timer = new Timer() {
-				public void run() {
-					System.out.println("Timer!");
-					timer = null;
-					maybeSetImageFromTitle();
-				}
-			};
-			this.timer.schedule(1200);
-		}
+	}
+	
+	private void doAutoSearch() {
+		String text = this.editTitle.getText();
+		MfkMaker.searchBox.setText(text);
+		MfkMaker.doSearch();
 	}
 	
 	/**
@@ -353,6 +358,8 @@ class EditDialog extends DialogBox {
 	public void hide() {
 		super.hide();
 		this.item = null;
+		if (this.repeatingTimer != null)
+			this.repeatingTimer.cancel();
 	}
 	
 	public MfkPanel getItem() {
