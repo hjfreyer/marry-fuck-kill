@@ -84,7 +84,7 @@ public class MfkMaker implements EntryPoint {
 	static public Button searchButton = new Button("Search");
 	static public TextBox searchBox = new TextBox();
 	
-	static final DialogBox box = new DialogBox(true);
+	static final EditDialog editDialog = new EditDialog(true);
 	
 	static final HorizontalPanel itemPanel = new HorizontalPanel();
 	
@@ -93,6 +93,7 @@ public class MfkMaker implements EntryPoint {
 		new HTML("<img src=\"/gwt/loading.gif\" alt=\"\"> Loading...");
 
 	public void onModuleLoad() {
+		MfkMaker.resultsLoadingPanel.setVisible(false);
 		MfkMaker.searchButton = new Button("Search");
 		MfkMaker.searchBox = new TextBox();
 		MfkMaker.resultPanel = new FlowPanel();
@@ -117,7 +118,13 @@ public class MfkMaker implements EntryPoint {
 	    options.add(imageSearch, ExpandMode.OPEN);
 	    options.setKeepLabel("<b>Keep It!</b>");
 	    options.setLinkTarget(LinkTarget.BLANK);
-	    MfkMaker.box.setAnimationEnabled(true);
+	    MfkMaker.editDialog.setAnimationEnabled(true);
+	    
+	    final ClickHandler resultClick = new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				MfkMaker.editDialog.setImage((Image)event.getSource());
+			}
+	    };
 	    
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
@@ -130,7 +137,7 @@ public class MfkMaker implements EntryPoint {
 					thumb.setHeight(String.valueOf(r.getThumbnailHeight()));
 					thumb.setWidth(String.valueOf(r.getThumbnailWidth()));
 					thumb.addStyleName("search-result");
-					//thumb.addClickHandler(resultClick);
+					thumb.addClickHandler(resultClick);
 					resultPanel.add(thumb);
 					MfkMaker.results.add(thumb);
 				}
@@ -139,22 +146,19 @@ public class MfkMaker implements EntryPoint {
 	    
 	    searchButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				MfkMaker.DoSearch();
+				MfkMaker.doSearch();
 			}
 	    });
 	    searchBox.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
 				if (event.getCharCode() == '\n' || event.getCharCode() == '\r') {
-					MfkMaker.DoSearch();
+					MfkMaker.doSearch();
 				}
 			}
 	    });
-	    
-	    searchBox.setText(MfkMaker.DEFAULT_SEARCH);
-	    MfkMaker.DoSearch();
 	}
 	
-	private static void DoSearch() {
+	public static void doSearch() {
 		MfkMaker.resultsLoadingPanel.setVisible(true);
 		MfkMaker.resultPanel.clear();
 		MfkMaker.results.clear();
@@ -191,14 +195,24 @@ public class MfkMaker implements EntryPoint {
 		counter.clear();
 		counter.add(new HTML("<h2>" + s + "</h2>"));
 	}
+}
 
-	public static void editItem(final MfkPanel item) {
+class EditDialog extends DialogBox {
+	private MfkPanel item = null;
+	private Image editImage = new Image();
+	private TextBox editTitle = new TextBox();
+	
+	public EditDialog(boolean b) {
+		super(b);
+	}
+
+	public void editItem(final MfkPanel item) {
 		// TODO Auto-generated method stub
+		this.item = item;
 		System.out.println("Showing dialog for :" + item);
-		final Image img = new Image(item.image.getUrl());
-		final TextBox titleBox = new TextBox();
+		this.editImage.setUrl(item.image.getUrl());
+		this.editTitle.setText(item.title);
 		final Panel search = new VerticalPanel();
-		titleBox.setText(item.title);
 		
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
@@ -209,31 +223,32 @@ public class MfkMaker implements EntryPoint {
 		create.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent e) {
 				System.out.println("Should create item here");
-				MfkMaker.box.hide();
+				hide();
 				// update the existing item
-				item.update(titleBox.getText(), img);
+				item.setTitle(editTitle.getText());
+				item.setImage(editImage);
 			}
 		});
 		
 		Button cancel = new Button("Cancel");
 		cancel.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent e) {
-				MfkMaker.box.hide();
+				hide();
 			}
 		});
 		
 		p.add(new HTML("<b>Name:</b>"));
-		p.add(titleBox);
+		p.add(editTitle);
 		p.add(new HTML("<b>Image:</b>"));
-		p.add(img);
+		p.add(editImage);
 		p.add(new HTML("Not the image you wanted?"));
 		HTML link = new HTML("See more images.");
 		link.addClickHandler(new ClickHandler (){
 			public void onClick(ClickEvent event) {
 				search.setVisible(!search.isVisible());
 				if (search.isVisible()) {
-					searchBox.setText(titleBox.getText());
-					MfkMaker.DoSearch();
+					MfkMaker.searchBox.setText(editTitle.getText());
+					MfkMaker.doSearch();
 				}
 			}
 		});
@@ -255,32 +270,51 @@ public class MfkMaker implements EntryPoint {
 		p.add(buttonPanel);
 		p.add(search);
 		
-		MfkMaker.box.setWidget(p);
-		MfkMaker.box.show();
-		MfkMaker.box.center();
+		this.setWidget(p);
+		this.show();
+		this.center();
+	}
+	
+	/**
+	 * Set the image for the item under edit.
+	 */
+	public void setImage(Image image) {
+		this.editImage.setUrl(image.getUrl());
+	}
+	
+	public void hide() {
+		super.hide();
+		this.item = null;
+	}
+	
+	public MfkPanel getItem() {
+		return this.item;
 	}
 }
 
 class MfkPanel extends VerticalPanel {
 	public String title;
-	public Image image;
+	public Image image = new Image();
 	private Panel parent;
 	
 	// How many MfkPanels have been shown (i.e., added to another panel).
 	static int count = 0;
 	
 	public MfkPanel(String title, Image image) {
-		this.title = title;
-		this.image = image;
-		this.populate();
+		this.setTitle(title);
+		this.setImage(image);
 		System.out.println("MfkPanel: title:" + title +
 				           ", count:" + MfkPanel.count); 
 	}
 	
-	public void update(String title, Image image) {
+	public void setImage(Image image) {
+		this.image.setUrl(image.getUrl());
+		this.refresh();
+	}
+	
+	public void setTitle(String title) {
 		this.title = title;
-		this.image = image;
-		this.populate();
+		this.refresh();
 	}
 	
 	/**
@@ -305,15 +339,17 @@ class MfkPanel extends VerticalPanel {
 		MfkMaker.updateStatus();
 	}
 	
-	private void populate() {
+	/**
+	 * Refresh the UI elements of the page.
+	 */
+	private void refresh() {
 		this.clear();
 		final MfkPanel outerThis = this;
 		Button editButton = new Button("Edit");
 		editButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				System.out.println("Delete " + this);
-				MfkMaker.editItem(outerThis);
-				//edit();
+				MfkMaker.editDialog.editItem(outerThis);
 			}
 		});
 		this.add(editButton);
