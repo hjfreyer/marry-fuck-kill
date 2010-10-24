@@ -81,24 +81,13 @@ public class MfkMaker implements EntryPoint {
 	// the UI panel that displays the search results
     static Panel resultPanel = new FlowPanel();
     
-    // a pane shown only when loading results
-    static RootPanel resultsLoadingPanel = RootPanel.get("results-loading");
-    
 	static ImageSearch imageSearch = new ImageSearch();
-	
-	static public Button searchButton = new Button("Search");
-	static public TextBox searchBox = new TextBox();
 	
 	static final EditDialog editDialog = new EditDialog(true);
 	
 	static final HorizontalPanel itemPanel = new HorizontalPanel();
 	
-	static final String DEFAULT_SEARCH = "treehouse";
-	static final HTML LOADING =
-		new HTML("<img src=\"/gwt/loading.gif\" alt=\"\"> Loading...");
-
 	public void onModuleLoad() {
-		MfkMaker.resultsLoadingPanel.setVisible(false);
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
 		MfkMaker.itemPanel.setSpacing(10);
 		
@@ -130,7 +119,6 @@ public class MfkMaker implements EntryPoint {
 	    // This handles the displayed result list.
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
-				MfkMaker.resultsLoadingPanel.setVisible(false);
 				JsArray<? extends Result> results = event.getResults();
 				System.out.println("List handler! #results = " + results.length());
 				for (int i = 0; i < results.length(); i++) {
@@ -159,28 +147,9 @@ public class MfkMaker implements EntryPoint {
 				}
 			}
 	    });
-	    
-	    searchButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				MfkMaker.doSearch();
-			}
-	    });
-	    searchBox.addKeyPressHandler(new KeyPressHandler() {
-			public void onKeyPress(KeyPressEvent event) {
-				if (event.getCharCode() == '\n' || event.getCharCode() == '\r') {
-					MfkMaker.doSearch();
-				}
-			}
-	    });
 	}
 	
-	public static void doSearch() {
-		MfkMaker.resultsLoadingPanel.setVisible(true);
-		MfkMaker.resultPanel.clear();
-		MfkMaker.results.clear();
-		MfkMaker.imageSearch.execute(MfkMaker.searchBox.getText());
-	}
-	
+
 	/**
 	 * Add an item to the page.
 	 * @param item the MfkPanel to add
@@ -195,6 +164,9 @@ class EditDialog extends DialogBox {
 	private Image editImage = new Image();
 	private TextBox editTitle = new TextBox();
 	private Image throbber = new Image("/gwt/loading.gif");
+	
+	private Button searchButton = new Button("Search");
+	private TextBox searchBox = new TextBox();
 	
 	// These are all bookkeeping for auto-search:
 	
@@ -215,8 +187,22 @@ class EditDialog extends DialogBox {
 		super(b);
 		
 		HorizontalPanel searchControls = new HorizontalPanel();
-		searchControls.add(MfkMaker.searchBox);
-		searchControls.add(MfkMaker.searchButton);
+		
+		this.searchButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				doSearch();
+			}
+	    });
+	    this.searchBox.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				if (event.getCharCode() == '\n' || event.getCharCode() == '\r') {
+					doSearch();
+				}
+			}
+	    });
+		
+		searchControls.add(this.searchBox);
+		searchControls.add(this.searchButton);
 		this.search.add(new HTML("<hr>Search for more images:"));
 		this.search.add(searchControls);
 		this.search.add(MfkMaker.resultPanel);
@@ -288,8 +274,8 @@ class EditDialog extends DialogBox {
 			public void onClick(ClickEvent event) {
 				search.setVisible(!search.isVisible());
 				if (search.isVisible()) {
-					MfkMaker.searchBox.setText(editTitle.getText());
-					MfkMaker.doSearch();
+					searchBox.setText(editTitle.getText());
+					doSearch();
 				}
 			}
 		});
@@ -330,8 +316,14 @@ class EditDialog extends DialogBox {
 	
 	private void doAutoSearch() {
 		String text = this.editTitle.getText();
-		MfkMaker.searchBox.setText(text);
-		MfkMaker.doSearch();
+		this.searchBox.setText(text);
+		this.doSearch();
+	}
+	
+	private void doSearch() {
+		MfkMaker.resultPanel.clear();
+		MfkMaker.results.clear();
+		MfkMaker.imageSearch.execute(this.searchBox.getText());
 	}
 	
 	/**
