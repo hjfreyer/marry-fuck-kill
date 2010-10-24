@@ -218,6 +218,7 @@ class EditDialog extends DialogBox {
 	private MfkPanel item = null;
 	private Image editImage = new Image();
 	private TextBox editTitle = new TextBox();
+	private Image throbber = new Image("/gwt/loading.gif");
 	
 	// These are all bookkeeping for auto-search:
 	
@@ -241,6 +242,7 @@ class EditDialog extends DialogBox {
 		System.out.println("Showing dialog for :" + item);
 		this.editImage.setUrl(item.image.getUrl());
 		this.editTitle.setText(item.title);
+		this.throbber.setVisible(false);
 
 		// This just keeps track of when the last change in the box was.
 		// If it misses a keystroke, our time is a little old, but that's okay.
@@ -248,6 +250,7 @@ class EditDialog extends DialogBox {
 		this.editTitle.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
 				lastChangeMillis = System.currentTimeMillis();
+				setThrobber(true);
 			}
 		});
 
@@ -284,7 +287,10 @@ class EditDialog extends DialogBox {
 		});
 		
 		p.add(new HTML("<b>Name:</b>"));
-		p.add(editTitle);
+		HorizontalPanel titlePanel = new HorizontalPanel();
+		titlePanel.add(editTitle);
+		titlePanel.add(throbber);
+		p.add(titlePanel);
 		p.add(new HTML("<b>Image:</b>"));
 		p.add(editImage);
 		p.add(new HTML("Not the image you wanted?"));
@@ -345,6 +351,15 @@ class EditDialog extends DialogBox {
 		String text = this.editTitle.getText();
 		MfkMaker.searchBox.setText(text);
 		MfkMaker.doSearch();
+		this.setThrobber(false);
+	}
+	
+	/**
+	 * Turn on or off the throbber.
+	 * @param enabled
+	 */
+	private void setThrobber(boolean enabled) {
+		this.throbber.setVisible(enabled);
 	}
 	
 	/**
