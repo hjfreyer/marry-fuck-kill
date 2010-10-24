@@ -80,3 +80,9 @@ h1 {
 .searchimage {
     /*border: 1px dotted black;*/
 }
+
+.itemtitle {
+    font-size: 16px;
+    font-style: italic;
+    padding: 2px 2px 6px 2px;
+}

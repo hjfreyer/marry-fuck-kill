@@ -400,7 +400,6 @@ class EditDialog extends DialogBox {
 class MfkPanel extends VerticalPanel {
 	public String title;
 	public SearchImage image = new SearchImage();
-	private ClickHandler editMe;
 	
 	public MfkPanel(String title, SearchImage image) {
 		this.setTitle(title);
@@ -432,7 +431,9 @@ class MfkPanel extends VerticalPanel {
 				MfkMaker.editDialog.editItem(outerThis);
 			}
 		});
-		this.add(new HTML("<i>" + this.title + "</i>"));
+		HTML title = new HTML(this.title);
+		title.addStyleName("itemtitle");
+		this.add(title);
 		this.add(this.image);
 		this.add(editButton);
 	}
