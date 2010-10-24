@@ -5,6 +5,8 @@ import java.util.Vector;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.JsArray;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.event.dom.client.ChangeHandler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -126,11 +128,12 @@ public class MfkMaker implements EntryPoint {
 			}
 	    };
 	    
+	    // This handles the displayed result list.
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
 				MfkMaker.resultsLoadingPanel.setVisible(false);
 				JsArray<? extends Result> results = event.getResults();
-				System.out.println("Handler! #results = " + results.length());
+				System.out.println("List handler! #results = " + results.length());
 				for (int i = 0; i < results.length(); i++) {
 					ImageResult r = (ImageResult)results.get(i);
 					Image thumb = new Image(r.getThumbnailUrl());
@@ -140,6 +143,19 @@ public class MfkMaker implements EntryPoint {
 					thumb.addClickHandler(resultClick);
 					resultPanel.add(thumb);
 					MfkMaker.results.add(thumb);
+				}
+			}
+	    });
+	    
+	    // This handles the auto-set image.
+	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
+			public void onSearchResults(SearchResultsEvent event) {
+				JsArray<? extends Result> results = event.getResults();
+				System.out.println("Top-result handler! #results = " + results.length());
+				if (results.length() >= 1) {
+					ImageResult r = (ImageResult)results.get(0);
+					Image image = new Image(r.getThumbnailUrl());
+					MfkMaker.editDialog.setImage(image);
 				}
 			}
 	    });
@@ -201,6 +217,7 @@ class EditDialog extends DialogBox {
 	private MfkPanel item = null;
 	private Image editImage = new Image();
 	private TextBox editTitle = new TextBox();
+	private long lastSearchTimeMillis = 0;
 	
 	public EditDialog(boolean b) {
 		super(b);
@@ -212,8 +229,20 @@ class EditDialog extends DialogBox {
 		System.out.println("Showing dialog for :" + item);
 		this.editImage.setUrl(item.image.getUrl());
 		this.editTitle.setText(item.title);
-		final Panel search = new VerticalPanel();
 		
+		// TODO: We are *not* guaranteed to get the final state until the
+		// search box loses focus! Fix this if deploying this UI!
+		this.editTitle.addChangeHandler(new ChangeHandler() {
+			public void onChange(ChangeEvent event) {
+				maybeSetImageFromTitle();
+			}
+		});
+		this.editTitle.addKeyPressHandler(new KeyPressHandler() {
+			public void onKeyPress(KeyPressEvent event) {
+				maybeSetImageFromTitle();
+			}
+		});
+		final Panel search = new VerticalPanel();
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
 		// TODO: put this in CSS, come up with a well-reasoned value
@@ -276,9 +305,27 @@ class EditDialog extends DialogBox {
 	}
 	
 	/**
+	 * Check the time since the last time we auto-searched, perform a
+	 * search for the title string, and set the image to the top result.
+	 * 
+	 * If don't perform the search if we just searched recently.
+	 */
+	public void maybeSetImageFromTitle() {
+		long now = System.currentTimeMillis();
+		
+		if (now - this.lastSearchTimeMillis > 1000) {
+			this.lastSearchTimeMillis = now;
+			MfkMaker.searchBox.setText(editTitle.getText());
+			MfkMaker.doSearch();
+			System.out.println("Auto-search: " + this.editTitle.getText() + ">");
+		}
+	}
+	
+	/**
 	 * Set the image for the item under edit.
 	 */
 	public void setImage(Image image) {
+		System.out.println("Set edit image url = " + image.getUrl());
 		this.editImage.setUrl(image.getUrl());
 	}
 	
