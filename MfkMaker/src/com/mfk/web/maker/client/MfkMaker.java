@@ -33,6 +33,7 @@ import com.google.gwt.search.client.SearchControlOptions;
 import com.google.gwt.search.client.SearchResultsHandler;
 import com.google.gwt.search.client.SearchStartingHandler;
 import com.google.gwt.search.client.WebSearch;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -217,7 +218,11 @@ class EditDialog extends DialogBox {
 	private MfkPanel item = null;
 	private Image editImage = new Image();
 	private TextBox editTitle = new TextBox();
+	
+	// These are all bookkeeping for auto-search.
 	private long lastSearchTimeMillis = 0;
+	private String lastSearch = "";
+	private Timer timer;
 	
 	public EditDialog(boolean b) {
 		super(b);
@@ -313,12 +318,27 @@ class EditDialog extends DialogBox {
 	 */
 	public void maybeSetImageFromTitle() {
 		long now = System.currentTimeMillis();
+		String text = this.editTitle.getText();
 		
 		if (now - this.lastSearchTimeMillis > 1000) {
 			this.lastSearchTimeMillis = now;
-			MfkMaker.searchBox.setText(editTitle.getText());
-			MfkMaker.doSearch();
-			System.out.println("Auto-search: " + this.editTitle.getText() + ">");
+			if (!text.equals(this.lastSearch) && !text.isEmpty()) {
+				this.lastSearch = text;
+				MfkMaker.searchBox.setText(text);
+				MfkMaker.doSearch();
+				System.out.println("Auto-search: " + text + ">");
+			}
+		}
+		
+		if (this.timer == null && !text.equals(this.lastSearch)) {
+			this.timer = new Timer() {
+				public void run() {
+					System.out.println("Timer!");
+					timer = null;
+					maybeSetImageFromTitle();
+				}
+			};
+			this.timer.schedule(1200);
 		}
 	}
 	
