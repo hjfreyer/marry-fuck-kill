@@ -130,6 +130,7 @@ public class MfkMaker implements EntryPoint {
 					thumb.addClickHandler(resultClick);
 					resultPanel.add(thumb);
 					MfkMaker.results.add(thumb);
+					MfkMaker.editDialog.setSearchThrobber(false);
 				}
 			}
 	    });
@@ -143,7 +144,7 @@ public class MfkMaker implements EntryPoint {
 					ImageResult r = (ImageResult)results.get(0);
 					Image image = new Image(r.getThumbnailUrl());
 					MfkMaker.editDialog.autoSetImage(image);
-					MfkMaker.editDialog.setThrobber(false);
+					MfkMaker.editDialog.setAutoThrobber(false);
 				}
 			}
 	    });
@@ -160,10 +161,12 @@ public class MfkMaker implements EntryPoint {
 }
 
 class EditDialog extends DialogBox {
+	private static String THROBBER_URL = "/gwt/loading.gif";
 	private MfkPanel item = null;
 	private Image editImage = new Image();
 	private TextBox editTitle = new TextBox();
-	private Image throbber = new Image("/gwt/loading.gif");
+	private Image autoThrobber = new Image(EditDialog.THROBBER_URL);
+	private HorizontalPanel searchThrobber = new HorizontalPanel();
 	
 	private Button searchButton = new Button("Search");
 	private TextBox searchBox = new TextBox();
@@ -181,7 +184,11 @@ class EditDialog extends DialogBox {
 	private Timer repeatingTimer;
 	
 	// The expanding search panel.
-	private Panel search = new VerticalPanel();
+	private VerticalPanel search = new VerticalPanel();
+	
+	public EditDialog() {
+		this(false);
+	}
 	
 	public EditDialog(boolean b) {
 		super(b);
@@ -203,9 +210,30 @@ class EditDialog extends DialogBox {
 		
 		searchControls.add(this.searchBox);
 		searchControls.add(this.searchButton);
-		this.search.add(new HTML("<hr>Search for more images:"));
+		
+		HorizontalPanel moreImagesTitle = new HorizontalPanel();
+		moreImagesTitle.add(new HTML("Search for more images:"));
+		HTML hideLink = new HTML("[hide]");
+		hideLink.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				search.setVisible(false);
+			}
+		});
+		hideLink.setStylePrimaryName("fakelink");
+		moreImagesTitle.add(hideLink);
+		
+		this.search.add(new HTML("<hr>"));
+		this.search.add(moreImagesTitle);
 		this.search.add(searchControls);
+		
+		this.searchThrobber.add(new Image(EditDialog.THROBBER_URL));
+		this.searchThrobber.add(new HTML("Loading..."));
+		this.searchThrobber.setSpacing(10);
+		this.searchThrobber.setVisible(false);
+		this.search.add(searchThrobber);
+		
 		this.search.add(MfkMaker.resultPanel);
+		this.search.setSpacing(5);
 	}
 
 	public void editItem(final MfkPanel item) {
@@ -213,7 +241,7 @@ class EditDialog extends DialogBox {
 		System.out.println("Showing dialog for :" + item);
 		this.editImage.setUrl(item.image.getUrl());
 		this.editTitle.setText(item.title);
-		this.throbber.setVisible(false);
+		this.autoThrobber.setVisible(false);
 		this.search.setVisible(false);
 		
 		long now = System.currentTimeMillis();
@@ -226,7 +254,7 @@ class EditDialog extends DialogBox {
 		this.editTitle.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
 				lastChangeMillis = System.currentTimeMillis();
-				setThrobber(true);
+				setAutoThrobber(true);
 			}
 		});
 
@@ -264,7 +292,7 @@ class EditDialog extends DialogBox {
 		p.add(new HTML("<b>Name:</b>"));
 		HorizontalPanel titlePanel = new HorizontalPanel();
 		titlePanel.add(editTitle);
-		titlePanel.add(throbber);
+		titlePanel.add(autoThrobber);
 		p.add(titlePanel);
 		p.add(new HTML("<b>Image:</b>"));
 		p.add(editImage);
@@ -321,6 +349,7 @@ class EditDialog extends DialogBox {
 	}
 	
 	private void doSearch() {
+		MfkMaker.editDialog.setSearchThrobber(true);
 		MfkMaker.resultPanel.clear();
 		MfkMaker.results.clear();
 		MfkMaker.imageSearch.execute(this.searchBox.getText());
@@ -330,8 +359,12 @@ class EditDialog extends DialogBox {
 	 * Turn on or off the throbber.
 	 * @param enabled
 	 */
-	public void setThrobber(boolean enabled) {
-		this.throbber.setVisible(enabled);
+	public void setAutoThrobber(boolean enabled) {
+		this.autoThrobber.setVisible(enabled);
+	}
+	
+	public void setSearchThrobber(boolean enabled) {
+		this.searchThrobber.setVisible(enabled);
 	}
 	
 	/**
