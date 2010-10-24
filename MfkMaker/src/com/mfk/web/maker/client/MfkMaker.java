@@ -400,11 +400,14 @@ class EditDialog extends DialogBox {
 class MfkPanel extends VerticalPanel {
 	public String title;
 	public Image image = new Image();
+	private ClickHandler editMe;
 	
 	public MfkPanel(String title, Image image) {
 		this.setTitle(title);
 		this.setImage(image);
 		System.out.println("MfkPanel: title:" + title); 
+		this.addStyleName("mfkpanel");
+		
 	}
 	
 	public void setImage(Image image) {
@@ -422,17 +425,16 @@ class MfkPanel extends VerticalPanel {
 	 */
 	private void refresh() {
 		this.clear();
-		final MfkPanel outerThis = this;
 		Button editButton = new Button("Edit");
+		final MfkPanel outerThis = this;
 		editButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				System.out.println("Delete " + this);
 				MfkMaker.editDialog.editItem(outerThis);
 			}
 		});
-		this.add(editButton);
 		this.add(new HTML("<i>" + this.title + "</i>"));
 		this.add(this.image);
+		this.add(editButton);
 	}
 	
 	public String toString() {
@@ -490,3 +492,4 @@ class SubmitHandler implements ClickHandler {
 		
 	}
 }
+
