@@ -246,7 +246,7 @@ class EditDialog extends DialogBox {
 	public void editItem(final MfkPanel item) {
 		this.item = item;
 		System.out.println("Showing dialog for :" + item);
-		this.editImage.setUrl(item.image.getUrl(), item.image.getQuery());
+		this.editImage.setUrlAndQuery(item.image.getUrl(), item.image.getQuery());
 		this.editTitle.setText(item.title);
 		this.autoThrobber.setVisible(false);
 		this.search.setVisible(false);
@@ -382,7 +382,7 @@ class EditDialog extends DialogBox {
 	public void setImage(Image image) {
 		System.out.println("Set edit image url = " + image.getUrl()
 				+ " (from = " + MfkMaker.resultsSearchQuery + ")");
-		this.editImage.setUrl(image.getUrl(), MfkMaker.resultsSearchQuery);
+		this.editImage.setUrlAndQuery(image.getUrl(), MfkMaker.resultsSearchQuery);
 	}
 
 	public void autoSetImage(Image image) {
@@ -422,7 +422,7 @@ class MfkPanel extends VerticalPanel {
 	}
 
 	public void setImage(SearchImage image) {
-		this.image.setUrl(image.getUrl(), image.getQuery());
+		this.image.setUrlAndQuery(image.getUrl(), image.getQuery());
 		this.refresh();
 	}
 
@@ -494,11 +494,17 @@ class SubmitHandler implements ClickHandler {
 				public void onResponseReceived(Request request,
 						Response response) {
 					if (response.getStatusCode() == 200) {
-						System.out.println("Successful creation request: "
-								+ response.getText());
+						String[] responseParts = response.getText().split(":", 2);
+						if (responseParts[0].equals("ok")) {
+							System.out.println("Successful creation request: "
+									+ response.getText());
+						}
+						else {
+							System.out.println("Error: " + responseParts[1]);
+						}
 					} else {
 						System.out
-								.println("Server didn't like our new triple. "
+								.println("Server-side error creating new MFK: "
 										+ "Response code: "
 										+ response.getStatusCode()
 										+ "; response text: "
@@ -535,7 +541,7 @@ class SearchImage extends FlowPanel {
 		this.autoSize();
 	}
 
-	public void setUrl(String url, String query) {
+	public void setUrlAndQuery(String url, String query) {
 		System.out.println("SearchImage.setUrl: url=" + url + ", q=" + query);
 		this.image.setUrl(url);
 		this.query = new String(query);
