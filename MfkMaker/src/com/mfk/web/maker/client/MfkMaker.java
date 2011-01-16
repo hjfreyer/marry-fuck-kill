@@ -69,7 +69,7 @@ public class MfkMaker implements EntryPoint {
 			new Button("Set Item 2"), new Button("Set Item 3") };
 
 	// the actual image results
-	public static Vector<SearchImage> results = new Vector<SearchImage>();
+	public static Vector<Image> results = new Vector<Image>();
 	// the UI panel that displays the search results
 	static Panel resultPanel = new FlowPanel();
 	// The query that led to the displayed results.
@@ -107,7 +107,7 @@ public class MfkMaker implements EntryPoint {
 
 		final ClickHandler resultClick = new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				SearchImage source = (SearchImage) event.getSource();
+				Image source = (Image) event.getSource();
 				MfkMaker.editDialog.setImage(source);
 			}
 		};
@@ -120,8 +120,7 @@ public class MfkMaker implements EntryPoint {
 						+ results.length());
 				for (int i = 0; i < results.length(); i++) {
 					ImageResult r = (ImageResult) results.get(i);
-					SearchImage thumb = new SearchImage(
-							r.getThumbnailUrl(), MfkMaker.resultsSearchQuery);
+					Image thumb = new Image(r.getThumbnailUrl());
 					thumb.setHeight(String.valueOf(r.getThumbnailHeight()));
 					thumb.setWidth(String.valueOf(r.getThumbnailWidth()));
 					thumb.addStyleName("search-result");
@@ -141,8 +140,7 @@ public class MfkMaker implements EntryPoint {
 						+ results.length() + ", search = " + MfkMaker.resultsSearchQuery);
 				if (results.length() >= 1) {
 					ImageResult r = (ImageResult) results.get(0);
-					SearchImage image = new SearchImage(
-							r.getThumbnailUrl(), MfkMaker.resultsSearchQuery);
+					Image image = new Image(r.getThumbnailUrl());
 					MfkMaker.editDialog.autoSetImage(image);
 					MfkMaker.editDialog.setAutoThrobber(false);
 				}
@@ -381,13 +379,13 @@ class EditDialog extends DialogBox {
 	/**
 	 * Set the image for the item under edit.
 	 */
-	public void setImage(SearchImage image) {
+	public void setImage(Image image) {
 		System.out.println("Set edit image url = " + image.getUrl()
-				+ " (from =  " + image.getQuery() + ")");
-		this.editImage.setUrl(image.getUrl(), image.getQuery());
+				+ " (from = " + MfkMaker.resultsSearchQuery + ")");
+		this.editImage.setUrl(image.getUrl(), MfkMaker.resultsSearchQuery);
 	}
 
-	public void autoSetImage(SearchImage image) {
+	public void autoSetImage(Image image) {
 		if (this.shouldAutoSet()) {
 			this.setImage(image);
 		}
@@ -533,7 +531,6 @@ class SearchImage extends FlowPanel {
 
 	public SearchImage() {
 		this.image = new Image();
-		this.query = new String("");
 		this.add(this.image);
 		this.autoSize();
 	}
@@ -560,9 +557,5 @@ class SearchImage extends FlowPanel {
 	
 	public String toString() {
 		return "<SearchImage url=" + this.image.getUrl() + ", q=" + this.query + ">";
-	}
-	
-	public void addClickHandler(ClickHandler resultClick) {
-		this.image.addClickHandler(resultClick);
 	}
 }
