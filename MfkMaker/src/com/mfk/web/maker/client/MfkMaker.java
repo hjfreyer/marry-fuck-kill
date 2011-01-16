@@ -61,60 +61,67 @@ public class MfkMaker implements EntryPoint {
 	/**
 	 * This is the entry point method.
 	 */
-	
+
 	public static Image selected;
 
-	public static Image images[] = {null, null, null};
-	public static Button setButtons[] = {new Button("Set Item 1"),
-									     new Button("Set Item 2"),
-									     new Button("Set Item 3")};
-	
+	public static Image images[] = { null, null, null };
+	public static Button setButtons[] = { new Button("Set Item 1"),
+			new Button("Set Item 2"), new Button("Set Item 3") };
+
 	// the actual image results
-	public static Vector<Image> results = new Vector<Image>();
+	public static Vector<SearchImage> results = new Vector<SearchImage>();
 	// the UI panel that displays the search results
-    static Panel resultPanel = new FlowPanel();
-    
+	static Panel resultPanel = new FlowPanel();
+	// The query that led to the displayed results.
+	public static String resultsSearchQuery;
+
 	static ImageSearch imageSearch = new ImageSearch();
-	
+
 	static final EditDialog editDialog = new EditDialog(true);
 	static Vector<MfkPanel> items = new Vector<MfkPanel>();
-	
+
 	static final HorizontalPanel itemPanel = new HorizontalPanel();
-	
+
 	public void onModuleLoad() {
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
 		MfkMaker.itemPanel.setSpacing(10);
-		
+
 		for (int i = 1; i <= 3; i++) {
-			SearchImage img = new SearchImage("/gwt/images/treehouse-" + i + ".jpeg", "treehouse");
+			SearchImage img = new SearchImage("/gwt/images/treehouse-" + i
+					+ ".jpeg", "treehouse");
+			System.out.println("setup q=" + img.getQuery());
 			MfkPanel item = new MfkPanel("Treehouse " + i, img);
 			MfkMaker.addItem(item);
 		}
-		
-	    final SearchControlOptions options = new SearchControlOptions();
-	    
-	    imageSearch.setSafeSearch(SafeSearchValue.STRICT);
-	    imageSearch.setResultSetSize(ResultSetSize.LARGE);
-	    options.add(imageSearch, ExpandMode.OPEN);
-	    options.setKeepLabel("<b>Keep It!</b>");
-	    options.setLinkTarget(LinkTarget.BLANK);
-	    MfkMaker.editDialog.setAnimationEnabled(true);
-	    
-	    final ClickHandler resultClick = new ClickHandler() {
+
+		final SearchControlOptions options = new SearchControlOptions();
+
+		// TODO(mjkelly): reconsider this value. Remember to synchronize any
+		// change with the server-side checking.
+		imageSearch.setSafeSearch(SafeSearchValue.STRICT);
+		imageSearch.setResultSetSize(ResultSetSize.LARGE);
+		options.add(imageSearch, ExpandMode.OPEN);
+		options.setKeepLabel("<b>Keep It!</b>");
+		options.setLinkTarget(LinkTarget.BLANK);
+		MfkMaker.editDialog.setAnimationEnabled(true);
+
+		final ClickHandler resultClick = new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				SearchImage source = (SearchImage)event.getSource();
+				SearchImage source = (SearchImage) event.getSource();
 				MfkMaker.editDialog.setImage(source);
 			}
-	    };
-	    
-	    // This handles the displayed result list.
-	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
+		};
+
+		// This handles the displayed result list.
+		imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
 				JsArray<? extends Result> results = event.getResults();
-				System.out.println("List handler! #results = " + results.length());
+				System.out.println("List handler! #results = "
+						+ results.length());
 				for (int i = 0; i < results.length(); i++) {
-					ImageResult r = (ImageResult)results.get(i);
-					Image thumb = new Image(r.getThumbnailUrl());
+					ImageResult r = (ImageResult) results.get(i);
+					SearchImage thumb = new SearchImage(
+							r.getThumbnailUrl(), MfkMaker.resultsSearchQuery);
 					thumb.setHeight(String.valueOf(r.getThumbnailHeight()));
 					thumb.setWidth(String.valueOf(r.getThumbnailWidth()));
 					thumb.addStyleName("search-result");
@@ -124,33 +131,35 @@ public class MfkMaker implements EntryPoint {
 					MfkMaker.editDialog.setSearchThrobber(false);
 				}
 			}
-	    });
-	    
-	    // This handles the auto-set image.
-	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
+		});
+
+		// This handles the auto-set image.
+		imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
 				JsArray<? extends Result> results = event.getResults();
-				System.out.println("Top-result handler! #results = " + results.length()
-						+ ", search = " + event.getSearch());
+				System.out.println("Top-result handler! #results = "
+						+ results.length() + ", search = " + MfkMaker.resultsSearchQuery);
 				if (results.length() >= 1) {
-					ImageResult r = (ImageResult)results.get(0);
-					SearchImage image = new SearchImage(r.getThumbnailUrl(), event.getSearch().toString());
+					ImageResult r = (ImageResult) results.get(0);
+					SearchImage image = new SearchImage(
+							r.getThumbnailUrl(), MfkMaker.resultsSearchQuery);
 					MfkMaker.editDialog.autoSetImage(image);
 					MfkMaker.editDialog.setAutoThrobber(false);
 				}
 			}
-	    });
-	    
-	    // The submit button.
-	    Button submit_btn = new Button("Create");
-	    submit_btn.addClickHandler(new SubmitHandler());
-	    RootPanel.get("submit").add(submit_btn);
+		});
+
+		// The submit button.
+		Button submit_btn = new Button("Create");
+		submit_btn.addClickHandler(new SubmitHandler());
+		RootPanel.get("submit").add(submit_btn);
 	}
-	
 
 	/**
 	 * Add an item to the page.
-	 * @param item the MfkPanel to add
+	 * 
+	 * @param item
+	 *            the MfkPanel to add
 	 */
 	public static void addItem(MfkPanel item) {
 		MfkMaker.items.add(item);
@@ -165,50 +174,52 @@ class EditDialog extends DialogBox {
 	private TextBox editTitle = new TextBox();
 	private Image autoThrobber = new Image(EditDialog.THROBBER_URL);
 	private HorizontalPanel searchThrobber = new HorizontalPanel();
-	
+
 	private Button searchButton = new Button("Search");
 	private TextBox searchBox = new TextBox();
-	
+
 	// These are all bookkeeping for auto-search:
-	
+
 	// Last time we sent a search. Maintained by maybeSearch.
 	private long lastSearchMillis = 0;
 	// Last time the text box changed. Maintained by repeatingTimer.
 	private long lastChangeMillis = 0;
 	// Last search text. Maintained by maybeSearch.
+	// NOTE: This is distinct from MfkMaker.resultSearchQuery -- this is used
+	// only for maybeSearch's retry logic.
 	private String lastSearch = "";
-	
+
 	// Timer that drives actual searching.
 	private Timer repeatingTimer;
-	
+
 	// The expanding search panel.
 	private VerticalPanel search = new VerticalPanel();
-	
+
 	public EditDialog() {
 		this(false);
 	}
-	
+
 	public EditDialog(boolean b) {
 		super(b);
-		
+
 		HorizontalPanel searchControls = new HorizontalPanel();
-		
+
 		this.searchButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				doSearch();
 			}
-	    });
-	    this.searchBox.addKeyPressHandler(new KeyPressHandler() {
+		});
+		this.searchBox.addKeyPressHandler(new KeyPressHandler() {
 			public void onKeyPress(KeyPressEvent event) {
 				if (event.getCharCode() == '\n' || event.getCharCode() == '\r') {
 					doSearch();
 				}
 			}
-	    });
-		
+		});
+
 		searchControls.add(this.searchBox);
 		searchControls.add(this.searchButton);
-		
+
 		HorizontalPanel moreImagesTitle = new HorizontalPanel();
 		moreImagesTitle.add(new HTML("Search for more images:"));
 		HTML hideLink = new HTML("[hide]");
@@ -219,17 +230,17 @@ class EditDialog extends DialogBox {
 		});
 		hideLink.setStylePrimaryName("fakelink");
 		moreImagesTitle.add(hideLink);
-		
+
 		this.search.add(new HTML("<hr>"));
 		this.search.add(moreImagesTitle);
 		this.search.add(searchControls);
-		
+
 		this.searchThrobber.add(new Image(EditDialog.THROBBER_URL));
 		this.searchThrobber.add(new HTML("Loading..."));
 		this.searchThrobber.setSpacing(10);
 		this.searchThrobber.setVisible(false);
 		this.search.add(searchThrobber);
-		
+
 		this.search.add(MfkMaker.resultPanel);
 		this.search.setSpacing(5);
 	}
@@ -237,11 +248,11 @@ class EditDialog extends DialogBox {
 	public void editItem(final MfkPanel item) {
 		this.item = item;
 		System.out.println("Showing dialog for :" + item);
-		this.editImage.setUrl(item.image.getUrl());
+		this.editImage.setUrl(item.image.getUrl(), item.image.getQuery());
 		this.editTitle.setText(item.title);
 		this.autoThrobber.setVisible(false);
 		this.search.setVisible(false);
-		
+
 		long now = System.currentTimeMillis();
 		this.lastSearch = item.title;
 		this.lastChangeMillis = this.lastSearchMillis = now;
@@ -263,12 +274,12 @@ class EditDialog extends DialogBox {
 			}
 		};
 		this.repeatingTimer.scheduleRepeating(250);
-		
+
 		VerticalPanel p = new VerticalPanel();
 		p.setSpacing(5);
 		// TODO: put this in CSS, come up with a well-reasoned value
 		p.setWidth("600px");
-		
+
 		Button create = new Button("<b>Save</b>");
 		create.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent e) {
@@ -279,14 +290,14 @@ class EditDialog extends DialogBox {
 				item.setImage(editImage);
 			}
 		});
-		
+
 		Button cancel = new Button("Cancel");
 		cancel.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent e) {
 				hide();
 			}
 		});
-		
+
 		p.add(new HTML("<b>Name:</b>"));
 		HorizontalPanel titlePanel = new HorizontalPanel();
 		titlePanel.add(editTitle);
@@ -296,7 +307,7 @@ class EditDialog extends DialogBox {
 		p.add(editImage);
 		p.add(new HTML("Not the image you wanted?"));
 		HTML link = new HTML("See more images.");
-		link.addClickHandler(new ClickHandler (){
+		link.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				search.setVisible(!search.isVisible());
 				if (search.isVisible()) {
@@ -307,27 +318,27 @@ class EditDialog extends DialogBox {
 		});
 		link.setStylePrimaryName("fakelink");
 		p.add(link);
-		
+
 		HorizontalPanel buttonPanel = new HorizontalPanel();
 		buttonPanel.setSpacing(5);
 		buttonPanel.add(create);
 		buttonPanel.add(cancel);
 		p.add(buttonPanel);
 		p.add(search);
-		
+
 		this.setWidget(p);
 		this.show();
 		this.center();
 		this.editTitle.setFocus(true);
 	}
-	
+
 	/**
 	 * This is the logic that determines if we should search.
 	 */
 	public void maybeSearch() {
 		long now = System.currentTimeMillis();
 		String text = this.editTitle.getText();
-		
+
 		if (now - this.lastChangeMillis > 250) {
 			if (now - this.lastSearchMillis > 1000) {
 				this.lastSearchMillis = now;
@@ -339,58 +350,60 @@ class EditDialog extends DialogBox {
 			}
 		}
 	}
-	
+
 	private void doAutoSearch() {
 		String text = this.editTitle.getText();
 		this.searchBox.setText(text);
 		this.doSearch();
 	}
-	
+
 	private void doSearch() {
 		MfkMaker.editDialog.setSearchThrobber(true);
 		MfkMaker.resultPanel.clear();
 		MfkMaker.results.clear();
+		MfkMaker.resultsSearchQuery = this.searchBox.getText();
 		MfkMaker.imageSearch.execute(this.searchBox.getText());
 	}
-	
+
 	/**
 	 * Turn on or off the throbber.
+	 * 
 	 * @param enabled
 	 */
 	public void setAutoThrobber(boolean enabled) {
 		this.autoThrobber.setVisible(enabled);
 	}
-	
+
 	public void setSearchThrobber(boolean enabled) {
 		this.searchThrobber.setVisible(enabled);
 	}
-	
+
 	/**
 	 * Set the image for the item under edit.
 	 */
 	public void setImage(SearchImage image) {
 		System.out.println("Set edit image url = " + image.getUrl()
 				+ " (from =  " + image.getQuery() + ")");
-		this.editImage.setUrl(image.getUrl());
+		this.editImage.setUrl(image.getUrl(), image.getQuery());
 	}
-	
+
 	public void autoSetImage(SearchImage image) {
 		if (this.shouldAutoSet()) {
 			this.setImage(image);
 		}
 	}
-	
+
 	private boolean shouldAutoSet() {
 		return !this.search.isVisible();
 	}
-	
+
 	public void hide() {
 		super.hide();
 		this.item = null;
 		if (this.repeatingTimer != null)
 			this.repeatingTimer.cancel();
 	}
-	
+
 	public MfkPanel getItem() {
 		return this.item;
 	}
@@ -401,25 +414,25 @@ class MfkPanel extends VerticalPanel {
 	public String title = "";
 	// The user-visible image for the entity.
 	public SearchImage image = new SearchImage();
-	
+
 	public MfkPanel(String title, SearchImage image) {
 		this.setTitle(title);
 		this.setImage(image);
-		System.out.println("MfkPanel: title:" + title); 
+		System.out.println("MfkPanel: title:" + title);
 		this.addStyleName("mfkpanel");
-		
+
 	}
-	
+
 	public void setImage(SearchImage image) {
-		this.image.setUrl(image.getUrl());
+		this.image.setUrl(image.getUrl(), image.getQuery());
 		this.refresh();
 	}
-	
+
 	public void setTitle(String title) {
 		this.title = title;
 		this.refresh();
 	}
-	
+
 	/**
 	 * Refresh the UI elements of the page.
 	 */
@@ -438,37 +451,42 @@ class MfkPanel extends VerticalPanel {
 		this.add(this.image);
 		this.add(editButton);
 	}
-	
+
 	public String toString() {
-		return "<MfkPanel: " + this.title +
-		       ", url=" + this.image.getUrl() + ">";
+		return "<MfkPanel: " + this.title + ", url=" + this.image.getUrl()
+				+ ">";
 	}
 }
 
 // TODO(mjkelly): Do client-side validation here.
 class SubmitHandler implements ClickHandler {
 	public void onClick(ClickEvent event) {
-		MfkPanel[] p = {MfkMaker.items.get(0),
-				        MfkMaker.items.get(1),
-				        MfkMaker.items.get(2)};
-		
+		MfkPanel[] p = { MfkMaker.items.get(0), MfkMaker.items.get(1),
+				MfkMaker.items.get(2) };
+
 		String url = "/rpc/create/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
 		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		StringBuffer reqData = new StringBuffer();
-		
+
 		URL.encodeQueryString(url);
 		reqData.append("n1=").append(URL.encodeQueryString(p[0].title));
 		reqData.append("&n2=").append(URL.encodeQueryString(p[1].title));
 		reqData.append("&n3=").append(URL.encodeQueryString(p[2].title));
-		reqData.append("&u1=").append(URL.encodeQueryString(p[0].image.getUrl()));
-		reqData.append("&u2=").append(URL.encodeQueryString(p[1].image.getUrl()));
-		reqData.append("&u3=").append(URL.encodeQueryString(p[2].image.getUrl()));
-		reqData.append("&q1=").append(URL.encodeQueryString(p[0].image.getQuery()));
-		reqData.append("&q2=").append(URL.encodeQueryString(p[1].image.getQuery()));
-		reqData.append("&q3=").append(URL.encodeQueryString(p[2].image.getQuery()));
+		reqData.append("&u1=").append(
+				URL.encodeQueryString(p[0].image.getUrl()));
+		reqData.append("&u2=").append(
+				URL.encodeQueryString(p[1].image.getUrl()));
+		reqData.append("&u3=").append(
+				URL.encodeQueryString(p[2].image.getUrl()));
+		reqData.append("&q1=").append(
+				URL.encodeQueryString(p[0].image.getQuery()));
+		reqData.append("&q2=").append(
+				URL.encodeQueryString(p[1].image.getQuery()));
+		reqData.append("&q3=").append(
+				URL.encodeQueryString(p[2].image.getQuery()));
 		System.out.println("request data = " + reqData);
-		
+
 		try {
 			builder.sendRequest(reqData.toString(), new RequestCallback() {
 				public void onError(Request request, Throwable exception) {
@@ -480,18 +498,20 @@ class SubmitHandler implements ClickHandler {
 					if (response.getStatusCode() == 200) {
 						System.out.println("Successful creation request: "
 								+ response.getText());
-					}
-					else {
-						System.out.println("Server didn't like our new triple. "
-								+ "Response code: " + response.getStatusCode()
-								+ "; response text: " + response.getText());
+					} else {
+						System.out
+								.println("Server didn't like our new triple. "
+										+ "Response code: "
+										+ response.getStatusCode()
+										+ "; response text: "
+										+ response.getText());
 					}
 				}
 			});
 		} catch (RequestException e) {
 			System.out.println("Error sending vote: " + e);
 		}
-		
+
 	}
 }
 
@@ -502,39 +522,47 @@ class SubmitHandler implements ClickHandler {
 class SearchImage extends FlowPanel {
 	private Image image;
 	private String query;
-	
+
 	public SearchImage(String url, String query) {
+		System.out.println("New SearchImage: " + url + ", " + query);
 		this.image = new Image(url);
+		this.query = new String(query);
 		this.add(this.image);
 		this.autoSize();
 	}
-	
+
 	public SearchImage() {
 		this.image = new Image();
-		this.query = "";
+		this.query = new String("");
 		this.add(this.image);
 		this.autoSize();
 	}
-	
-	public void setUrl(String url){	
+
+	public void setUrl(String url, String query) {
+		System.out.println("SearchImage.setUrl: url=" + url + ", q=" + query);
 		this.image.setUrl(url);
+		this.query = new String(query);
 	}
-	
-	public void setQuery(String query) {
-		this.query = query;
-	}
-	
+
 	public String getUrl() {
 		return this.image.getUrl();
 	}
-	
+
 	public String getQuery() {
 		return this.query;
 	}
-	
+
 	private void autoSize() {
 		this.setWidth("145px");
 		this.setHeight("145px");
 		this.addStyleName("searchimage");
+	}
+	
+	public String toString() {
+		return "<SearchImage url=" + this.image.getUrl() + ", q=" + this.query + ">";
+	}
+	
+	public void addClickHandler(ClickHandler resultClick) {
+		this.image.addClickHandler(resultClick);
 	}
 }
