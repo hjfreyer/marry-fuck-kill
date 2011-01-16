@@ -50,10 +50,12 @@ class TripleCreationHandler(webapp.RequestHandler):
         # TODO(mjkelly): restrict this later when we have some idea of what
         # we'll throw. Or perhaps not?
         except models.EntityValidationError, e:
+            logging.info("Error creating triple from req: %s", self.request)
             self.response.out.write('error: %s' % e)
             return
         # Success
         # TODO(mjkelly): stop using meta refresh redirects
+        logging.info("Success creating triple from req: %s", self.request)
         self.response.out.write('ok: created %s' % triple.key().name())
 
     @staticmethod
@@ -100,9 +102,13 @@ class TripleJsonHandler(webapp.RequestHandler):
     def post(self, unused_id):
         try:
             triple = TripleCreationHandler.MakeTriple(self.request) 
-        except ValueError:
-            self.response.out.write('bad url')
-        self.response.out.write('ok')
+        except ValueError, e:
+            self.response.out.write('error: %s' % e)
+            return
+        except models.EntityValidationError, e:
+            self.response.out.write('error: %s' % e)
+            return
+        self.response.out.write('ok: created')
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
