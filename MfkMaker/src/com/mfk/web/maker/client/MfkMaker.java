@@ -19,6 +19,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.search.client.DrawMode;
 import com.google.gwt.search.client.ExpandMode;
 import com.google.gwt.search.client.ImageResult;
@@ -63,18 +64,10 @@ public class MfkMaker implements EntryPoint {
 	
 	public static Image selected;
 
-	// XXX: These aren't used in the current UI.
-	// TODO: Remove them and rewrite the RPC logic to use MfkPanels.
-	// arrays holding the attributes of the 3 items in the new triple
-	public static TextBox names[] = {new TextBox(),
-		                             new TextBox(),
-		                             new TextBox()};
 	public static Image images[] = {null, null, null};
 	public static Button setButtons[] = {new Button("Set Item 1"),
 									     new Button("Set Item 2"),
 									     new Button("Set Item 3")};
-	
-	public static MfkPanel items[] = {null, null, null};
 	
 	// the actual image results
 	public static Vector<Image> results = new Vector<Image>();
@@ -84,6 +77,7 @@ public class MfkMaker implements EntryPoint {
 	static ImageSearch imageSearch = new ImageSearch();
 	
 	static final EditDialog editDialog = new EditDialog(true);
+	static Vector<MfkPanel> items = new Vector<MfkPanel>();
 	
 	static final HorizontalPanel itemPanel = new HorizontalPanel();
 	
@@ -91,12 +85,8 @@ public class MfkMaker implements EntryPoint {
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
 		MfkMaker.itemPanel.setSpacing(10);
 		
-		MfkMaker.names[0].setText("item one name");
-		MfkMaker.names[1].setText("item two name");
-		MfkMaker.names[2].setText("item three name");
-		
 		for (int i = 1; i <= 3; i++) {
-			SearchImage img = new SearchImage("/gwt/images/treehouse-" + i + ".jpeg");
+			SearchImage img = new SearchImage("/gwt/images/treehouse-" + i + ".jpeg", "treehouse");
 			MfkPanel item = new MfkPanel("Treehouse " + i, img);
 			MfkMaker.addItem(item);
 		}
@@ -112,7 +102,8 @@ public class MfkMaker implements EntryPoint {
 	    
 	    final ClickHandler resultClick = new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				MfkMaker.editDialog.setImage((Image)event.getSource());
+				SearchImage source = (SearchImage)event.getSource();
+				MfkMaker.editDialog.setImage(source);
 			}
 	    };
 	    
@@ -139,15 +130,21 @@ public class MfkMaker implements EntryPoint {
 	    imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
 			public void onSearchResults(SearchResultsEvent event) {
 				JsArray<? extends Result> results = event.getResults();
-				System.out.println("Top-result handler! #results = " + results.length());
+				System.out.println("Top-result handler! #results = " + results.length()
+						+ ", search = " + event.getSearch());
 				if (results.length() >= 1) {
 					ImageResult r = (ImageResult)results.get(0);
-					Image image = new Image(r.getThumbnailUrl());
+					SearchImage image = new SearchImage(r.getThumbnailUrl(), event.getSearch().toString());
 					MfkMaker.editDialog.autoSetImage(image);
 					MfkMaker.editDialog.setAutoThrobber(false);
 				}
 			}
 	    });
+	    
+	    // The submit button.
+	    Button submit_btn = new Button("Create");
+	    submit_btn.addClickHandler(new SubmitHandler());
+	    RootPanel.get("submit").add(submit_btn);
 	}
 	
 
@@ -156,6 +153,7 @@ public class MfkMaker implements EntryPoint {
 	 * @param item the MfkPanel to add
 	 */
 	public static void addItem(MfkPanel item) {
+		MfkMaker.items.add(item);
 		MfkMaker.itemPanel.add(item);
 	}
 }
@@ -370,12 +368,13 @@ class EditDialog extends DialogBox {
 	/**
 	 * Set the image for the item under edit.
 	 */
-	public void setImage(Image image) {
-		System.out.println("Set edit image url = " + image.getUrl());
+	public void setImage(SearchImage image) {
+		System.out.println("Set edit image url = " + image.getUrl()
+				+ " (from =  " + image.getQuery() + ")");
 		this.editImage.setUrl(image.getUrl());
 	}
 	
-	public void autoSetImage(Image image) {
+	public void autoSetImage(SearchImage image) {
 		if (this.shouldAutoSet()) {
 			this.setImage(image);
 		}
@@ -398,7 +397,9 @@ class EditDialog extends DialogBox {
 }
 
 class MfkPanel extends VerticalPanel {
-	public String title;
+	// The user-visible title for the entity
+	public String title = "";
+	// The user-visible image for the entity.
 	public SearchImage image = new SearchImage();
 	
 	public MfkPanel(String title, SearchImage image) {
@@ -447,26 +448,26 @@ class MfkPanel extends VerticalPanel {
 // TODO(mjkelly): Do client-side validation here.
 class SubmitHandler implements ClickHandler {
 	public void onClick(ClickEvent event) {
-		System.out.println("Want to create:\n"
-				+ "{n:" + MfkMaker.names[0].getText()
-				+ ", u:" + MfkMaker.images[0].getUrl() + "}\n"
-				+ "{n:" + MfkMaker.names[1].getText()
-				+ ", u:" + MfkMaker.images[1].getUrl() + "}\n"
-				+ "{n:" + MfkMaker.names[2].getText()
-				+ ", u:" + MfkMaker.images[2].getUrl() + "}");
-		
+		MfkPanel[] p = {MfkMaker.items.get(0),
+				        MfkMaker.items.get(1),
+				        MfkMaker.items.get(2)};
 		
 		String url = "/rpc/create/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
 		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		StringBuffer reqData = new StringBuffer();
 		
-		reqData.append("n1=").append(MfkMaker.names[0].getText());
-		reqData.append("&n2=").append(MfkMaker.names[1].getText());
-		reqData.append("&n3=").append(MfkMaker.names[2].getText());
-		reqData.append("&u1=").append(MfkMaker.images[0].getUrl());
-		reqData.append("&u2=").append(MfkMaker.images[1].getUrl());
-		reqData.append("&u3=").append(MfkMaker.images[2].getUrl());
+		URL.encodeQueryString(url);
+		reqData.append("n1=").append(URL.encodeQueryString(p[0].title));
+		reqData.append("&n2=").append(URL.encodeQueryString(p[1].title));
+		reqData.append("&n3=").append(URL.encodeQueryString(p[2].title));
+		reqData.append("&u1=").append(URL.encodeQueryString(p[0].image.getUrl()));
+		reqData.append("&u2=").append(URL.encodeQueryString(p[1].image.getUrl()));
+		reqData.append("&u3=").append(URL.encodeQueryString(p[2].image.getUrl()));
+		reqData.append("&q1=").append(URL.encodeQueryString(p[0].image.getQuery()));
+		reqData.append("&q2=").append(URL.encodeQueryString(p[1].image.getQuery()));
+		reqData.append("&q3=").append(URL.encodeQueryString(p[2].image.getQuery()));
+		System.out.println("request data = " + reqData);
 		
 		try {
 			builder.sendRequest(reqData.toString(), new RequestCallback() {
@@ -483,7 +484,7 @@ class SubmitHandler implements ClickHandler {
 					else {
 						System.out.println("Server didn't like our new triple. "
 								+ "Response code: " + response.getStatusCode()
-								+ ". Response text: " + response.getText());
+								+ "; response text: " + response.getText());
 					}
 				}
 			});
@@ -500,7 +501,9 @@ class SubmitHandler implements ClickHandler {
  */
 class SearchImage extends FlowPanel {
 	private Image image;
-	public SearchImage(String url) {
+	private String query;
+	
+	public SearchImage(String url, String query) {
 		this.image = new Image(url);
 		this.add(this.image);
 		this.autoSize();
@@ -508,6 +511,7 @@ class SearchImage extends FlowPanel {
 	
 	public SearchImage() {
 		this.image = new Image();
+		this.query = "";
 		this.add(this.image);
 		this.autoSize();
 	}
@@ -516,8 +520,16 @@ class SearchImage extends FlowPanel {
 		this.image.setUrl(url);
 	}
 	
+	public void setQuery(String query) {
+		this.query = query;
+	}
+	
 	public String getUrl() {
 		return this.image.getUrl();
+	}
+	
+	public String getQuery() {
+		return this.query;
 	}
 	
 	private void autoSize() {
