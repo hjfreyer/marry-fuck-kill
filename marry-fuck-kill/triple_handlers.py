@@ -103,12 +103,12 @@ class TripleJsonHandler(webapp.RequestHandler):
         try:
             triple = TripleCreationHandler.MakeTriple(self.request) 
         except ValueError, e:
-            self.response.out.write('error: %s' % e)
+            self.response.out.write('error:%s' % e)
             return
         except models.EntityValidationError, e:
-            self.response.out.write('error: %s' % e)
+            self.response.out.write('error:%s' % e)
             return
-        self.response.out.write('ok: created')
+        self.response.out.write('ok:created')
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
