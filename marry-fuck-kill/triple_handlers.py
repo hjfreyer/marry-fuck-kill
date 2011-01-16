@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright 2007 Google Inc.
+# Copyright 2010 Hunter Freyer and Michael Kelly
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,29 +31,65 @@ class TripleCreationHandler(webapp.RequestHandler):
         self.response.out.write("""
 <h1>Create a Triple!</h1>
 <form method="post">
-  One: name=<input type="text" name="n1"></input> url=<input type="text" name="u1"></input><br/>
-  Two: name=<input type="text" name="n2"></input> url=<input type="text" name="u2"></input><br/>
-  Three: name=<input type="text" name="n3"></input> url=<input type="text" name="u3"></input><br/>
+  One: name=<input type="text" name="n1"></input>
+       url=<input type="text" name="u1"></input>
+       q=<input type="text" name="q1"></input><br/>
+  Two: name=<input type="text" name="n2"></input>
+       url=<input type="text" name="u2"></input>
+       q=<input type="text" name="q2"></input><br/>
+  Three: name=<input type="text" name="n3"></input>
+         url=<input type="text" name="u3"></input>
+         q=<input type="text" name="q3"></input><br/>
   <input type="submit"></input>
 </form>
 """)
 
     def post(self):
-        triple = TripleCreationHandler.MakeTriple(self.request) 
-        utils.redirect(self, '/triple/view/' + triple.key().name())  
+        try:
+            triple = TripleCreationHandler.MakeTriple(self.request) 
+        # TODO(mjkelly): restrict this later when we have some idea of what
+        # we'll throw. Or perhaps not?
+        except models.EntityValidationError, e:
+            self.response.out.write('error: %s' % e)
+            return
+        # Success
+        # TODO(mjkelly): stop using meta refresh redirects
+        self.response.out.write('ok: created %s' % triple.key().name())
 
     @staticmethod
     def MakeTriple(request):
-        one = request.get("n1")
-        two = request.get("n2")
-        three = request.get("n3")
+        """Create the named triple.
 
-        if not one or not two or not three:
-            raise ValueError("request name")
-        
-        one = models.PutEntity(one, request.get("u1")) 
-        two = models.PutEntity(two, request.get("u2"))
-        three = models.PutEntity(three, request.get("u3"))
+        We expect the following request params:
+        n[1-3]: the 3 triple display names
+        u[1-3]: the 3 triple image URLs
+        q[1-3]: the search string used to find u[1-3]
+
+        The only non-obvious part of this is that we check that q[1-3] actually
+        include u[1-3]. This is to prevent users from adding any URL they
+        please.
+        """
+        # Grab all the URL params at once.
+        entities = [{'n': request.get('n1'),
+                     'u': request.get('u1'),
+                     'q': request.get('q1')},
+                    {'n': request.get('n2'),
+                     'u': request.get('u2'),
+                     'q': request.get('q2')},
+                    {'n': request.get('n3'),
+                     'u': request.get('u3'),
+                     'q': request.get('q3')}]
+
+        for i in range(len(entities)):
+            for k in ['n', 'u', 'q']:
+                if not entities[i][k]:
+                    raise ValueError("Entity %s missing attribute '%s'" % (i, k))
+
+        one = models.PutEntity(entities[0]['n'], entities[0]['u'])
+        two = models.PutEntity(entities[1]['n'], entities[1]['u'])
+        three = models.PutEntity(entities[2]['n'], entities[2]['u'])
+        # This may raise an exception, which we allow to bubble up.
+        models.Triple.validate(one, two, three)
 
         return models.PutTriple(one=one, 
                                 two=two, 
@@ -65,14 +101,14 @@ class TripleJsonHandler(webapp.RequestHandler):
         try:
             triple = TripleCreationHandler.MakeTriple(self.request) 
         except ValueError:
-            self.response.out.write("bad url")
-        self.response.out.write("ok")
+            self.response.out.write('bad url')
+        self.response.out.write('ok')
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
         if triple_id:
             t = models.Triple.get_by_key_name(urllib.unquote(triple_id))
-            self.response.out.write("%s: %r" % (triple_id, t))
+            self.response.out.write('%s: %r' % (triple_id, t))
         else:
             keys = [t.key().name() for t in models.Triple.all()]
 
