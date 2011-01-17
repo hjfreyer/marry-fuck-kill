@@ -82,7 +82,7 @@ public class MfkMaker implements EntryPoint {
 
 	static final HorizontalPanel itemPanel = new HorizontalPanel();
 
-	static final DialogBox errorDialog = new DialogBox();
+	static final DialogBox miscDialog = new DialogBox();
 
 	public void onModuleLoad() {
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
@@ -91,7 +91,6 @@ public class MfkMaker implements EntryPoint {
 		for (int i = 1; i <= 3; i++) {
 			SearchImage img = new SearchImage("/gwt/images/treehouse-" + i
 					+ ".jpeg", "treehouse");
-			System.out.println("setup q=" + img.getQuery());
 			MfkPanel item = new MfkPanel("Treehouse " + i, img);
 			MfkMaker.addItem(item);
 		}
@@ -167,11 +166,11 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.itemPanel.add(item);
 	}
 	
-	public static void showError(String title, String message) {
-		MfkMaker.errorDialog.hide();
-		MfkMaker.errorDialog.clear();
+	public static void showDialog(String title, String message) {
+		MfkMaker.miscDialog.hide();
+		MfkMaker.miscDialog.clear();
 		VerticalPanel panel = new VerticalPanel();
-		MfkMaker.errorDialog.add(panel);
+		MfkMaker.miscDialog.add(panel);
 		
 		panel.add(new HTML("<p><b>" + title + "</b></p>"));
 		panel.add(new HTML("<p>" + message + "</p>"));
@@ -179,12 +178,13 @@ public class MfkMaker implements EntryPoint {
 		Button closeButton = new Button("OK");
 		closeButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-				MfkMaker.errorDialog.hide();
+				MfkMaker.miscDialog.hide();
 			}
 		});
 		panel.add(closeButton);
-		MfkMaker.errorDialog.center();
-		MfkMaker.errorDialog.show();
+		MfkMaker.miscDialog.center();
+		MfkMaker.miscDialog.show();
+		closeButton.setFocus(true);
 	}
 }
 
@@ -524,9 +524,17 @@ class SubmitHandler implements ClickHandler {
 						if (responseParts[0].equals("ok")) {
 							System.out.println("Successful creation request: "
 									+ response.getText());
+							MfkMaker.showDialog("Great Success",
+									"You successfully created a new MFK item."
+									+ " Other users can vote on it."
+									+ " Thanks for contributing!");
+							MfkMaker.itemPanel.clear();
+							RootPanel.get("submit").clear();
+							MfkMaker.itemPanel.add(new HTML("<h2><a href='/'>Vote On More MFKs</a></h2>"));
+							
 						} else {
 							System.out.println("Error: " + responseParts[1]);
-							MfkMaker.showError("Error Creating Your MFK",
+							MfkMaker.showDialog("Error Creating Your MFK",
 									"The server says: " + responseParts[1]);
 						}
 					} else {
@@ -536,7 +544,7 @@ class SubmitHandler implements ClickHandler {
 								+ response.getStatusCode()
 								+ "; response text: "
 								+ response.getText());
-						MfkMaker.showError("Server Error", 
+						MfkMaker.showDialog("Server Error", 
 								"Response code "
 								+ response.getStatusCode() + ": "
 								+ response.getStatusText());

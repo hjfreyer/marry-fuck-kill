@@ -104,7 +104,9 @@ class Triple(db.Model):
 
         Raises EntityValidationError if there was a problem.
         """
-        raise EntityValidationError("test error")
+        # TODO(mjkelly): implement me
+        #raise EntityValidationError("test error")
+        pass
 
 def PutTriple(one, two, three):
     """Put a triple in the DB with canonical key.
