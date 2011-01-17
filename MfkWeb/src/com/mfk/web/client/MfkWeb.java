@@ -36,10 +36,6 @@ public class MfkWeb implements EntryPoint {
 
 	public enum Mfk {MARRY, FUCK, KILL};
 	
-	/** Display area for the 3 entities. */
-	public static VerticalPanel entityHtml[] = {new VerticalPanel(),
-												new VerticalPanel(),
-												new VerticalPanel()};
 	/** Entity IDs. */
 	public static String entities[] = {null, null, null};
 	
@@ -113,10 +109,6 @@ public class MfkWeb implements EntryPoint {
 		RootPanel.get("voteButton").add(voteButton);
 		RootPanel.get("skipButton").add(skipButton);
 		
-		RootPanel.get("e1Display").add(entityHtml[0]);
-		RootPanel.get("e2Display").add(entityHtml[1]);
-		RootPanel.get("e3Display").add(entityHtml[2]);
-		
 		MfkWeb.errorHtml = new HTML("No error.");
 		MfkWeb.errorDialog = MfkWeb.makeErrorDialog(MfkWeb.errorHtml);
 		
@@ -134,19 +126,22 @@ public class MfkWeb implements EntryPoint {
 		MfkWeb.entities[1] = two;
 		MfkWeb.entities[2] = three;
 		
-		
 		// change the display itself
-		MfkWeb.entityHtml[0].clear();
-		MfkWeb.entityHtml[0].add(new Label(one));
-		MfkWeb.entityHtml[0].add(new Image(url1));
+		RootPanel.get("e1title").clear();
+		RootPanel.get("e1title").add(new Label(one));
+		RootPanel.get("e1image").clear();
+		RootPanel.get("e1image").add(new Image(url1));
 		
-		MfkWeb.entityHtml[1].clear();
-		MfkWeb.entityHtml[1].add(new Label(two));
-		MfkWeb.entityHtml[1].add(new Image(url2));
+		RootPanel.get("e2title").clear();
+		RootPanel.get("e2title").add(new Label(two));
+		RootPanel.get("e2image").clear();
+		RootPanel.get("e2image").add(new Image(url2));
 		
-		MfkWeb.entityHtml[2].clear();
-		MfkWeb.entityHtml[2].add(new Label(three));
-		MfkWeb.entityHtml[2].add(new Image(url3));
+		RootPanel.get("e3title").clear();
+		RootPanel.get("e3title").add(new Label(three));
+		RootPanel.get("e3image").clear();
+		RootPanel.get("e3image").add(new Image(url3));
+		
 	}
 
 	public static void checkVoteStatus(VoteGroupHandler changedVote) {
