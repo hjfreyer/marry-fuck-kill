@@ -73,7 +73,7 @@ public class MfkMaker implements EntryPoint {
 		MfkMaker.itemPanel.setSpacing(10);
 
 		for (int i = 1; i <= 3; i++) {
-			SearchImage img = new SearchImage("/gwt/images/treehouse-" + i
+			SearchImage img = new SearchImage("/static/treehouse-" + i
 					+ ".jpeg", "treehouse");
 			MfkPanel item = new MfkPanel("Treehouse " + i, img);
 			MfkMaker.addItem(item);
@@ -173,7 +173,7 @@ public class MfkMaker implements EntryPoint {
 }
 
 class EditDialog extends DialogBox {
-	private static String THROBBER_URL = "/gwt/loading.gif";
+	private static String THROBBER_URL = "/loading.gif";
 	private MfkPanel item = null;
 	private SearchImage editImage = new SearchImage();
 	private TextBox editTitle = new TextBox();
