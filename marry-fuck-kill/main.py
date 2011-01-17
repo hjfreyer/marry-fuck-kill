@@ -35,7 +35,7 @@ class MainHandler(webapp.RequestHandler):
 <ul>
     <li><a href="/gwt/MfkWeb.html">MfkWeb (vote)</a>
         (<a href="/gwt/MfkWeb.html?gwt.codesvr=127.0.0.1:9997">GWT debug</a>)</li>
-    <li><a href="/gwt/MfkMaker.html">MfkMaker (vote)</a>
+    <li><a href="/gwt/MfkMaker.html">MfkMaker (create)</a>
         (<a href="/gwt/MfkMaker.html?gwt.codesvr=127.0.0.1:9997">GWT debug</a>)</li>
 </ul>
 <h2>Debugging Tools</h2>
