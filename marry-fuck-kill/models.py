@@ -51,8 +51,7 @@ class Entity(db.Model):
         
 
 def PutEntity(name, url=None):
-    entity = Entity(name=name,
-                    key_name=name)
+    entity = Entity(name=name)
     entity.set_full_url(url)
     entity.put()
     return entity
@@ -78,7 +77,7 @@ class Triple(db.Model):
             return Triple.get(random.choice(keys))
 
     def __str__(self):
-        return Triple.key_name_from_entities(self.one, self.two, self.three)
+        return Triple.name_from_entities(self.one, self.two, self.three)
 
     def __repr__(self):
         return "Triple(one=%r, two=%r, three=%r)" % (self.one, self.two, self.three)
@@ -87,14 +86,14 @@ class Triple(db.Model):
         return {'one': self.one.json(),
                 'two': self.two.json(),
                 'three': self.three.json(),
-                'key': self.key().name()}
+                'key': str(self.key())}
 
     @staticmethod
-    def key_name_from_entities(one, two, three):
+    def name_from_entities(one, two, three):
         """Given three Entities, generate the canonical key name for a Triple
         containing them.
         """
-        keys = [one.key().name(), two.key().name(), three.key().name()]
+        keys = [one.name, two.name, three.name]
         keys.sort()
         return "%s.%s.%s" % (keys[0], keys[1], keys[2])
 
@@ -115,8 +114,7 @@ def PutTriple(one, two, three):
     """
     triple = Triple(one=one, 
                     two=two,
-                    three=three,
-                    key_name=Triple.key_name_from_entities(one, two, three))
+                    three=three)
     triple.put()
     return triple
 

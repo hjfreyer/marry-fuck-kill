@@ -66,39 +66,55 @@ class AssignmentHandler(webapp.RequestHandler):
 
     @staticmethod
     def make_assignment(request):
-        ids = [request.get('e1'), request.get('e2'), request.get('e3')]
+        triple_key = request.get('key')
         values = [request.get('v1'), request.get('v2'), request.get('v3')]
+
+        logging.debug("triple_key = %s", triple_key)
+        logging.debug("values = %s", values)
 
         if set(values) != set(['m', 'f', 'k']):
             return None
 
-        marry = models.Entity.get_by_key_name(ids[values.index('m')])
-        fuck = models.Entity.get_by_key_name(ids[values.index('f')])
-        kill = models.Entity.get_by_key_name(ids[values.index('k')])
 
-        if marry is None or fuck is None or kill is None:
+        # We get an entity->action map from the client, but we need to reverse
+        # it to action->entity to update the DB.
+        triple = models.Triple.get(triple_key)
+        logging.debug("triple = %s", triple)
+        triple_entities = [triple.one,
+                           triple.two,
+                           triple.three]
+        if (entities['m'] is None or entities['f'] is None
+                or entities['k'] is None):
             logging.error("Not all non-None: marry = %s, fuck = %s, kill = %s",
-                          marry, fuck, kill)
+                          entities['m'], entities['f'], entities['k'])
             return None
 
-        triple_key = models.Triple.key_name_from_entities(marry, fuck, kill)
-        triple = models.Triple.get_by_key_name(triple_key)
         if triple is None:
             logging.error("No triple with key %s", triple_key)
             return None
 
-        assign = models.Assignment(marry=marry, 
-                                   fuck=fuck, 
-                                   kill=kill)
+        entities = {}
+        for i in range(len(values)):
+            # Items in values are guaranteed to be 'm', 'f', 'k' (check above)
+            entities[values[i]] = triple_entities[i]
+
+        assign = models.Assignment(marry=entities['m'], 
+                                   fuck=entities['f'], 
+                                   kill=entities['k'])
         assign.put()
-        logging.info("Assigned m=%s, f=%s, k=%s to %s", marry.key().name(),
-                fuck.key().name(), kill.key().name(), triple.key().name())
+        logging.info("Assigned m=%s, f=%s, k=%s to %s", entities['m'],
+                entities['f'], entities['k'], triple)
         return assign
 
 class AssignmentJsonHandler(webapp.RequestHandler):
-    def get(self, assignment_id=None):
-        triple = models.Triple.get_random()
-        out = simplejson.dumps(triple.json())
+    def get(self, key=None):
+        if key:
+            triple = models.Triple.get(key)
+            out = simplejson.dumps(triple.json())
+        else:
+            # give one at random
+            triple = models.Triple.get_random()
+            out = simplejson.dumps(triple.json())
         logging.info("AssignmentJsonHandler: sending: %s" % out)
         self.response.headers['Content-Type'] = 'application/json'
         self.response.out.write(out)

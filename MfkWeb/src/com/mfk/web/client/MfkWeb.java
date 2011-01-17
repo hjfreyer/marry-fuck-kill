@@ -8,6 +8,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONException;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
@@ -38,6 +39,9 @@ public class MfkWeb implements EntryPoint {
 	
 	/** Entity IDs. */
 	public static String entities[] = {null, null, null};
+	
+	/** Server key for the displayed triple. */
+	public static String triple_key;
 	
 	public static VoteGroupHandler groups[] = {null, null, null};
 	
@@ -143,6 +147,16 @@ public class MfkWeb implements EntryPoint {
 		RootPanel.get("e3image").add(new Image(url3));
 		
 	}
+	
+	/***
+	 * Sets the active triple key. This should correspond to the displayed
+	 * triples (via setEntities()).
+	 * @param key
+	 */
+	public static void setKey(String key) {
+		MfkWeb.triple_key = key;
+		System.out.println("Setting active triple key = " + key);
+	}
 
 	public static void checkVoteStatus(VoteGroupHandler changedVote) {
 		System.out.println("checkVoteStatus: " + MfkWeb.groups[0].vote()
@@ -187,6 +201,8 @@ class LoadTripleHandler implements ClickHandler {
 					
 					JSONObject json;
 					try {
+						System.out.println("Trying to parse response: " +
+								response.getText());
 						json = JSONParser.parse(response.getText()).isObject();
 					}
 					catch (JSONException e) {
@@ -209,6 +225,7 @@ class LoadTripleHandler implements ClickHandler {
 										.isString().stringValue(),
 								json.get("three").isObject().get("url")
 										.isString().stringValue());
+						MfkWeb.setKey(json.get("key").isString().stringValue());
 						MfkWeb.setStatus("Getting new triple...done.");
 					}
 					catch (NullPointerException e) {
@@ -304,12 +321,14 @@ class AssignmentHandler implements ClickHandler {
 		builder.setHeader("Content-Type", "application/x-www-form-urlencoded");
 		StringBuffer reqData = new StringBuffer();
 		
-		reqData.append("e1=").append(MfkWeb.entities[0]);
-		reqData.append("&e2=").append(MfkWeb.entities[1]);
-		reqData.append("&e3=").append(MfkWeb.entities[2]);
-		reqData.append("&v1=").append(MfkWeb.groups[0].voteStr());
-		reqData.append("&v2=").append(MfkWeb.groups[1].voteStr());
-		reqData.append("&v3=").append(MfkWeb.groups[2].voteStr());
+		reqData.append("key=").append(
+				URL.encodeQueryString(MfkWeb.triple_key));
+		reqData.append("&v1=").append(
+				URL.encodeQueryString(MfkWeb.groups[0].voteStr()));
+		reqData.append("&v2=").append(
+				URL.encodeQueryString(MfkWeb.groups[1].voteStr()));
+		reqData.append("&v3=").append(
+				URL.encodeQueryString(MfkWeb.groups[2].voteStr()));
 		
 		try {
 			builder.sendRequest(reqData.toString(), new RequestCallback() {
