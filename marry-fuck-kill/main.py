@@ -22,7 +22,7 @@ import assignment_handlers
 import entity_handlers
 import triple_handlers
 
-class MainHandler(webapp.RequestHandler):
+class DebugHandler(webapp.RequestHandler):
     def get(self):
         response = """
 <html>
@@ -41,9 +41,9 @@ class MainHandler(webapp.RequestHandler):
 <h2>Debugging Tools</h2>
 <ul>
     <li><a href="/_ah/admin">Admin</a></li>
-    <li><a href="/vote/">Vote</a></li>
-    <li><a href="/triple/create">New Triple</a></li>
-    <li><a href="/entity/create">New Entity</a></li>
+    <li><a href="vote/">Vote</a></li>
+    <li><a href="triple/create">New Triple</a></li>
+    <li><a href="entity/create">New Entity</a></li>
 </ul>
 </body>
 </html>
@@ -51,12 +51,12 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(response)
 
 def main():
-    application = webapp.WSGIApplication([('/', MainHandler),
-                                          ("/entity/create", entity_handlers.EntityCreationHandler),
-                                          ("/entity/view/(.*)", entity_handlers.EntityStatsHandler),
-                                          ("/vote/(.*)", assignment_handlers.AssignmentHandler),
-                                          ("/triple/create", triple_handlers.TripleCreationHandler),
-                                          ("/triple/view/(.*)", triple_handlers.TripleStatsHandler),
+    application = webapp.WSGIApplication([('/debug', DebugHandler),
+                                          ("/debug/vote/(.*)", assignment_handlers.AssignmentHandler),
+                                          ("/debug/entity/create", entity_handlers.EntityCreationHandler),
+                                          ("/debug/entity/view/(.*)", entity_handlers.EntityStatsHandler),
+                                          ("/debug/triple/create", triple_handlers.TripleCreationHandler),
+                                          ("/debug/triple/view/(.*)", triple_handlers.TripleStatsHandler),
                                           ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
                                           ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler)],
                                          debug=True)

@@ -4,9 +4,19 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /gwt
+- url: /debug(/.+)?
+  script: main.py
+
+- url: /make
+  static_files: gwt-war/MfkMaker.html
+  upload: gwt-war/.*
+
+- url: /
+  static_files: gwt-war/MfkWeb.html
+  upload: gwt-war/.*
+
+- url: /
   static_dir: gwt-war
 
-- url: .*
-  script: main.py
+
 
