@@ -11,12 +11,12 @@ handlers:
   static_files: gwt-war/MfkMaker.html
   upload: gwt-war/.*
 
+# This is just the root page.
 - url: /
   static_files: gwt-war/MfkWeb.html
   upload: gwt-war/.*
 
+# These are all other files under root.
 - url: /
   static_dir: gwt-war
-
-
 
