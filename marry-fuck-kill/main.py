@@ -24,29 +24,30 @@ import triple_handlers
 
 class MainHandler(webapp.RequestHandler):
     def get(self):
-        t = models.Triple.get_random()
         response = """
 <html>
 <head>
     <title>M/F/K</title>
 </head>
 <body>
-<h1>M/F/K</h1>
-<h2>Links</h2>
+<h1>M/F/K - ugly debug page</h1>
+<h2>UI Pages</h2>
+<ul>
+    <li><a href="/gwt/MfkWeb.html">MfkWeb (vote)</a>
+        (<a href="/gwt/MfkWeb.html?gwt.codesvr=127.0.0.1:9997">GWT debug</a>)</li>
+    <li><a href="/gwt/MfkMaker.html">MfkMaker (vote)</a>
+        (<a href="/gwt/MfkMaker.html?gwt.codesvr=127.0.0.1:9997">GWT debug</a>)</li>
+</ul>
+<h2>Debugging Tools</h2>
 <ul>
     <li><a href="/_ah/admin">Admin</a></li>
     <li><a href="/vote/">Vote</a></li>
     <li><a href="/triple/create">New Triple</a></li>
     <li><a href="/entity/create">New Entity</a></li>
-    <li><a href="/gwt/MfkWeb.html?gwt.codesvr=127.0.0.1:9997">MfkWeb (vote)</a></li>
-    <li><a href="/gwt/MfkMaker.html?gwt.codesvr=127.0.0.1:9997">MfkMaker (create)</a></li>
 </ul>
-
-<h2>Random triple:</h2>
-<p>%s</p>
 </body>
 </html>
-""" % t
+"""
         self.response.out.write(response)
 
 def main():
