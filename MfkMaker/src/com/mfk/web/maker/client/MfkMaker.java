@@ -82,6 +82,8 @@ public class MfkMaker implements EntryPoint {
 
 	static final HorizontalPanel itemPanel = new HorizontalPanel();
 
+	static final DialogBox errorDialog = new DialogBox();
+
 	public void onModuleLoad() {
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
 		MfkMaker.itemPanel.setSpacing(10);
@@ -137,7 +139,8 @@ public class MfkMaker implements EntryPoint {
 			public void onSearchResults(SearchResultsEvent event) {
 				JsArray<? extends Result> results = event.getResults();
 				System.out.println("Top-result handler! #results = "
-						+ results.length() + ", search = " + MfkMaker.resultsSearchQuery);
+						+ results.length() + ", search = "
+						+ MfkMaker.resultsSearchQuery);
 				if (results.length() >= 1) {
 					ImageResult r = (ImageResult) results.get(0);
 					Image image = new Image(r.getThumbnailUrl());
@@ -162,6 +165,26 @@ public class MfkMaker implements EntryPoint {
 	public static void addItem(MfkPanel item) {
 		MfkMaker.items.add(item);
 		MfkMaker.itemPanel.add(item);
+	}
+	
+	public static void showError(String title, String message) {
+		MfkMaker.errorDialog.hide();
+		MfkMaker.errorDialog.clear();
+		VerticalPanel panel = new VerticalPanel();
+		MfkMaker.errorDialog.add(panel);
+		
+		panel.add(new HTML("<p><b>" + title + "</b></p>"));
+		panel.add(new HTML("<p>" + message + "</p>"));
+		
+		Button closeButton = new Button("OK");
+		closeButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				MfkMaker.errorDialog.hide();
+			}
+		});
+		panel.add(closeButton);
+		MfkMaker.errorDialog.center();
+		MfkMaker.errorDialog.show();
 	}
 }
 
@@ -246,7 +269,8 @@ class EditDialog extends DialogBox {
 	public void editItem(final MfkPanel item) {
 		this.item = item;
 		System.out.println("Showing dialog for :" + item);
-		this.editImage.setUrlAndQuery(item.image.getUrl(), item.image.getQuery());
+		this.editImage.setUrlAndQuery(item.image.getUrl(), item.image
+				.getQuery());
 		this.editTitle.setText(item.title);
 		this.autoThrobber.setVisible(false);
 		this.search.setVisible(false);
@@ -382,7 +406,8 @@ class EditDialog extends DialogBox {
 	public void setImage(Image image) {
 		System.out.println("Set edit image url = " + image.getUrl()
 				+ " (from = " + MfkMaker.resultsSearchQuery + ")");
-		this.editImage.setUrlAndQuery(image.getUrl(), MfkMaker.resultsSearchQuery);
+		this.editImage.setUrlAndQuery(image.getUrl(),
+				MfkMaker.resultsSearchQuery);
 	}
 
 	public void autoSetImage(Image image) {
@@ -494,21 +519,27 @@ class SubmitHandler implements ClickHandler {
 				public void onResponseReceived(Request request,
 						Response response) {
 					if (response.getStatusCode() == 200) {
-						String[] responseParts = response.getText().split(":", 2);
+						String[] responseParts = response.getText().split(":",
+								2);
 						if (responseParts[0].equals("ok")) {
 							System.out.println("Successful creation request: "
 									+ response.getText());
-						}
-						else {
+						} else {
 							System.out.println("Error: " + responseParts[1]);
+							MfkMaker.showError("Error Creating Your MFK",
+									"The server says: " + responseParts[1]);
 						}
 					} else {
-						System.out
-								.println("Server-side error creating new MFK: "
-										+ "Response code: "
-										+ response.getStatusCode()
-										+ "; response text: "
-										+ response.getText());
+						System.out.println(
+								"Server-side error creating new MFK: "
+								+ "Response code: "
+								+ response.getStatusCode()
+								+ "; response text: "
+								+ response.getText());
+						MfkMaker.showError("Server Error", 
+								"Response code "
+								+ response.getStatusCode() + ": "
+								+ response.getStatusText());
 					}
 				}
 			});
@@ -560,8 +591,9 @@ class SearchImage extends FlowPanel {
 		this.setHeight("145px");
 		this.addStyleName("searchimage");
 	}
-	
+
 	public String toString() {
-		return "<SearchImage url=" + this.image.getUrl() + ", q=" + this.query + ">";
+		return "<SearchImage url=" + this.image.getUrl() + ", q=" + this.query
+				+ ">";
 	}
 }
