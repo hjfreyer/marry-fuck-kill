@@ -1,75 +1,54 @@
 <!doctype html>
-<!-- The DOCTYPE declaration above will set the    -->
-<!-- browser's rendering engine into               -->
-<!-- "Standards Mode". Replacing this declaration  -->
-<!-- with a "Quirks Mode" doctype may lead to some -->
-<!-- differences in layout.                        -->
-
 <html>
   <head>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-
-    <!--                                                               -->
-    <!-- Consider inlining CSS to reduce the number of requested files -->
-    <!--                                                               -->
     <link type="text/css" rel="stylesheet" href="mfk.css">
-
-    <!--                                           -->
-    <!-- Any title is fine                         -->
-    <!--                                           -->
-    <title>Web Application Starter Project</title>
-    
-    <!--                                           -->
-    <!-- This script loads your compiled module.   -->
-    <!-- If you add any GWT meta tags, they must   -->
-    <!-- be added before this line.                -->
-    <!--                                           -->
+    <title>Marry-Fuck-Kill: The Game</title>
+    <!-- Add any GWT meta tags before this line. -->
     <script type="text/javascript" language="javascript" src="mfkweb/mfkweb.nocache.js"></script>
   </head>
-
-  <body class="body">
-
-    <!-- OPTIONAL: include this if you want history support -->
+  <body id="body">
+    <!-- history support -->
     <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
-    
-    <!-- RECOMMENDED if your web app will not function without JavaScript enabled -->
-    <noscript>
-      <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
-        Your web browser must have JavaScript enabled
-        in order for to play Marry/Fuck/Kill!
-      </div>
-    </noscript>
-
     <center>
+      <noscript>
+        <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+          Your web browser must have JavaScript enabled
+          in order for to play Marry/Fuck/Kill!
+        </div>
+      </noscript>
 
-    <h1><img src="title.png" width="410" height="41" alt="Marry! Fuck! Kill!"></h1>
-    
-    <table id="mainTable">
-    	<tr>
-    		<td id="e1">
-    			<div id="e1Display" class="entity"></div>
-    			<div id="e1Vote"></div>
-    		</td>
-    		<td id="e2">
-    			<div id="e2Display" class="entity"></div>
-    			<div id="e2Vote"></div>
-    		</td>
-    		<td id="e3">
-    			<div id="e3Display" class="entity"></div>
-    			<div id="e3Vote"></div>
-    		</td>
-    	</tr>
-    	<tr>
-    		<td colspan="3"><div id="status"></div></td>
-    	</tr>
-    	<tr>
-    		<td colspan="3">
-                <span id="voteButton" class="control"></span>
-                <span id="skipButton" class="control"></span>
-            </td>
-    	</tr>
-    </table>
+      <h1><img src="title.png" width="410" height="41" alt="Marry-Fuck-Kill"></h1>
+      <table id="mainTable">
+        <tr>
+    		  <td id="e1">
+    			  <div id="e1Display" class="entity"></div>
+    			  <div id="e1Vote"></div>
+    		  </td>
+    		  <td id="e2">
+    			  <div id="e2Display" class="entity"></div>
+    			  <div id="e2Vote"></div>
+    		  </td>
+    		  <td id="e3">
+    			  <div id="e3Display" class="entity"></div>
+    			  <div id="e3Vote"></div>
+    		  </td>
+    	  </tr>
+    	  <tr>
+    		  <td colspan="3"><div id="status"></div></td>
+    	  </tr>
+    	  <tr>
+    	    <td colspan="3">
+            <span id="voteButton" class="control"></span>
+            <span id="skipButton" class="control"></span>
+          </td>
+    	  </tr>
+      </table>
 
+      <div class="nav">
+        <a href="/about">What's MFK?</a> |
+        <a href="/make">Make Your Own MFKs!</a>
+      </div>
     </center>
   </body>
 </html>
