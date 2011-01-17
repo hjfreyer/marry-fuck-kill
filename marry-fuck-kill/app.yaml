@@ -15,11 +15,15 @@ handlers:
   static_files: gwt-war/MfkMaker.html
   upload: gwt-war/.*
 
+- url: /vote(/.*)?
+  static_files: gwt-war/MfkWeb.html
+  upload: gwt-war/.*
+
 - url: /about
   static_files: gwt-war/about.html
   upload: gwt-war/.*
 
-# This is just the root page.
+# The root page is an alias for /vote.
 - url: /
   static_files: gwt-war/MfkWeb.html
   upload: gwt-war/.*
