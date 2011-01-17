@@ -19,45 +19,10 @@ from google.appengine.ext.webapp import util
 
 import models
 import assignment_handlers
-import entity_handlers
 import triple_handlers
 
-class DebugHandler(webapp.RequestHandler):
-    def get(self):
-        response = """
-<html>
-<head>
-    <title>M/F/K</title>
-</head>
-<body>
-<h1>M/F/K - ugly debug page</h1>
-<h2>UI Pages</h2>
-<ul>
-    <li><a href="/gwt/MfkWeb.html">MfkWeb (vote)</a>
-        (<a href="/gwt/MfkWeb.html?gwt.codesvr=127.0.0.1:9997">GWT debug</a>)</li>
-    <li><a href="/gwt/MfkMaker.html">MfkMaker (create)</a>
-        (<a href="/gwt/MfkMaker.html?gwt.codesvr=127.0.0.1:9997">GWT debug</a>)</li>
-</ul>
-<h2>Debugging Tools</h2>
-<ul>
-    <li><a href="/_ah/admin">Admin</a></li>
-    <li><a href="vote/">Vote</a></li>
-    <li><a href="triple/create">New Triple</a></li>
-    <li><a href="entity/create">New Entity</a></li>
-</ul>
-</body>
-</html>
-"""
-        self.response.out.write(response)
-
 def main():
-    application = webapp.WSGIApplication([('/debug', DebugHandler),
-                                          ("/debug/vote/(.*)", assignment_handlers.AssignmentHandler),
-                                          ("/debug/entity/create", entity_handlers.EntityCreationHandler),
-                                          ("/debug/entity/view/(.*)", entity_handlers.EntityStatsHandler),
-                                          ("/debug/triple/create", triple_handlers.TripleCreationHandler),
-                                          ("/debug/triple/view/(.*)", triple_handlers.TripleStatsHandler),
-                                          ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
+    application = webapp.WSGIApplication([("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
                                           ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler)],
                                          debug=True)
     util.run_wsgi_app(application)

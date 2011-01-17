@@ -4,7 +4,11 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: /(debug|rpc)(/.+)?
+- url: /debug(/.+)?
+  script: debug.py
+  login: admin
+
+- url: /rpc/.*
   script: main.py
 
 - url: /make
