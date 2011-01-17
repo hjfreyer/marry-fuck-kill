@@ -6,6 +6,12 @@ h1 {
     text-align: center;
 }
 
+h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 5px 20px 20px 0px;
+}
+
 
 /* The whole browser window. */
 #body {
@@ -17,13 +23,16 @@ h1 {
 #page {
   display: block;
   background: white;
-  padding: 10px;
+  padding: 15px;
 
   width: 640px;
+  height: 100%;
   margin: 0 auto;
 
+  border: 1px solid #330033;
   border-radius: 15px;
   -moz-border-radius: 15px;
+
 }
 
 /* This only affects non-gwt-styled elements. */
@@ -33,6 +42,15 @@ h1 {
 
 #status {
   padding: 5px;
+  visibility: hidden;
+  height: 15px;
+}
+
+#e1title, #e2title, #e3title {
+  margin: 2px;
+}
+
+#e1image, #e2image, #e3image {
 }
 
 .mfkButton {
@@ -49,12 +67,12 @@ h1 {
   font-size: 20px;
   border: 1px solid #330033;
   background: white;
+  text-align: center;
 }
 
 .tight {
   display: block;
   text-align: left;
-  width: 40em;
   background: white;
 }
 
