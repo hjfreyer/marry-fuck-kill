@@ -1,1 +1,4 @@
-*.pyc*.class*.cache.png*.cache.html
+*.pyc
+*.class
+*.cache.png
+*.cache.html
