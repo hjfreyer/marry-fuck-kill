@@ -6,14 +6,33 @@ h1 {
     text-align: center;
 }
 
+
+/* The whole browser window. */
 #body {
     background: #9911bb;
     font-family: sans-serif;
 } 
 
+/* The main content. */
+#page {
+  display: block;
+  background: white;
+  padding: 10px;
+
+  width: 640px;
+  margin: 0 auto;
+
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+}
+
 /* This only affects non-gwt-styled elements. */
 #body a, a:visited, a:hover {
   color: black;
+}
+
+#status {
+  padding: 5px;
 }
 
 .mfkButton {
@@ -21,10 +40,6 @@ h1 {
 
 .errorText {
     margin: 20px;
-}
-
-#mainTable {
-	text-align: center;
 }
 
 .entity {
@@ -40,16 +55,15 @@ h1 {
   display: block;
   text-align: left;
   width: 40em;
+  background: white;
 }
 
 .nav {
   display: block;
+  text-align: center;
   font-size: 16px;
   margin-top: 10px;
   margin-bottom: 10px;
-}
-
-.status {
 }
 
 .control {

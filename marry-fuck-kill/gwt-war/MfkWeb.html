@@ -10,7 +10,8 @@
   <body id="body">
     <!-- history support -->
     <iframe src="javascript:''" id="__gwt_historyFrame" tabIndex='-1' style="position:absolute;width:0;height:0;border:0"></iframe>
-    <center>
+    <h1><img src="title.png" width="410" height="41" alt="Marry-Fuck-Kill"></h1>
+    <div id="page">
       <noscript>
         <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
           Your web browser must have JavaScript enabled
@@ -18,8 +19,11 @@
         </div>
       </noscript>
 
-      <h1><img src="title.png" width="410" height="41" alt="Marry-Fuck-Kill"></h1>
-      <table id="mainTable">
+      <p class="tight">
+        Vote for "marry", "fuck", or "kill" on each item below. You must vote for each on exactly once!
+      </p>
+
+      <table>
         <tr>
     		  <td id="e1">
     			  <div id="e1Display" class="entity"></div>
@@ -34,21 +38,15 @@
     			  <div id="e3Vote"></div>
     		  </td>
     	  </tr>
-    	  <tr>
-    		  <td colspan="3"><div id="status"></div></td>
-    	  </tr>
-    	  <tr>
-    	    <td colspan="3">
-            <span id="voteButton" class="control"></span>
-            <span id="skipButton" class="control"></span>
-          </td>
-    	  </tr>
       </table>
+    	<div id="status"></div>
+      <span id="voteButton" class="control"></span>
+      <span id="skipButton" class="control"></span>
 
       <div class="nav">
         <a href="/about">What's MFK?</a> |
         <a href="/make">Make Your Own MFKs!</a>
       </div>
-    </center>
+    </div>
   </body>
 </html>
