@@ -80,23 +80,23 @@ class AssignmentHandler(webapp.RequestHandler):
         # it to action->entity to update the DB.
         triple = models.Triple.get(triple_key)
         logging.debug("triple = %s", triple)
+        if triple is None:
+            logging.error("No triple with key %s", triple_key)
+            return None
+
         triple_entities = [triple.one,
                            triple.two,
                            triple.three]
+        entities = {}
+        for i in range(len(values)):
+            # Items in values are guaranteed to be 'm', 'f', 'k' (check above)
+            entities[values[i]] = triple_entities[i]
+
         if (entities['m'] is None or entities['f'] is None
                 or entities['k'] is None):
             logging.error("Not all non-None: marry = %s, fuck = %s, kill = %s",
                           entities['m'], entities['f'], entities['k'])
             return None
-
-        if triple is None:
-            logging.error("No triple with key %s", triple_key)
-            return None
-
-        entities = {}
-        for i in range(len(values)):
-            # Items in values are guaranteed to be 'm', 'f', 'k' (check above)
-            entities[values[i]] = triple_entities[i]
 
         assign = models.Assignment(marry=entities['m'], 
                                    fuck=entities['f'], 
