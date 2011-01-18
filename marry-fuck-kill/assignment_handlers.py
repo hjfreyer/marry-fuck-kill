@@ -75,7 +75,6 @@ class AssignmentHandler(webapp.RequestHandler):
         if set(values) != set(['m', 'f', 'k']):
             return None
 
-
         # We get an entity->action map from the client, but we need to reverse
         # it to action->entity to update the DB.
         triple = models.Triple.get(triple_key)

@@ -8,7 +8,7 @@ handlers:
   script: debug.py
   login: admin
 
-- url: /rpc/.*
+- url: /(rpc|i)/.*
   script: main.py
 
 - url: /make

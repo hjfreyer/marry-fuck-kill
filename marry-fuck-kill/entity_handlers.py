@@ -39,10 +39,15 @@ class EntityCreationHandler(webapp.RequestHandler):
 
         utils.redirect(self, '/entity/view/' + name)
 
+class EntityImageHandler(webapp.RequestHandler):
+    def get(self, entity_id):
+        entity = models.Entity.get(urllib.unquote(entity_id))
+        self.response.headers['Content-Type'] = "image/jpg";
+        self.response.out.write(entity.data)
+
 class EntityStatsHandler(webapp.RequestHandler):
     def get(self, entity_id):
         entity = models.Entity.get_by_key_name(urllib.unquote(entity_id))
 
         self.response.out.write('Hello world! ' + entity.key_name)
  
-           

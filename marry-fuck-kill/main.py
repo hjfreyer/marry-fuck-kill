@@ -20,10 +20,12 @@ from google.appengine.ext.webapp import util
 import models
 import assignment_handlers
 import triple_handlers
+import entity_handlers
 
 def main():
     application = webapp.WSGIApplication([("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
-                                          ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler)],
+                                          ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
+                                          ("/i/(.*)", entity_handlers.EntityImageHandler)],
                                          debug=True)
     util.run_wsgi_app(application)
 

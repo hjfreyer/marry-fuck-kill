@@ -17,6 +17,7 @@
 
 import logging
 import random
+import urllib2
 
 from google.appengine.ext import db
 
@@ -26,10 +27,14 @@ class EntityValidationError(Exception):
 
 class Entity(db.Model):
     name = db.StringProperty(required=True)
-    url = db.StringProperty(required=False)
+    data = db.BlobProperty(required=True)
     query = db.StringProperty(required=False)
     creator = db.UserProperty()    
 
+    # Where images live on the server.
+    BASE_URL = '/i/'
+
+    # TODO(mjkelly): do something with this or get rid of it
     type = db.StringProperty(choices=set(["abstract", "person", "object"]))
    
     def __str__(self):
@@ -42,18 +47,21 @@ class Entity(db.Model):
         return {'name': self.name, 'url': self.get_full_url()}
 
     def get_full_url(self):
-        """Get the full URL including the prefix."""
-        return self.url
-
-    def set_full_url(self, url):
-        """Given a full URL, set the url property."""
-        logging.info('set_full_url: url=%s', url)
-        self.url = url
-        
+        logging.info("get_full_url: returning %s", Entity.BASE_URL + str(self.key()))
+        return Entity.BASE_URL + str(self.key())
 
 def PutEntity(name, url, query):
-    entity = Entity(name=name, query=query)
-    entity.set_full_url(url)
+    if not url.startswith('http://images.google.com/images?q'):
+        raise EntityValidationError("URL must come from Google image search.")
+
+    # This could throw URLError. We'll let it bubble up.
+    fh = urllib2.urlopen(url)
+    logging.info("Downloading %s" % url)
+    data = fh.read()
+    logging.info("Downloaded %s bytes" % len(data))
+
+    entity = Entity(name=name, data=data, query=query)
+
     entity.put()
     return entity
     
@@ -107,7 +115,7 @@ class Triple(db.Model):
 
         if len(set([one.name, two.name, three.name])) < 3:
             raise EntityValidationError("All item names must be distinct.")
-        if len(set([one.url, two.url, three.url])) < 3:
+        if len(set([one.data, two.data, three.data])) < 3:
             raise EntityValidationError("All item URLs must be distinct.")
         # TODO(mjkelly): implement me
         #raise EntityValidationError("test error")
