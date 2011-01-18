@@ -111,7 +111,7 @@ class TripleJsonHandler(webapp.RequestHandler):
         except models.EntityValidationError, e:
             self.response.out.write('error:%s' % e)
             return
-        self.response.out.write('ok:created')
+        self.response.out.write('ok:%s' % str(triple.key()))
 
 class TripleStatsHandler(webapp.RequestHandler):
     def get(self, triple_id):
