@@ -48,12 +48,6 @@ public class MfkMaker implements EntryPoint {
 	 * This is the entry point method.
 	 */
 
-	public static Image selected;
-
-	public static Image images[] = { null, null, null };
-	public static Button setButtons[] = { new Button("Set Item 1"),
-			new Button("Set Item 2"), new Button("Set Item 3") };
-
 	// the actual image results
 	public static Vector<Image> results = new Vector<Image>();
 	// the UI panel that displays the search results
@@ -69,15 +63,19 @@ public class MfkMaker implements EntryPoint {
 	static final HorizontalPanel itemPanel = new HorizontalPanel();
 
 	static final DialogBox miscDialog = new DialogBox();
+	
+	public static final String[] defaultURLs = {
+		"http://www.marryboffkill.net/static/treehouse-1.jpeg",
+		"http://www.marryboffkill.net/static/treehouse-2.jpeg",
+		"http://www.marryboffkill.net/static/treehouse-3.jpeg"};
 
 	public void onModuleLoad() {
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
 		MfkMaker.itemPanel.setSpacing(10);
 
-		for (int i = 1; i <= 3; i++) {
-			SearchImage img = new SearchImage("/static/treehouse-" + i
-					+ ".jpeg", "treehouse");
-			MfkPanel item = new MfkPanel("Treehouse " + i, img);
+		for (int i = 0; i < 3; i++) {
+			SearchImage img = new SearchImage(defaultURLs[i], "treehouse");
+			MfkPanel item = new MfkPanel("Treehouse " + (i+1), img);
 			MfkMaker.addItem(item);
 		}
 
@@ -465,6 +463,13 @@ class MfkPanel extends VerticalPanel {
 		return "<MfkPanel: " + this.title + ", url=" + this.image.getUrl()
 				+ ">";
 	}
+	
+	public boolean equals(MfkPanel o) {
+		if (o == null)
+			return false;
+		return this.title.equals(o.title) &&
+				this.image.getUrl().equals(o.image.getUrl());
+	}
 }
 
 // TODO(mjkelly): Do client-side validation here.
@@ -472,6 +477,22 @@ class SubmitHandler implements ClickHandler {
 	public void onClick(ClickEvent event) {
 		MfkPanel[] p = { MfkMaker.items.get(0), MfkMaker.items.get(1),
 				MfkMaker.items.get(2) };
+		
+		// Do some simple validation. This just to prevent mistakes. It
+		// obviously does not replace real validation on the server side.
+		if (p[0].equals(p[1]) || p[1].equals(p[2]) || p[2].equals(p[0])) {
+			MfkMaker.showDialog("Error Creating MFK",
+					"No two items can be identical. Please change one.");
+			return;
+		}
+		for (int i = 0; i < 3; i++) {
+			System.out.println("Checking URLs: " + p[i].image.getUrl() + " vs " + MfkMaker.defaultURLs[i]);
+			if (p[i].image.getUrl().equals(MfkMaker.defaultURLs[i])) {
+				MfkMaker.showDialog("Error Creating MFK",
+						"You must change all the items from their defaults.");
+				return;
+			}
+		}
 
 		String url = "/rpc/create/";
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.POST, url);
