@@ -104,6 +104,11 @@ class Triple(db.Model):
 
         Raises EntityValidationError if there was a problem.
         """
+
+        if len(set([one.name, two.name, three.name])) < 3:
+            raise EntityValidationError("All item names must be distinct.")
+        if len(set([one.url, two.url, three.url])) < 3:
+            raise EntityValidationError("All item URLs must be distinct.")
         # TODO(mjkelly): implement me
         #raise EntityValidationError("test error")
         pass

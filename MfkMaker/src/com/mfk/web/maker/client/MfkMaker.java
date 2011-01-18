@@ -464,10 +464,15 @@ class MfkPanel extends VerticalPanel {
 				+ ">";
 	}
 	
-	public boolean equals(MfkPanel o) {
+	/***
+	 * Tests if this MfkPanel is "too similar" to another.
+	 * Used for client-side validation.
+	 */
+	public boolean similarTo(MfkPanel o) {
 		if (o == null)
 			return false;
-		return this.title.equals(o.title) &&
+		// Both title and URL must be distinct
+		return this.title.equals(o.title) ||
 				this.image.getUrl().equals(o.image.getUrl());
 	}
 }
@@ -480,9 +485,10 @@ class SubmitHandler implements ClickHandler {
 		
 		// Do some simple validation. This just to prevent mistakes. It
 		// obviously does not replace real validation on the server side.
-		if (p[0].equals(p[1]) || p[1].equals(p[2]) || p[2].equals(p[0])) {
+		if (p[0].similarTo(p[1]) || p[1].similarTo(p[2]) ||
+				p[2].similarTo(p[0])) {
 			MfkMaker.showDialog("Error Creating MFK",
-					"No two items can be identical. Please change one.");
+					"Each item must have a unique title and image.");
 			return;
 		}
 		for (int i = 0; i < 3; i++) {
