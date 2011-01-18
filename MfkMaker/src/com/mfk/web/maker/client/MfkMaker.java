@@ -14,6 +14,7 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.search.client.ExpandMode;
 import com.google.gwt.search.client.ImageResult;
 import com.google.gwt.search.client.ImageSearch;
@@ -24,6 +25,7 @@ import com.google.gwt.search.client.SafeSearchValue;
 import com.google.gwt.search.client.SearchControlOptions;
 import com.google.gwt.search.client.SearchResultsHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -508,13 +510,26 @@ class SubmitHandler implements ClickHandler {
 						if (responseParts[0].equals("ok")) {
 							System.out.println("Successful creation request: "
 									+ response.getText());
-							MfkMaker.showDialog("Great Success",
-									"You successfully created a new MFK item."
-									+ " Other users can vote on it."
-									+ " Thanks for contributing!");
+							
+							// clear the existing page in a haphazard way
 							MfkMaker.itemPanel.clear();
 							RootPanel.get("submit").clear();
-							MfkMaker.itemPanel.add(new HTML("<h2><a href='/'>Vote On More MFKs</a></h2>"));
+							RootPanel.get("instructions").setVisible(false);
+							
+							UrlBuilder builder = Window.Location.createUrlBuilder();
+							builder.setPath("/");
+							builder.setParameter("id", responseParts[1]);
+							String url = builder.buildString();
+							MfkMaker.itemPanel.add(
+									new HTML("<h2>Great Success!</h2>"
+									+ "You successfully created a new "
+									+ "MFK item. Other users can vote "
+									+ "on it here:"
+									+ "<p><a href='" + url + "'>"
+									+ url + "</a></p>"
+									+ "<p>Thanks for contributing! "
+									+ "<a href='/make'>Make another?</a></p>"));
+							
 							
 						} else {
 							System.out.println("Error: " + responseParts[1]);
