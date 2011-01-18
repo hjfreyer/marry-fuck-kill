@@ -9,9 +9,11 @@ import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.http.client.URL;
+import com.google.gwt.http.client.UrlBuilder;
 import com.google.gwt.json.client.JSONException;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -116,10 +118,12 @@ public class MfkWeb implements EntryPoint {
 		MfkWeb.errorHtml = new HTML("No error.");
 		MfkWeb.errorDialog = MfkWeb.makeErrorDialog(MfkWeb.errorHtml);
 		
-		final ClickHandler loadHandler = new LoadTripleHandler();
-		skipButton.addClickHandler(loadHandler);
-		// get an initial item
-		loadHandler.onClick(null);
+		skipButton.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				MfkWeb.loadNextTriple();
+			}
+		});
+		LoadTripleHandler.loadNew();
 		MfkWeb.setStatus("Welcome to MFK!");
 	}
 	
@@ -177,12 +181,32 @@ public class MfkWeb implements EntryPoint {
 			MfkWeb.voteButton.setEnabled(valid);
 		}
 	}
+	
+	/**
+	 * Load the next triple.
+	 * 
+	 * Right now we do this by reloading the page at a new URL.
+	 * 
+	 * TODO(mjkelly): Consider loading next entities in-place (MfkWeb supports
+	 * it) if this is too slow.
+	 */
+	public static void loadNextTriple() {
+		UrlBuilder builder = Window.Location.createUrlBuilder();
+		builder.removeParameter("id");
+		System.out.println("Going to new URL: " + builder.buildString());
+		Window.Location.assign(builder.buildString());
+	}
 }
 
-class LoadTripleHandler implements ClickHandler {
+// TODO(mjkelly): Put this MfkWeb.
+class LoadTripleHandler {
 	
 	public static void loadNew() {
 		String url = "/rpc/vote/";
+		String id = Window.Location.getParameter("id");
+		if (id != null && !id.isEmpty()) {
+			url = "/rpc/vote/" + id;
+		}
 		RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
 		MfkWeb.setStatus("Getting new triple...");
 		
@@ -238,10 +262,6 @@ class LoadTripleHandler implements ClickHandler {
 		} catch (RequestException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public void onClick(ClickEvent event) {
-		LoadTripleHandler.loadNew();
 	}
 }
 
@@ -343,7 +363,7 @@ class AssignmentHandler implements ClickHandler {
 						System.out.println("Successful assignment request: "
 								+ response.getText());
 						MfkWeb.setStatus("Voting... success!");
-						LoadTripleHandler.loadNew();
+						MfkWeb.loadNextTriple();
 					}
 					else {
 						MfkWeb.showError("Server didn't like our vote. "
