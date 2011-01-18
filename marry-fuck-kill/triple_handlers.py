@@ -87,9 +87,12 @@ class TripleCreationHandler(webapp.RequestHandler):
                 if not entities[i][k]:
                     raise ValueError("Entity %s missing attribute '%s'" % (i, k))
 
-        one = models.PutEntity(entities[0]['n'], entities[0]['u'])
-        two = models.PutEntity(entities[1]['n'], entities[1]['u'])
-        three = models.PutEntity(entities[2]['n'], entities[2]['u'])
+        one = models.PutEntity(entities[0]['n'], entities[0]['u'],
+                               entities[0]['q'])
+        two = models.PutEntity(entities[1]['n'], entities[1]['u'],
+                               entities[0]['q'])
+        three = models.PutEntity(entities[2]['n'], entities[2]['u'],
+                                 entities[0]['q'])
         # This may raise an exception, which we allow to bubble up.
         models.Triple.validate(one, two, three)
 
