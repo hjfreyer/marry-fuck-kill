@@ -27,6 +27,7 @@ class EntityValidationError(Exception):
 class Entity(db.Model):
     name = db.StringProperty(required=True)
     url = db.StringProperty(required=False)
+    query = db.StringProperty(required=False)
     creator = db.UserProperty()    
 
     type = db.StringProperty(choices=set(["abstract", "person", "object"]))
@@ -50,8 +51,8 @@ class Entity(db.Model):
         self.url = url
         
 
-def PutEntity(name, url=None):
-    entity = Entity(name=name)
+def PutEntity(name, url, query):
+    entity = Entity(name=name, query=query)
     entity.set_full_url(url)
     entity.put()
     return entity
