@@ -4,7 +4,7 @@
   <property name="gwt.args" value="" />
 
   <!-- Configure path to GWT SDK -->
-  <property name="gwt.sdk" location="/home/mkelly/Downloads/gwt-2.0.3" />
+  <property name="gwt.sdk" location="../lib/gwt-2.1.1" />
 
   <path id="project.class.path">
     <pathelement location="war/WEB-INF/classes"/>
@@ -75,7 +75,7 @@ Test targets suppressed because -junit argument was not specified when running w
       <classpath refid="project.class.path"/>
     </javac>
   </target>
-  
+
   <target name="test.dev" depends="javac.tests" description="Run development mode tests">
     <mkdir dir="reports/htmlunit.dev" />
     <junit fork="yes" printsummary="yes" haltonfailure="yes">
