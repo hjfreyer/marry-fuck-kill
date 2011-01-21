@@ -7,8 +7,10 @@ cd MfkMaker
 ant
 cd ..
 
+rm -rf marry-fuck-kill/static/gwt
+
 mkdir -p marry-fuck-kill/static/gwt
 
-cp -r MfkWeb/war marry-fuck-kill/static/gwt/web
-cp -r MfkMaker/war marry-fuck-kill/static/gwt/maker
+cp -r MfkWeb/war/mfkweb/ marry-fuck-kill/static/gwt/mfkweb/
+cp -r MfkMaker/war/mfkmaker/ marry-fuck-kill/static/gwt/mfkmaker/
 
