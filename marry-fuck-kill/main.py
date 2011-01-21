@@ -17,16 +17,21 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-import models
 import assignment_handlers
-import triple_handlers
 import entity_handlers
+import html_handlers
+import models
+import triple_handlers
 
 def main():
-    application = webapp.WSGIApplication([("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
-                                          ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
-                                          ("/i/(.*)", entity_handlers.EntityImageHandler)],
-                                         debug=True)
+    application = webapp.WSGIApplication([
+            ("/", html_handlers.MainPageHandler),
+            ("/about", html_handlers.AboutHandler),
+            ("/make", html_handlers.MakeHandler),
+            ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
+            ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
+            ("/i/(.*)", entity_handlers.EntityImageHandler)
+            ], debug=True)
     util.run_wsgi_app(application)
 
 

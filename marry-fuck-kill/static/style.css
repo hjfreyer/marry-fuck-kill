@@ -1,0 +1,132 @@
+h1 {
+    font-size: 30px;
+    font-weight: bold;
+    color: #330033;
+    margin: 20px;
+    text-align: center;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 5px 20px 20px 0px;
+}
+
+
+/* The whole browser window. */
+#body {
+    background: #9911bb;
+    font-family: sans-serif;
+} 
+
+/* The main content. */
+#page {
+  display: block;
+  background: white;
+  padding: 15px;
+
+  width: 640px;
+  height: 100%;
+  margin: 0 auto;
+
+  border: 1px solid #330033;
+  border-radius: 15px;
+  -moz-border-radius: 15px;
+
+}
+
+/* This only affects non-gwt-styled elements. */
+#body a, a:visited, a:hover {
+  color: black;
+}
+
+#status {
+  padding: 5px;
+  visibility: hidden;
+  height: 15px;
+}
+
+#e1title, #e2title, #e3title {
+  margin: 2px;
+}
+
+#e1image, #e2image, #e3image {
+}
+
+.mfkButton {
+}
+
+.errorText {
+    margin: 20px;
+}
+
+.entity {
+  width: 200px;
+  height: 200px;
+  font-weight: bold;
+  font-size: 20px;
+  border: 1px solid #330033;
+  background: white;
+  text-align: center;
+}
+
+.tight {
+  display: block;
+  text-align: left;
+  background: white;
+}
+
+.nav {
+  display: block;
+  text-align: center;
+  font-size: 16px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.control {
+    margin: 10px;
+}
+
+.saved {
+	width: 200px;
+	height: 200px;
+}
+
+.instructions {
+    font-size: 14px;
+    padding: 8px 4px 4px 4px;
+}
+
+.fakelink {
+    text-decoration: underline;
+    cursor: pointer; 
+    color: blue;
+}
+
+.mfkpanel {
+    padding: 5px;
+    height: 200px;
+    border: 1px solid #660066;
+    background: white;
+}
+
+.mfkpanel:hover {
+    border: 1px solid black;
+}
+
+.searchimage {
+    /*border: 1px dotted black;*/
+}
+
+.itemtitle {
+    font-size: 16px;
+    font-style: italic;
+    padding: 2px 2px 6px 2px;
+}
+
+.foot {
+    text-align: center;
+    margin: 10px 0 0 0;
+    font-size: 10px;
+}

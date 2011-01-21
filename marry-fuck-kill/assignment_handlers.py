@@ -59,7 +59,7 @@ class AssignmentHandler(webapp.RequestHandler):
     def post(self, assignment_id):
         assign = AssignmentHandler.make_assignment(self.request)
         if assign is not None:
-            self.response.out.write(str(assign))        
+            self.response.out.write(str(assign))
         else:
             self.response.set_status(406)
             self.response.out.write("select one of each!")
@@ -97,8 +97,8 @@ class AssignmentHandler(webapp.RequestHandler):
                           entities['m'], entities['f'], entities['k'])
             return None
 
-        assign = models.Assignment(marry=entities['m'], 
-                                   fuck=entities['f'], 
+        assign = models.Assignment(marry=entities['m'],
+                                   fuck=entities['f'],
                                    kill=entities['k'])
         assign.put()
         logging.info("Assigned m=%s, f=%s, k=%s to %s", entities['m'],

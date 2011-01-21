@@ -8,27 +8,9 @@ handlers:
   script: debug.py
   login: admin
 
-- url: /(rpc|i)/.*
+- url: /s
+  static_dir: static
+
+- url: /.*
   script: main.py
-
-- url: /make
-  static_files: gwt-war/MfkMaker.html
-  upload: gwt-war/.*
-
-- url: /vote(/.*)?
-  static_files: gwt-war/MfkWeb.html
-  upload: gwt-war/.*
-
-- url: /about
-  static_files: gwt-war/about.html
-  upload: gwt-war/.*
-
-# The root page is an alias for /vote.
-- url: /
-  static_files: gwt-war/MfkWeb.html
-  upload: gwt-war/.*
-
-# These are all other files under root.
-- url: /
-  static_dir: gwt-war
 
