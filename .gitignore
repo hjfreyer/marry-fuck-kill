@@ -1,5 +1,6 @@
 *.pyc
 *.class
+*.swp
 *.cache.png
 *.cache.html
 MfkMaker/war/*
