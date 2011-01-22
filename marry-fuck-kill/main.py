@@ -32,7 +32,7 @@ def main():
       ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
       ("/i/(.*)", entity_handlers.EntityImageHandler),
       ("/stats/(.*)", triple_handlers.TripleStatsHandler),
-      ], debug=True)
+    ], debug=True)
   util.run_wsgi_app(application)
 
 if __name__ == '__main__':

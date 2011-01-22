@@ -115,7 +115,6 @@ class TripleJsonHandler(webapp.RequestHandler):
     self.response.out.write('ok:%s' % str(triple.key()))
 
 class TripleStatsHandler(webapp.RequestHandler):
-<<<<<<< Updated upstream
   def get(self, triple_id):
     if triple_id:
       t = models.Triple.get(urllib.unquote(triple_id))
@@ -128,18 +127,11 @@ class TripleStatsHandler(webapp.RequestHandler):
         f = e.assignment_reference_fuck_set.count()
         k = e.assignment_reference_kill_set.count()
         self.response.out.write("<p>m=%d, f=%d, k=%d</p>" % (m, f, k))
-      else:
-        keys = [t.key() for t in models.Triple.all()]
-
-  def get(self, triple_id):
-    if triple_id:
-      t = models.Triple.get_by_key_name(urllib.unquote(triple_id))
-      self.response.out.write('%s: %r' % (triple_id, t))
     else:
-      keys = [t.key().name() for t in models.Triple.all()]
+      keys = [t.key() for t in models.Triple.all()]
 
       self.response.out.write("""
-<h1>All Triples:</h1>
+<h1>All Triples (%d):</h1>
 <ul>
 %s
 </ul>
