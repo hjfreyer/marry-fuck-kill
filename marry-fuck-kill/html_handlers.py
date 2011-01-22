@@ -18,24 +18,18 @@ import ezt
 
 from google.appengine.ext import webapp
 
-def GetHeader():
-    fh = open("templates/head.html")
-    head = fh.read()
-    fh.close()
-    return head
-
 class MainPageHandler(webapp.RequestHandler):
     def get(self):
         template = ezt.Template("templates/vote.html")
-        template.generate(self.response.out, dict(head=GetHeader()))
+        template.generate(self.response.out, dict(page="vote"))
 
 class AboutHandler(webapp.RequestHandler):
     def get(self):
         template = ezt.Template("templates/about.html")
-        template.generate(self.response.out, dict(head=GetHeader()))
+        template.generate(self.response.out, dict(page="about"))
 
 class MakeHandler(webapp.RequestHandler):
     def get(self):
         template = ezt.Template("templates/make.html")
-        template.generate(self.response.out, dict(head=GetHeader()))
+        template.generate(self.response.out, dict(page="make"))
 

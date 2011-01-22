@@ -1,7 +1,8 @@
 <!doctype html>
 <html>
   <head>
-    [head "The Game"]
+    [define title]Vote[end]
+    [include "head.html"]
     <!-- Add any GWT meta tags before this line. -->
     <script type="text/javascript" language="javascript" src="/s/gwt/mfkweb/mfkweb.nocache.js"></script>
     [insertfile "analytics.html"]
@@ -53,12 +54,8 @@
         <span id="skipButton" class="control"></span>
       </center>
 
-      <div class="nav">
-        <a href="/about">What's MFK?</a> |
-        <a href="/make">Make Your Own MFKs!</a>
-      </div>
+      [include "nav.html"]
     </div>
-
     [insertfile "foot.html"]
   </body>
 </html>

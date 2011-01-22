@@ -1,7 +1,8 @@
 <!doctype html>
 <html>
   <head>
-    [head "Create New"]
+    [define title]Make Your Own[end]
+    [include "head.html"]
     <!-- Add any GWT meta tags before this line. -->
     <script type="text/javascript" language="javascript" src="/s/gwt/mfkmaker/mfkmaker.nocache.js"></script>
     <!-- For Google AJAX Search API. Can remove 'key' param for local testing. -->
@@ -34,12 +35,8 @@
         <div id="submit" class="control"></div>
       </center>
 
-      <div class="nav">
-        <a href="/">Back to Voting</a> |
-        <a href="/about">What's MFK?</a>
-      </div>
+      [include "nav.html"]
     </div>
-
     [insertfile "foot.html"]
   </body>
 </html>
