@@ -65,9 +65,9 @@ public class MfkMaker implements EntryPoint {
 	static final DialogBox miscDialog = new DialogBox();
 	
 	public static final String[] defaultURLs = {
-		"http://www.marryboffkill.net/static/treehouse-1.jpeg",
-		"http://www.marryboffkill.net/static/treehouse-2.jpeg",
-		"http://www.marryboffkill.net/static/treehouse-3.jpeg"};
+		"http://www.marryboffkill.net/s/treehouse-1.jpeg",
+		"http://www.marryboffkill.net/s/treehouse-2.jpeg",
+		"http://www.marryboffkill.net/s/treehouse-3.jpeg"};
 
 	public void onModuleLoad() {
 		RootPanel.get("created-items").add(MfkMaker.itemPanel);
@@ -173,7 +173,7 @@ public class MfkMaker implements EntryPoint {
 }
 
 class EditDialog extends DialogBox {
-	private static String THROBBER_URL = "/loading.gif";
+	private static String THROBBER_URL = "/s/loading.gif";
 	private MfkPanel item = null;
 	private SearchImage editImage = new SearchImage();
 	private TextBox editTitle = new TextBox();
