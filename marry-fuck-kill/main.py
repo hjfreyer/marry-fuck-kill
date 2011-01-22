@@ -30,10 +30,10 @@ def main():
       ("/make", html_handlers.MakeHandler),
       ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
       ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
-      ("/i/(.*)", entity_handlers.EntityImageHandler)
+      ("/i/(.*)", entity_handlers.EntityImageHandler),
+      ("/stats/(.*)", triple_handlers.TripleStatsHandler),
       ], debug=True)
   util.run_wsgi_app(application)
-
 
 if __name__ == '__main__':
   main()
