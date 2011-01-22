@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,16 +24,16 @@ import models
 import triple_handlers
 
 def main():
-    application = webapp.WSGIApplication([
-            ("/", html_handlers.MainPageHandler),
-            ("/about", html_handlers.AboutHandler),
-            ("/make", html_handlers.MakeHandler),
-            ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
-            ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
-            ("/i/(.*)", entity_handlers.EntityImageHandler)
-            ], debug=True)
-    util.run_wsgi_app(application)
+  application = webapp.WSGIApplication([
+      ("/", html_handlers.MainPageHandler),
+      ("/about", html_handlers.AboutHandler),
+      ("/make", html_handlers.MakeHandler),
+      ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
+      ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
+      ("/i/(.*)", entity_handlers.EntityImageHandler)
+      ], debug=True)
+  util.run_wsgi_app(application)
 
 
 if __name__ == '__main__':
-    main()
+  main()

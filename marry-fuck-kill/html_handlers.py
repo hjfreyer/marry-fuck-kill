@@ -6,7 +6,7 @@
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-#     http://www.apache.org/licenses/LICENSE-2.0
+#   http://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,17 +19,17 @@ import ezt
 from google.appengine.ext import webapp
 
 class MainPageHandler(webapp.RequestHandler):
-    def get(self):
-        template = ezt.Template("templates/vote.html")
-        template.generate(self.response.out, dict(page="vote"))
+  def get(self):
+    template = ezt.Template("templates/vote.html")
+    template.generate(self.response.out, dict(page="vote"))
 
 class AboutHandler(webapp.RequestHandler):
-    def get(self):
-        template = ezt.Template("templates/about.html")
-        template.generate(self.response.out, dict(page="about"))
+  def get(self):
+    template = ezt.Template("templates/about.html")
+    template.generate(self.response.out, dict(page="about"))
 
 class MakeHandler(webapp.RequestHandler):
-    def get(self):
-        template = ezt.Template("templates/make.html")
-        template.generate(self.response.out, dict(page="make"))
+  def get(self):
+    template = ezt.Template("templates/make.html")
+    template.generate(self.response.out, dict(page="make"))
 
