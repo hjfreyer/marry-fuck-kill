@@ -51,21 +51,7 @@ class EntityStatsHandler(webapp.RequestHandler):
       raise Exception("Need entity key")
 
     e = models.Entity.get(urllib.unquote(entity_id))
-    m = e.assignment_reference_marry_set.count()
-    f = e.assignment_reference_fuck_set.count()
-    k = e.assignment_reference_kill_set.count()
-
-    url = ('http://chart.apis.google.com/chart'
-        '?chxt=y'
-        '&chbh=a'
-        '&chs=160x85'
-        '&cht=bvg'
-        '&chco=A2C180,3D7930,FF9900'
-        '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
-        '&chd=t:%(m)d|%(f)d|%(k)d'
-        '&chdl=Marry|Fuck|Kill'
-        '&chdlp=r' % (dict(m=m, f=f, k=k, max=max([m,f,k]))))
     self.response.headers['Content-Type'] = "text/plain";
-    self.response.out.write(url)
+    self.response.out.write(e.get_stats_url())
 
 
