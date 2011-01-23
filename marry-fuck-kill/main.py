@@ -31,7 +31,8 @@ def main():
       ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
       ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
       ("/i/(.*)", entity_handlers.EntityImageHandler),
-      ("/stats/(.*)", triple_handlers.TripleStatsHandler),
+      ("/tstat/(.*)", triple_handlers.TripleStatsHandler),
+      ("/estat/(.*)", entity_handlers.EntityStatsHandler),
     ], debug=True)
   util.run_wsgi_app(application)
 

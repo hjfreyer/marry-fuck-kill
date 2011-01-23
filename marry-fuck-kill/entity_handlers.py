@@ -47,7 +47,25 @@ class EntityImageHandler(webapp.RequestHandler):
 
 class EntityStatsHandler(webapp.RequestHandler):
   def get(self, entity_id):
-    entity = models.Entity.get_by_key_name(urllib.unquote(entity_id))
+    if not entity_id:
+      raise Exception("Need entity key")
 
-    self.response.out.write('Hello world! ' + entity.key_name)
+    e = models.Entity.get(urllib.unquote(entity_id))
+    m = e.assignment_reference_marry_set.count()
+    f = e.assignment_reference_fuck_set.count()
+    k = e.assignment_reference_kill_set.count()
+
+    url = ('http://chart.apis.google.com/chart'
+        '?chxt=y'
+        '&chbh=a'
+        '&chs=160x85'
+        '&cht=bvg'
+        '&chco=A2C180,3D7930,FF9900'
+        '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
+        '&chd=t:%(m)d|%(f)d|%(k)d'
+        '&chdl=Marry|Fuck|Kill'
+        '&chdlp=r' % (dict(m=m, f=f, k=k, max=max([m,f,k]))))
+    self.response.headers['Content-Type'] = "text/plain";
+    self.response.out.write(url)
+
 
