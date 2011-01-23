@@ -62,7 +62,8 @@ class Entity(db.Model):
     k = self.assignment_reference_kill_set.count()
 
     url = ('http://chart.apis.google.com/chart'
-        '?chxt=y'
+        '?chxr=0,0,%(max)d'
+        '&chxt=y'
         '&chbh=a'
         '&chs=%(w)dx%(h)d'
         '&cht=bvg'
