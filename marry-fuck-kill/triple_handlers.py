@@ -116,24 +116,12 @@ class TripleJsonHandler(webapp.RequestHandler):
 
 class TripleStatsHandler(webapp.RequestHandler):
   def get(self, triple_id):
-    if triple_id:
-      t = models.Triple.get(urllib.unquote(triple_id))
-      self.response.out.write('%s: %r' % (triple_id, t))
-      entities = [t.one, t.two, t.three]
+    if not triple_id:
+      raise Exception("Need triple key")
+      
+    t = models.Triple.get(urllib.unquote(triple_id))
+    entities = [t.one, t.two, t.three]
 
-      for e in entities:
-        self.response.out.write('<h2>%s</h2>' % e)
-        m = e.assignment_reference_marry_set.count()
-        f = e.assignment_reference_fuck_set.count()
-        k = e.assignment_reference_kill_set.count()
-        self.response.out.write("<p>m=%d, f=%d, k=%d</p>" % (m, f, k))
-    else:
-      keys = [t.key() for t in models.Triple.all()]
-
-      self.response.out.write("""
-<h1>All Triples (%d):</h1>
-<ul>
-%s
-</ul>
-""" % (len(keys),
-       ''.join(['<li><a href="%s">%s</li>\n' % (k, k) for k in keys])))
+    self.response.headers['Content-Type'] = "text/plain";
+    for e in [t.one, t.two, t.three]:
+      self.response.out.write(e.get_stats_url() + '\n')
