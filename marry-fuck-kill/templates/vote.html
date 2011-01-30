@@ -27,67 +27,55 @@
         Vote for "marry", "fuck", or "kill" on each item below. You must vote for each on exactly once!
       </p>
 
-      <div class="tripletable">
-        <div class="title-row row">
-          <div>[e1_name]</div>
-          <div>[e2_name]</div>
-          <div>[e3_name]</div>
-        </div>
-        <div class="image-row row">
-          <div>
-            <center>
-              <div class="image">
-                <img src="[e1_url]" alt="[e1_name]"></img>
-              </div>
-            </center>
-          </div>
-          <div>
-            <center>
-              <div class="image">
-                <img src="[e2_url]" alt="[e2_name]"></img>
-              </div>
-            </center>
-          </div>
-          <div>
-            <center>
-              <div class="image">
-                <img src="[e3_url]" alt="[e3_name]"></img>
-              </div>
-            </center>
-          </div>
-        </div>
-        <div class="buttons-row row">
-          <div>
+      <table class="tripletable">
+        <tr class="title-row">
+          <td>[e1_name]</td>
+          <td>[e2_name]</td>
+          <td>[e3_name]</td>
+        </tr>
+        <tr class="image-row">
+          <td>
+            <img src="[e1_url]" alt="[e1_name]"></img>
+          </td>
+          <td>
+            <img src="[e2_url]" alt="[e2_name]"></img>
+          </td>
+          <td>
+            <img src="[e3_url]" alt="[e3_name]"></img>
+          </td>
+        </tr>
+        <tr class="buttons-row">
+          <td>
             <div class="button clickable selector m 1">Marry</div>
             <div class="button clickable selector f 1">Fuck</div>
             <div class="button clickable selector k 1">Kill</div>
-          </div>
-          <div>
+          </td>
+          <td>
             <div class="button clickable selector m 2">Marry</div>
             <div class="button clickable selector f 2">Fuck</div>
             <div class="button clickable selector k 2">Kill</div>
-          </div>
-          <div>
+          </td>
+          <td>
             <div class="button clickable selector m 3">Marry</div>
             <div class="button clickable selector f 3">Fuck</div>
             <div class="button clickable selector k 3">Kill</div>
-          </div>
-        </div>
-        <div class="votebar">
-          <center>
-            <form action="/vote.do" method="post">
-              <input type="hidden" id="key" name="key" value="[triple_id]">
-              <input type="hidden" id="v1" name="v1">
-              <input type="hidden" id="v2" name="v2">
-              <input type="hidden" id="v3" name="v3">
+          </td>
+        </tr>
+      </table>
+      <div class="votebar">
+        <center>
+          <form action="/vote.do" method="post">
+            <input type="hidden" id="key" name="key" value="[triple_id]">
+            <input type="hidden" id="v1" name="v1">
+            <input type="hidden" id="v2" name="v2">
+            <input type="hidden" id="v3" name="v3">
 
-              <input type="hidden" id="action" name="action"></input>
-            </form>
+            <input type="hidden" id="action" name="action"></input>
+          </form>
 
-            <div class="button" id="submit">Vote</div>
-            <div class="button clickable" id="skip">Skip</div>
-          </center>
-        </div>
+          <div class="button" id="submit">Vote</div>
+          <div class="button clickable" id="skip">Skip</div>
+        </center>
       </div>
       [include "nav.html"]
     </div>

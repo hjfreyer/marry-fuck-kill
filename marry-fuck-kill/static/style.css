@@ -65,43 +65,35 @@ h2 {
 
 .tripletable {
     width: 100%;
+    table-layout: fixed;
+
+    border-spacing: 2px 0;
 }
 
-.row {
-    white-space: nowrap;
-}
-
-.row > div {
-    display: inline-block;
-    width: 33%;
+.tripletable td {
     text-align: center;
-    white-space: normal;
-    vertical-align: top;
+
+    border-style: solid;
+    border-color: black;
+
+    overflow: hidden;
 }
 
-.title-row > div {
+.title-row td {
     font-weight: bold;
     font-size: 20px;
     vertical-align: top;
 
-    border-style: solid;
-    border-color: black;
     border-width: 1px 1px 0 1px;
-    margin: 0 -1px 0 -1px;
 }
 
-.image-row > div {
-    height: 100%;
-    border-style: solid;
-    border-color: black;
+.image-row td {
     border-width: 0 1px 1px 1px;
-    margin: 0 -1px;
+    height: 180px;
 }
 
-.image {
-    display: table-cell;
-    vertical-align: middle;
-    height: 180px;
+.buttons-row td {
+    padding-top: 5px;
 }
 
 .button {
