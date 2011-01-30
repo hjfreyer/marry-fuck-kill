@@ -85,11 +85,14 @@ h2 {
     vertical-align: top;
 
     border-width: 1px 1px 0 1px;
+    border-radius: 10px 10px 0 0;
 }
 
 .image-row td {
-    border-width: 0 1px 1px 1px;
     height: 180px;
+
+    border-width: 0 1px 1px 1px;
+    border-radius: 0 0 10px 10px;
 }
 
 .buttons-row td {
