@@ -15,21 +15,62 @@
 # limitations under the License.
 
 import ezt
+import logging
 
 from google.appengine.ext import webapp
 
+import assignment_handlers
+import models
+
 class MainPageHandler(webapp.RequestHandler):
   def get(self):
-    template = ezt.Template("templates/vote.html")
-    template.generate(self.response.out, dict(page="vote"))
+    rand = models.Triple.get_random_key()
+    if not rand:
+      self.redirect('/about')
+    else:
+      self.redirect('/vote/' + str(rand))
+
 
 class AboutHandler(webapp.RequestHandler):
   def get(self):
-    template = ezt.Template("templates/about.html")
-    template.generate(self.response.out, dict(page="about"))
+    template = ezt.Template('templates/about.html')
+    template.generate(self.response.out, dict(page='about'))
+
+
+class VoteHandler(webapp.RequestHandler):
+  def get(self, triple_id):
+    triple = models.Triple.get(triple_id)
+
+    one = triple.one
+    two = triple.two
+    three = triple.three
+
+    template = ezt.Template('templates/vote.html')
+    template.generate(self.response.out, dict(page='vote',
+                                              triple_id=triple_id,
+                                              e1_name=one.name,
+                                              e1_url=one.get_full_url(),
+                                              e2_name=two.name,
+                                              e2_url=two.get_full_url(),
+                                              e3_name=three.name,
+                                              e3_url=three.get_full_url()))
+
+
+class VoteSubmitHandler(webapp.RequestHandler):
+  def post(self):
+    action = self.request.get('action')
+
+    logging.error(action)
+
+    if action == 'submit':
+      assignment_handlers.AssignmentHandler.make_assignment(self.request)
+
+    rand = models.Triple.get_random_key()
+    self.redirect('/vote/' + str(rand))
+
 
 class MakeHandler(webapp.RequestHandler):
   def get(self):
-    template = ezt.Template("templates/make.html")
-    template.generate(self.response.out, dict(page="make"))
+    template = ezt.Template('templates/make.html')
+    template.generate(self.response.out, dict(page='make'))
 

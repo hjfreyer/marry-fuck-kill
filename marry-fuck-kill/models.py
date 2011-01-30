@@ -78,12 +78,21 @@ class Triple(db.Model):
                  collection_name="triple_reference_three_set")
 
   @staticmethod
-  def get_random():
-    keys = [k for k in db.Query(Triple, keys_only=True).filter('quality >', 0.0)]
+  def get_random_key():
+    keys = [k for k in db.Query(Triple, keys_only=True).filter(
+        'quality >', 0.0)]
     if not keys:
       return None
     else:
-      return Triple.get(random.choice(keys))
+      return random.choice(keys)
+
+  @staticmethod
+  def get_random():
+    key = Triple.get_random_key()
+    if not key:
+      return None
+    else:
+      return Triple.get(key)
 
   def __str__(self):
     return Triple.name_from_entities(self.one, self.two, self.three)

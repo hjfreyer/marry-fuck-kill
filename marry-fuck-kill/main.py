@@ -24,10 +24,13 @@ import models
 import triple_handlers
 
 def main():
+  # TODO(mjkelly): Clean up these handlers.
   application = webapp.WSGIApplication([
       ("/", html_handlers.MainPageHandler),
       ("/about", html_handlers.AboutHandler),
       ("/make", html_handlers.MakeHandler),
+      ("/vote/(.*)", html_handlers.VoteHandler),
+      ("/vote.do", html_handlers.VoteSubmitHandler),
       ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
       ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
       ("/i/(.*)", entity_handlers.EntityImageHandler)

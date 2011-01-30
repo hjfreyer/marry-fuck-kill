@@ -12,76 +12,148 @@ h2 {
     margin: 5px 20px 20px 0px;
 }
 
-
 /* The whole browser window. */
 #body {
     background: #9911bb;
     font-family: sans-serif;
-} 
+}
 
 /* The main content. */
 #page {
-  display: block;
-  background: white;
-  padding: 15px;
+    display: block;
+    background: white;
+    padding: 15px;
 
-  width: 640px;
-  height: 100%;
-  margin: 0 auto;
+    width: 640px;
+    height: 100%;
+    margin: 0 auto;
 
-  border: 1px solid #330033;
-  border-radius: 15px;
-  -moz-border-radius: 15px;
-
+    border: 1px solid #330033;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
 }
 
 /* This only affects non-gwt-styled elements. */
 #body a, a:visited, a:hover {
-  color: black;
+    color: black;
 }
 
 #status {
-  padding: 5px;
-  visibility: hidden;
-  height: 15px;
-}
-
-#e1title, #e2title, #e3title {
-  margin: 2px;
-}
-
-#e1image, #e2image, #e3image {
-}
-
-.mfkButton {
+    padding: 5px;
+    visibility: hidden;
+    height: 15px;
 }
 
 .errorText {
     margin: 20px;
 }
 
-.entity {
-  width: 200px;
-  height: 200px;
-  font-weight: bold;
-  font-size: 20px;
-  border: 1px solid #330033;
-  background: white;
-  text-align: center;
+.tripletable {
+    width: 100%;
 }
 
-.tight {
-  display: block;
-  text-align: left;
-  background: white;
+.row {
+    white-space: nowrap;
+}
+
+.row > div {
+    display: inline-block;
+    width: 33%;
+    text-align: center;
+    white-space: normal;
+    vertical-align: top;
+}
+
+.title-row > div {
+    font-weight: bold;
+    font-size: 20px;
+    vertical-align: top;
+
+    border-style: solid;
+    border-color: black;
+    border-width: 1px 1px 0 1px;
+    margin: 0 -1px 0 -1px;
+}
+
+.image-row > div {
+    height: 100%;
+    border-style: solid;
+    border-color: black;
+    border-width: 0 1px 1px 1px;
+    margin: 0 -1px;
+}
+
+.image {
+    display: table-cell;
+    vertical-align: middle;
+    height: 180px;
+}
+
+.button {
+    margin-left: auto;
+    margin-right: auto;
+
+    color: gray;
+
+    font-size: 12pt;
+    text-decoration: none;
+    width: 95%;
+    padding: 3px 0;
+    border: 1px solid #DDD;
+    text-align: center;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
+
+    border-radius: 5px;
+    cursor: pointer;
+
+    background: #DDD;
+
+    -moz-user-select: -moz-none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.button.clickable {
+    color: black;
+    background: white;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(white), to(#EEE));
+    background: -moz-linear-gradient(0% 90% 90deg, #EEE, white);
+}
+
+.button.clickable:hover {
+    color: white;
+    border-color: #3278BE;
+    background: #4195DD;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#4195DD), to(#003C82));
+    background: -moz-linear-gradient(0% 90% 90deg, #003C82, #4195DD);
+}
+
+.button.clickable:active {
+    background: #4195DD;
+    background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#003C82), to(#4195DD));
+    background: -moz-linear-gradient(0% 90% 90deg, #4195DD, #003C82);
+}
+
+.selected {
+    font-weight: bold;
+}
+
+.votebar div {
+    display: inline-block;
+    width: 30%;
+    margin: 30px 20px;
 }
 
 .nav {
-  display: block;
-  text-align: center;
-  font-size: 16px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+    display: block;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .control {
@@ -89,8 +161,8 @@ h2 {
 }
 
 .saved {
-	width: 200px;
-	height: 200px;
+    width: 200px;
+    height: 200px;
 }
 
 .instructions {
@@ -100,7 +172,7 @@ h2 {
 
 .fakelink {
     text-decoration: underline;
-    cursor: pointer; 
+    cursor: pointer;
     color: blue;
 }
 
@@ -116,7 +188,7 @@ h2 {
 }
 
 .searchimage {
-    /*border: 1px dotted black;*/
+/*border: 1px dotted black;*/
 }
 
 .itemtitle {
