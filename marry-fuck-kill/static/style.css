@@ -33,6 +33,21 @@ h2 {
     -moz-border-radius: 15px;
 }
 
+#lefty {
+  display: block;
+  float: left;
+  background: white;
+  padding: 15px;
+
+  width: 150px;
+  height: 100%;
+  margin: 0 auto;
+
+  border: 1px solid #330033;
+  border-radius: 0 15px 15px 0;
+  -moz-border-radius: 0 15px 15px 0;
+}
+
 /* This only affects non-gwt-styled elements. */
 #body a, a:visited, a:hover {
     color: black;

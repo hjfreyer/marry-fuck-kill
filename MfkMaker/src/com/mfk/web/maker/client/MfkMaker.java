@@ -83,7 +83,7 @@ public class MfkMaker implements EntryPoint {
 
     // TODO(mjkelly): reconsider this value. Remember to synchronize any
     // change with the server-side checking.
-    imageSearch.setSafeSearch(SafeSearchValue.STRICT);
+    imageSearch.setSafeSearch(SafeSearchValue.MODERATE);
     imageSearch.setResultSetSize(ResultSetSize.LARGE);
     options.add(imageSearch, ExpandMode.OPEN);
     options.setKeepLabel("<b>Keep It!</b>");

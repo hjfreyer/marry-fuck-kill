@@ -50,6 +50,30 @@ class Entity(db.Model):
     logging.info("get_full_url: returning %s", Entity.BASE_URL + str(self.key()))
     return Entity.BASE_URL + str(self.key())
 
+  def get_stats_url(self, w=160, h=85):
+    """Returns the URL to a chart of MFK stats for this Entity.
+    
+    Args:
+      w: (int) image width
+      h: (int) image height
+    """
+    m = self.assignment_reference_marry_set.count()
+    f = self.assignment_reference_fuck_set.count()
+    k = self.assignment_reference_kill_set.count()
+
+    url = ('http://chart.apis.google.com/chart'
+        '?chxr=0,0,%(max)d'
+        '&chxt=y'
+        '&chbh=a'
+        '&chs=%(w)dx%(h)d'
+        '&cht=bvg'
+        '&chco=A2C180,3D7930,FF9900'
+        '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
+        '&chd=t:%(m)d|%(f)d|%(k)d'
+        '&chdl=Marry|Fuck|Kill'
+        '&chdlp=r' % (dict(m=m, f=f, k=k, max=max([m,f,k]), w=w, h=h)))
+    return url
+
 def PutEntity(name, url, query):
   if not url.startswith('http://images.google.com/images?q'):
     raise EntityValidationError("URL must come from Google image search.")
