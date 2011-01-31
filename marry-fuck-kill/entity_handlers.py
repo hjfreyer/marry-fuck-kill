@@ -19,7 +19,6 @@ from google.appengine.ext.webapp import util
 import urllib
 
 import models
-import utils
 
 class EntityCreationHandler(webapp.RequestHandler):
   def get(self):
@@ -37,7 +36,7 @@ class EntityCreationHandler(webapp.RequestHandler):
     entity = models.Entity(name)
     entity.put()
 
-    utils.redirect(self, '/entity/view/' + name)
+    self.redirect('/entity/view/' + name)
 
 class EntityImageHandler(webapp.RequestHandler):
   def get(self, entity_id):

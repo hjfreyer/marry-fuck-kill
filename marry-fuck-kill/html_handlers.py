@@ -19,12 +19,11 @@ import logging
 
 from google.appengine.ext import webapp
 
-import assignment_handlers
 import models
 
 class MainPageHandler(webapp.RequestHandler):
   def get(self):
-    rand = models.Triple.get_random_key()
+    rand = models.Triple.get_random_id()
     if not rand:
       self.redirect('/about')
     else:
@@ -39,13 +38,21 @@ class AboutHandler(webapp.RequestHandler):
 
 class VoteHandler(webapp.RequestHandler):
   def get(self, triple_id):
-    triple = models.Triple.get(triple_id)
+    if not triple_id.isdigit():
+      self.error(404)
+      return
+
+    triple = models.Triple.get_by_id(long(triple_id))
+
+    if not triple:
+      self.error(404)
+      return
 
     prev_id = self.request.get('prev')
     logging.info('Vote page for %s. Prev = %s', triple_id, prev_id)
 
     if prev_id:
-      prev_triple = models.Triple.get(prev_id)
+      prev_triple = models.Triple.get_by_id(int(prev_id))
       prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
       prev_names = [e.name for e in prev_entities]
       prev_urls = [e.get_stats_url() for e in prev_entities]
@@ -82,12 +89,12 @@ class VoteSubmitHandler(webapp.RequestHandler):
     logging.info('Vote handler. Action: %s', action)
 
     if action == 'submit':
-      assignment_handlers.AssignmentHandler.make_assignment(self.request)
+      models.Assignment.make_assignment(self.request)
       query_suffix = '?prev=%s' % self.request.get('key')
     else:
       query_suffix = ''
 
-    rand = models.Triple.get_random_key()
+    rand = models.Triple.get_random_id()
     self.redirect('/vote/%s%s' % (str(rand), query_suffix))
 
 
