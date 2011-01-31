@@ -16,7 +16,7 @@ h2 {
 #body {
     background: #9911bb;
     font-family: sans-serif;
-    margin: 0px 0px 0px 0px;
+    margin: 0;
 }
 
 /* The main content. */
@@ -36,7 +36,7 @@ h2 {
 
 /* Extra display panel on the left. */
 #lefty {
-  padding-left: 0px;
+  padding-left: 0;
   display: block;
   float: left;
   background: white;
@@ -50,10 +50,9 @@ h2 {
   margin: 0 auto;
 
   border: 1px solid #330033;
-  border-left: 0px;
+  border-left: 0;
   border-radius: 0 15px 15px 0;
   -moz-border-radius: 0 15px 15px 0;
-
 }
 
 /* This only affects non-gwt-styled elements. */
@@ -219,6 +218,6 @@ h2 {
     font-weight: bold;
     font-size: 20px;
     vertical-align: top;
-    margin: 5px 2px 0px 2px;
+    margin: 5px 2px 0 2px;
 }
 
