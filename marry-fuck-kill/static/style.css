@@ -16,6 +16,7 @@ h2 {
 #body {
     background: #9911bb;
     font-family: sans-serif;
+    margin: 0px 0px 0px 0px;
 }
 
 /* The main content. */
@@ -33,30 +34,31 @@ h2 {
     -moz-border-radius: 15px;
 }
 
+/* Extra display panel on the left. */
 #lefty {
+  padding-left: 0px;
   display: block;
   float: left;
   background: white;
   padding: 15px;
 
+  /* This is based on the width of the Google Charts images that will be inside
+   * this panel. */
   width: 150px;
   height: 100%;
+  overflow: hidden;
   margin: 0 auto;
 
   border: 1px solid #330033;
+  border-left: 0px;
   border-radius: 0 15px 15px 0;
   -moz-border-radius: 0 15px 15px 0;
+
 }
 
 /* This only affects non-gwt-styled elements. */
 #body a, a:visited, a:hover {
     color: black;
-}
-
-#status {
-    padding: 5px;
-    visibility: hidden;
-    height: 15px;
 }
 
 .errorText {
@@ -212,3 +214,11 @@ h2 {
     margin: 10px 0 0 0;
     font-size: 10px;
 }
+
+.prev-title {
+    font-weight: bold;
+    font-size: 20px;
+    vertical-align: top;
+    margin: 5px 2px 0px 2px;
+}
+
