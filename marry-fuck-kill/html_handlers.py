@@ -23,7 +23,7 @@ import models
 
 class MainPageHandler(webapp.RequestHandler):
   def get(self):
-    rand = models.Triple.get_random_key()
+    rand = models.Triple.get_random_id()
     if not rand:
       self.redirect('/about')
     else:
@@ -38,7 +38,15 @@ class AboutHandler(webapp.RequestHandler):
 
 class VoteHandler(webapp.RequestHandler):
   def get(self, triple_id):
-    triple = models.Triple.get(triple_id)
+    if not triple_id.isdigit():
+      self.error(404)
+      return
+
+    triple = models.Triple.get_by_id(long(triple_id))
+
+    if not triple:
+      self.error(404)
+      return
 
     one = triple.one
     two = triple.two
@@ -64,7 +72,7 @@ class VoteSubmitHandler(webapp.RequestHandler):
     if action == 'submit':
       models.Assignment.make_assignment(self.request)
 
-    rand = models.Triple.get_random_key()
+    rand = models.Triple.get_random_id()
     self.redirect('/vote/' + str(rand))
 
 

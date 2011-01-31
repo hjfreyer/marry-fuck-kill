@@ -103,21 +103,22 @@ class Triple(db.Model):
                  collection_name="triple_reference_three_set")
 
   @staticmethod
-  def get_random_key():
+  def get_random_id():
+    # TODO(hjfreyer): Change to a constant-time randomization scheme.
     keys = [k for k in db.Query(Triple, keys_only=True).filter(
         'quality >', 0.0)]
     if not keys:
       return None
     else:
-      return random.choice(keys)
+      return random.choice(keys).id()
 
   @staticmethod
   def get_random():
-    key = Triple.get_random_key()
-    if not key:
+    id_ = Triple.get_random_id()
+    if not id_:
       return None
     else:
-      return Triple.get(key)
+      return Triple.get_by_id(id_)
 
   def __str__(self):
     return Triple.name_from_entities(self.one, self.two, self.three)
