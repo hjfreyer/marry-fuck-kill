@@ -68,7 +68,7 @@ class Entity(db.Model):
         '&chbh=a'
         '&chs=%(w)dx%(h)d'
         '&cht=bvg'
-        '&chco=A2C180,3D7930,FF9900'
+        '&chco=9911BB,C76FDD,63067A'
         '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
         '&chd=t:%(m)d|%(f)d|%(k)d'
         '&chdl=Marry|Fuck|Kill'
