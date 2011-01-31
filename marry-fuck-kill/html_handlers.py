@@ -19,7 +19,6 @@ import logging
 
 from google.appengine.ext import webapp
 
-import assignment_handlers
 import models
 
 class MainPageHandler(webapp.RequestHandler):
@@ -63,7 +62,7 @@ class VoteSubmitHandler(webapp.RequestHandler):
     logging.error(action)
 
     if action == 'submit':
-      assignment_handlers.AssignmentHandler.make_assignment(self.request)
+      models.Assignment.make_assignment(self.request)
 
     rand = models.Triple.get_random_key()
     self.redirect('/vote/' + str(rand))

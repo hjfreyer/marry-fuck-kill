@@ -53,7 +53,7 @@ class Entity(db.Model):
 
   def get_stats_url(self, w=160, h=85):
     """Returns the URL to a chart of MFK stats for this Entity.
-    
+
     Args:
       w: (int) image width
       h: (int) image height
@@ -186,3 +186,44 @@ class Assignment(db.Model):
 
   def __repr__(self):
     return str(self)
+
+  @staticmethod
+  def make_assignment(request):
+    triple_key = request.get('key')
+    values = [request.get('v1'), request.get('v2'), request.get('v3')]
+
+    logging.debug("triple_key = %s", triple_key)
+    logging.debug("values = %s", values)
+
+    if set(values) != set(['m', 'f', 'k']):
+      return None
+
+    # We get an entity->action map from the client, but we need to reverse
+    # it to action->entity to update the DB.
+    triple = Triple.get(triple_key)
+    logging.debug("triple = %s", triple)
+    if triple is None:
+      logging.error("No triple with key %s", triple_key)
+      return None
+
+    triple_entities = [triple.one,
+                       triple.two,
+                       triple.three]
+    entities = {}
+    for i in range(len(values)):
+      # Items in values are guaranteed to be 'm', 'f', 'k' (check above)
+      entities[values[i]] = triple_entities[i]
+
+    if (entities['m'] is None or entities['f'] is None
+        or entities['k'] is None):
+      logging.error("Not all non-None: marry = %s, fuck = %s, kill = %s",
+              entities['m'], entities['f'], entities['k'])
+      return None
+
+    assign = Assignment(marry=entities['m'],
+                        fuck=entities['f'],
+                        kill=entities['k'])
+    assign.put()
+    logging.info("Assigned m=%s, f=%s, k=%s to %s", entities['m'],
+        entities['f'], entities['k'], triple)
+    return assign

@@ -23,7 +23,6 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
 import models
-import utils
 
 
 class TripleCreationHandler(webapp.RequestHandler):
@@ -118,7 +117,7 @@ class TripleStatsHandler(webapp.RequestHandler):
   def get(self, triple_id):
     if not triple_id:
       raise Exception("Need triple key")
-      
+
     t = models.Triple.get(urllib.unquote(triple_id))
     entities = [t.one, t.two, t.three]
 

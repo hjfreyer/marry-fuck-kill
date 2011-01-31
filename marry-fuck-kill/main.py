@@ -17,7 +17,6 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-import assignment_handlers
 import entity_handlers
 import html_handlers
 import models
@@ -31,7 +30,6 @@ def main():
       ("/make", html_handlers.MakeHandler),
       ("/vote/(.*)", html_handlers.VoteHandler),
       ("/vote.do", html_handlers.VoteSubmitHandler),
-      ("/rpc/vote/(.*)", assignment_handlers.AssignmentJsonHandler),
       ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
       ("/i/(.*)", entity_handlers.EntityImageHandler),
       ("/tstat/(.*)", triple_handlers.TripleStatsHandler),
