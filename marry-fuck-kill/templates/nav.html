@@ -11,9 +11,15 @@
     <span class="nav-inactive"><a href="/make">Make Your Own</a></span> |
   [end]
   [is page "about"]
-    <span class="nav-active">What is MFK?</b>
+    <span class="nav-active">What is MFK?</b> |
   [else]
-    <span class="nav-inactive"><a href="/about">What is MFK?</a></span>
+    <span class="nav-inactive"><a href="/about">What is MFK?</a></span> |
+  [end]
+
+  [if-any nickname]
+    <span class="nav-active">[nickname] (<a href="[logout_url]">Log out</a>)</span>
+  [else]
+    <span class="nav-active"><a href="[login_url]">Log in</a></span>
   [end]
 </div>
 <!-- end nav.html -->

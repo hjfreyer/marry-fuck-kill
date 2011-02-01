@@ -22,6 +22,17 @@ from google.appengine.ext import webapp
 
 import models
 
+def GetUserData(url_base):
+  nickname = ''
+  user = users.get_current_user()
+  if user:
+    nickname = user.nickname()
+  
+  return dict(nickname=nickname,
+              login_url=users.create_login_url(url_base),
+              logout_url=users.create_logout_url(url_base))
+
+
 class MainPageHandler(webapp.RequestHandler):
   def get(self):
     rand = models.Triple.get_random_id()
@@ -33,8 +44,10 @@ class MainPageHandler(webapp.RequestHandler):
 
 class AboutHandler(webapp.RequestHandler):
   def get(self):
+    template_values = dict(page='about')
+    template_values.update(GetUserData('/about'))
     template = ezt.Template('templates/about.html')
-    template.generate(self.response.out, dict(page='about'))
+    template.generate(self.response.out, template_values)
 
 
 class VoteHandler(webapp.RequestHandler):
@@ -65,33 +78,24 @@ class VoteHandler(webapp.RequestHandler):
     two = triple.two
     three = triple.three
 
-    user = users.get_current_user()
-    if user:
-      nickname = user.nickname()
-    else:
-      nickname = ''
-    login_url = users.create_login_url('/')
-    logout_url = users.create_logout_url('/')
-
+    template_values = dict(page='vote',
+                           triple_id=triple_id,
+                           e1_name=one.name,
+                           e1_url=one.get_full_url(),
+                           e2_name=two.name,
+                           e2_url=two.get_full_url(),
+                           e3_name=three.name,
+                           e3_url=three.get_full_url(),
+                           prev_id=prev_id,
+                           prev_e1_name=prev_names[0],
+                           prev_e2_name=prev_names[1],
+                           prev_e3_name=prev_names[2],
+                           prev_e1_stat_url=prev_urls[0],
+                           prev_e2_stat_url=prev_urls[1],
+                           prev_e3_stat_url=prev_urls[2])
+    template_values.update(GetUserData('/vote/' + triple_id))
     template = ezt.Template('templates/vote.html')
-    template.generate(self.response.out, dict(page='vote',
-                                              nickname=nickname,
-                                              login_url=login_url,
-                                              logout_url=logout_url,
-                                              triple_id=triple_id,
-                                              e1_name=one.name,
-                                              e1_url=one.get_full_url(),
-                                              e2_name=two.name,
-                                              e2_url=two.get_full_url(),
-                                              e3_name=three.name,
-                                              e3_url=three.get_full_url(),
-                                              prev_id=prev_id,
-                                              prev_e1_name=prev_names[0],
-                                              prev_e2_name=prev_names[1],
-                                              prev_e3_name=prev_names[2],
-                                              prev_e1_stat_url=prev_urls[0],
-                                              prev_e2_stat_url=prev_urls[1],
-                                              prev_e3_stat_url=prev_urls[2]))
+    template.generate(self.response.out, template_values)
 
 
 class VoteSubmitHandler(webapp.RequestHandler):
@@ -112,6 +116,8 @@ class VoteSubmitHandler(webapp.RequestHandler):
 
 class MakeHandler(webapp.RequestHandler):
   def get(self):
+    template_values = dict(page='make')
+    template_values.update(GetUserData('/make'))
     template = ezt.Template('templates/make.html')
-    template.generate(self.response.out, dict(page='make'))
+    template.generate(self.response.out, template_values)
 
