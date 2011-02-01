@@ -30,7 +30,10 @@ def GetUserData(url_base):
   
   return dict(nickname=nickname,
               login_url=users.create_login_url(url_base),
-              logout_url=users.create_logout_url(url_base))
+              logout_url=users.create_logout_url(url_base),
+              # Set to True to display the login section of the nav bar.
+              # TODO(mjkelly): Finish login stuff and remove this check.
+              debug_login=None)
 
 
 class MainPageHandler(webapp.RequestHandler):
