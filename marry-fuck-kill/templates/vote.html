@@ -11,9 +11,17 @@
   <body id="body">
     <h1><img src="/s/title.png" width="410" height="41" alt="Marry-Fuck-Kill"></h1>
 
-    <div id="lefty" style="display: none">
-      <!-- stub for future stats display -->
-    </div>
+    [if-any prev_id]
+      <div id="lefty">
+        <h2><a href="/vote/[prev_id]">Last MFK</a></h2>
+        <div class="prev-title">[prev_e1_name]</div>
+        <img src="[prev_e1_stat_url]" alt="[prev_e1_name] stats"></img>
+        <div class="prev-title">[prev_e2_name]</div>
+        <img src="[prev_e2_stat_url]" alt="[prev_e2_name] stats"></img>
+        <div class="prev-title">[prev_e3_name]</div>
+        <img src="[prev_e3_stat_url]" alt="[prev_e3_name] stats"></img>
+      </div>
+    [end]
 
     <div id="page">
       <noscript>

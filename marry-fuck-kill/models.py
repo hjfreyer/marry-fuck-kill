@@ -68,7 +68,7 @@ class Entity(db.Model):
         '&chbh=a'
         '&chs=%(w)dx%(h)d'
         '&cht=bvg'
-        '&chco=A2C180,3D7930,FF9900'
+        '&chco=9911BB,C76FDD,63067A'
         '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
         '&chd=t:%(m)d|%(f)d|%(k)d'
         '&chdl=Marry|Fuck|Kill'
@@ -201,7 +201,7 @@ class Assignment(db.Model):
 
     # We get an entity->action map from the client, but we need to reverse
     # it to action->entity to update the DB.
-    triple = Triple.get(triple_key)
+    triple = Triple.get_by_id(int(triple_key))
     logging.debug("triple = %s", triple)
     if triple is None:
       logging.error("No triple with key %s", triple_key)

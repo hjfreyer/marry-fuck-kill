@@ -48,6 +48,18 @@ class VoteHandler(webapp.RequestHandler):
       self.error(404)
       return
 
+    prev_id = self.request.get('prev')
+    logging.info('Vote page for %s. Prev = %s', triple_id, prev_id)
+
+    if prev_id:
+      prev_triple = models.Triple.get_by_id(int(prev_id))
+      prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
+      prev_names = [e.name for e in prev_entities]
+      prev_urls = [e.get_stats_url() for e in prev_entities]
+    else:
+      prev_names = ['', '', '']
+      prev_urls = ['', '', '']
+
     one = triple.one
     two = triple.two
     three = triple.three
@@ -60,20 +72,30 @@ class VoteHandler(webapp.RequestHandler):
                                               e2_name=two.name,
                                               e2_url=two.get_full_url(),
                                               e3_name=three.name,
-                                              e3_url=three.get_full_url()))
+                                              e3_url=three.get_full_url(),
+                                              prev_id=prev_id,
+                                              prev_e1_name=prev_names[0],
+                                              prev_e2_name=prev_names[1],
+                                              prev_e3_name=prev_names[2],
+                                              prev_e1_stat_url=prev_urls[0],
+                                              prev_e2_stat_url=prev_urls[1],
+                                              prev_e3_stat_url=prev_urls[2]))
 
 
 class VoteSubmitHandler(webapp.RequestHandler):
   def post(self):
     action = self.request.get('action')
 
-    logging.error(action)
+    logging.info('Vote handler. Action: %s', action)
 
     if action == 'submit':
       models.Assignment.make_assignment(self.request)
+      query_suffix = '?prev=%s' % self.request.get('key')
+    else:
+      query_suffix = ''
 
     rand = models.Triple.get_random_id()
-    self.redirect('/vote/' + str(rand))
+    self.redirect('/vote/%s%s' % (str(rand), query_suffix))
 
 
 class MakeHandler(webapp.RequestHandler):
