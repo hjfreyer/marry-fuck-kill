@@ -31,6 +31,12 @@
         </div>
       </noscript>
 
+      [if-any nickname]
+        <p>Hello, [nickname]! <a href="[logout_url]">Click here</a> to log out.</p>
+      [else]
+        <p>You're not logged in. <a href="[login_url]">Click here</a> to log in.</p>
+      [end]
+
       <p>
         Vote for "marry", "fuck", or "kill" on each item below. You must vote for each on exactly once!
       </p>

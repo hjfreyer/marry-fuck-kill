@@ -17,6 +17,7 @@
 import ezt
 import logging
 
+from google.appengine.api import users
 from google.appengine.ext import webapp
 
 import models
@@ -64,8 +65,19 @@ class VoteHandler(webapp.RequestHandler):
     two = triple.two
     three = triple.three
 
+    user = users.get_current_user()
+    if user:
+      nickname = user.nickname()
+    else:
+      nickname = ''
+    login_url = users.create_login_url('/')
+    logout_url = users.create_logout_url('/')
+
     template = ezt.Template('templates/vote.html')
     template.generate(self.response.out, dict(page='vote',
+                                              nickname=nickname,
+                                              login_url=login_url,
+                                              logout_url=logout_url,
                                               triple_id=triple_id,
                                               e1_name=one.name,
                                               e1_url=one.get_full_url(),
