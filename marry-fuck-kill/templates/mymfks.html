@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+  <head>
+    [define title]My MFKs[end]
+    [include "head.html"]
+    [insertfile "analytics.html"]
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3/jquery.min.js" type="text/javascript"></script>
+    <script src="/s/vote.js" type="text/javascript"></script>
+
+  </head>
+  <body id="body">
+    <h1><img src="/s/title.png" width="410" height="41" alt="Marry-Fuck-Kill"></h1>
+
+    <div id="page">
+      <noscript>
+        <div style="width: 22em; position: absolute; left: 50%; margin-left: -11em; color: red; background-color: white; border: 1px solid red; padding: 4px; font-family: sans-serif">
+          Your web browser must have JavaScript enabled
+          in order for to play Marry/Fuck/Kill!
+        </div>
+      </noscript>
+
+      <h2>[title]</h2>
+
+      [if-any nickname]
+        [if-any triples]
+          [for triples]
+            <a href="/vote/[triples.key]">
+            <table class="tripletable statstable">
+              <tr class="title-row">
+                <td>[triples.one_name]</td>
+                <td>[triples.two_name]</td>
+                <td>[triples.three_name]</td>
+              </tr>
+              <tr class="image-row">
+                <!-- TODO: add alt tags -->
+                <td>
+                  <img src="[triples.one_url]"></img>
+                </td>
+                <td>
+                  <img src="[triples.two_url]"></img>
+                </td>
+                <td>
+                  <img src="[triples.three_url]"></img>
+                </td>
+              </tr>
+              <tr class="stats-row">
+                <td><img src="[triples.one_stats]"></img></td>
+                <td><img src="[triples.one_stats]"></img></td>
+                <td><img src="[triples.one_stats]"></img></td>
+              </tr>
+              </tr>
+            </table>
+            </a>
+          [end]
+        [else]
+        <p>
+          No MFKs to show. Maybe you haven't made any yet, or you weren't logged
+          in when you did. Only MFKs that you make while logged in will appear
+          here.
+        </p>
+        [end]
+      [else]
+        <p>
+          You're not logged in. You must log in to see MFKs that you have made.
+        </p>
+      [end]
+      [include "nav.html"]
+    </div>
+    [insertfile "foot.html"]
+  </body>
+</html>

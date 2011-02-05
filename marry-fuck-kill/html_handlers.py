@@ -30,10 +30,7 @@ def GetUserData(url_base):
   
   return dict(nickname=nickname,
               login_url=users.create_login_url(url_base),
-              logout_url=users.create_logout_url(url_base),
-              # Set to True to display the login section of the nav bar.
-              # TODO(mjkelly): Finish login stuff and remove this check.
-              debug_login=None)
+              logout_url=users.create_logout_url(url_base))
 
 
 class MainPageHandler(webapp.RequestHandler):
@@ -124,3 +121,36 @@ class MakeHandler(webapp.RequestHandler):
     template = ezt.Template('templates/make.html')
     template.generate(self.response.out, template_values)
 
+
+class MyMfksHandler(webapp.RequestHandler):
+  def get(self):
+    template_values = dict(page='mine')
+    user = users.get_current_user()
+    triples = [t for t in models.Triple.all().filter('creator =', user)]
+
+    items = []
+    for t in triples:
+      item = EztItem(key=str(t.key().id()),
+                     one_name=t.one.name,
+                     two_name=t.two.name,
+                     three_name=t.three.name,
+                     one_url=t.one.get_full_url(),
+                     two_url=t.two.get_full_url(),
+                     three_url=t.three.get_full_url(),
+                     one_stats=t.one.get_stats_url(),
+                     two_stats=t.two.get_stats_url(),
+                     three_stats=t.three.get_stats_url())
+      items.append(item)
+
+    template_values.update(GetUserData('/mymfks'))
+    template_values.update(dict(triples=items))
+    template = ezt.Template('templates/mymfks.html')
+    template.generate(self.response.out, template_values)
+
+class EztItem(object):
+  """A simple wrapper to convert dict keys to object attributes.
+
+  This makes sending complex objects to EZT much easier.
+  """
+  def __init__(self, **kwargs):
+    vars(self).update(kwargs)

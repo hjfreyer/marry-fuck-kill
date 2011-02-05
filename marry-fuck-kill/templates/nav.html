@@ -15,15 +15,10 @@
   [else]
     <span class="nav-inactive"><a href="/about">What is MFK?</a></span>
   [end]
-
-  [if-any debug_login]
-    <!-- Login section is only displayed if you set debug_login. That will go
-         away once it's more finalized. -->
-    [if-any nickname]
-      | <span class="nav-active">[nickname] (<a href="[logout_url]">Log out</a>)</span>
-    [else]
-      | <span class="nav-active"><a href="[login_url]">Log in</a></span>
-    [end]
+  [if-any nickname]
+    | <span class="nav-active"><a href="/mymfks">My MFKs</a> (<a href="[logout_url]">Log out</a>)</span>
+  [else]
+    | <span class="nav-active"><a href="[login_url]">Log in</a></span>
   [end]
 </div>
 <!-- end nav.html -->

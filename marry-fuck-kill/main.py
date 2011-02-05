@@ -28,6 +28,7 @@ def main():
       ("/", html_handlers.MainPageHandler),
       ("/about", html_handlers.AboutHandler),
       ("/make", html_handlers.MakeHandler),
+      ("/mymfks", html_handlers.MyMfksHandler),
       ("/vote/(.*)", html_handlers.VoteHandler),
       ("/vote.do", html_handlers.VoteSubmitHandler),
       ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
