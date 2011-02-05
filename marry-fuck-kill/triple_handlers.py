@@ -113,14 +113,3 @@ class TripleJsonHandler(webapp.RequestHandler):
       return
     self.response.out.write('ok:%s' % str(triple.key()))
 
-class TripleStatsHandler(webapp.RequestHandler):
-  def get(self, triple_id):
-    if not triple_id:
-      raise Exception("Need triple key")
-
-    t = models.Triple.get(urllib.unquote(triple_id))
-    entities = [t.one, t.two, t.three]
-
-    self.response.headers['Content-Type'] = "text/plain";
-    for e in [t.one, t.two, t.three]:
-      self.response.out.write(e.get_stats_url() + '\n')

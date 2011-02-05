@@ -44,13 +44,3 @@ class EntityImageHandler(webapp.RequestHandler):
     self.response.headers['Content-Type'] = "image/jpg";
     self.response.out.write(entity.data)
 
-class EntityStatsHandler(webapp.RequestHandler):
-  def get(self, entity_id):
-    if not entity_id:
-      raise Exception("Need entity key")
-
-    e = models.Entity.get(urllib.unquote(entity_id))
-    self.response.headers['Content-Type'] = "text/plain";
-    self.response.out.write(e.get_stats_url())
-
-
