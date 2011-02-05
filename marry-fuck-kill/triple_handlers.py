@@ -18,6 +18,7 @@
 import logging
 import urllib
 
+from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
@@ -45,7 +46,8 @@ class TripleCreationHandler(webapp.RequestHandler):
 
   def post(self):
     try:
-      triple = TripleCreationHandler.MakeTriple(self.request)
+      triple = TripleCreationHandler.MakeTriple(self.request,
+                                                users.get_current_user())
     # TODO(mjkelly): restrict this later when we have some idea of what
     # we'll throw. Or perhaps not?
     except models.EntityValidationError, e:
@@ -58,8 +60,12 @@ class TripleCreationHandler(webapp.RequestHandler):
     self.response.out.write('ok: created %s' % triple.key().name())
 
   @staticmethod
-  def MakeTriple(request):
+  def MakeTriple(request, creator):
     """Create the named triple.
+
+    Args:
+      request: the POST request specifying the new Triple.
+      creator: the user who created the Triple.
 
     We expect the following request params:
     n[1-3]: the 3 triple display names
@@ -98,13 +104,15 @@ class TripleCreationHandler(webapp.RequestHandler):
 
     return models.PutTriple(one=one,
                 two=two,
-                three=three)
+                three=three,
+                creator=creator)
 
 
 class TripleJsonHandler(webapp.RequestHandler):
   def post(self, unused_id):
     try:
-      triple = TripleCreationHandler.MakeTriple(self.request)
+      triple = TripleCreationHandler.MakeTriple(self.request,
+                                                users.get_current_user())
     except ValueError, e:
       self.response.out.write('error:%s' % e)
       return

@@ -19,6 +19,7 @@ import logging
 import random
 import urllib2
 
+from google.appengine.api import users
 from google.appengine.ext import db
 
 class EntityValidationError(Exception):
@@ -156,14 +157,15 @@ class Triple(db.Model):
     #raise EntityValidationError("test error")
     pass
 
-def PutTriple(one, two, three):
+def PutTriple(one, two, three, creator):
   """Put a triple in the DB with canonical key.
 
   See Triple.key_name_from_entities().
   """
   triple = Triple(one=one,
-          two=two,
-          three=three)
+                  two=two,
+                  three=three,
+                  creator=creator)
   triple.put()
   return triple
 
