@@ -25,31 +25,30 @@
         [if-any triples]
           [for triples]
             <a href="/vote/[triples.key]">
-            <table class="tripletable statstable">
-              <tr class="title-row">
-                <td>[triples.one_name]</td>
-                <td>[triples.two_name]</td>
-                <td>[triples.three_name]</td>
-              </tr>
-              <tr class="image-row">
-                <!-- TODO: add alt tags -->
-                <td>
-                  <img src="[triples.one_url]"></img>
-                </td>
-                <td>
-                  <img src="[triples.two_url]"></img>
-                </td>
-                <td>
-                  <img src="[triples.three_url]"></img>
-                </td>
-              </tr>
-              <tr class="stats-row">
-                <td><img src="[triples.one_stats]"></img></td>
-                <td><img src="[triples.one_stats]"></img></td>
-                <td><img src="[triples.one_stats]"></img></td>
-              </tr>
-              </tr>
-            </table>
+              <table class="tripletable statstable">
+                <tr class="title-row">
+                  <td>[triples.one_name]</td>
+                  <td>[triples.two_name]</td>
+                  <td>[triples.three_name]</td>
+                </tr>
+                <tr class="image-row">
+                  <!-- TODO: add alt tags -->
+                  <td>
+                    <img src="[triples.one_url]"></img>
+                  </td>
+                  <td>
+                    <img src="[triples.two_url]"></img>
+                  </td>
+                  <td>
+                    <img src="[triples.three_url]"></img>
+                  </td>
+                </tr>
+                <tr class="stats-row">
+                  <td><img src="[triples.one_stats]"></img></td>
+                  <td><img src="[triples.one_stats]"></img></td>
+                  <td><img src="[triples.one_stats]"></img></td>
+                </tr>
+              </table>
             </a>
           [end]
         [else]

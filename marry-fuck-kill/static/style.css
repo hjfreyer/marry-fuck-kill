@@ -11,6 +11,10 @@ h2 {
     margin: 5px 20px 20px 0px;
 }
 
+img {
+  border: 0;
+}
+
 /* The whole browser window. */
 #body {
     background: #9911bb;
@@ -72,10 +76,6 @@ h2 {
 
 .tripletable td {
     text-align: center;
-
-    border-style: solid;
-    border-color: black;
-
     overflow: hidden;
 }
 
@@ -84,15 +84,21 @@ h2 {
     font-size: 20px;
     vertical-align: top;
 
+    border-style: solid;
+    border-color: black;
     border-width: 1px 1px 0 1px;
     border-radius: 10px 10px 0 0;
+    -moz-border-radius: 10px 10px 0 0;
 }
 
 .image-row td {
     height: 180px;
 
+    border-style: solid;
+    border-color: black;
     border-width: 0 1px 1px 1px;
     border-radius: 0 0 10px 10px;
+    -moz-border-radius: 0 0 10px 10px;
 }
 
 .buttons-row td {
