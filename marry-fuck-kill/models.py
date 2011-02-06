@@ -18,6 +18,7 @@
 import logging
 import random
 import urllib2
+from django.utils import simplejson
 
 from google.appengine.api import users
 from google.appengine.ext import db
@@ -109,6 +110,9 @@ class Triple(db.Model):
 
   CONTEXT_COOKIE_NAME = 'mfkcontext'
 
+  GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
+  SEARCH_REFERER = 'http://marry-fuck-kill.appspot.com'
+
   @staticmethod
   def get_next_id(request, response):
     """Gets the next Triple ID, apparently at random.
@@ -146,7 +150,8 @@ class Triple(db.Model):
 
     # TODO(mjkelly): Try to find a lightweight wrapper for cookie-setting
     # instead of manually constructing them.
-    response.headers.add_header('Set-Cookie', '%s=%d' % (Triple.CONTEXT_COOKIE_NAME, next_id))
+    if next_id is not None:
+      response.headers.add_header('Set-Cookie', '%s=%d' % (Triple.CONTEXT_COOKIE_NAME, next_id))
 
     return next_id
 
@@ -214,19 +219,65 @@ class Triple(db.Model):
     return "%s.%s.%s" % (keys[0], keys[1], keys[2])
 
   @staticmethod
-  def validate(one, two, three):
+  def validate_request(req, userip):
     """Verify that the 3 given entities can make a valid triple.
 
     Raises EntityValidationError if there was a problem.
-    """
 
-    if len(set([one.name, two.name, three.name])) < 3:
-      raise EntityValidationError("All item names must be distinct.")
-    if len(set([one.data, two.data, three.data])) < 3:
-      raise EntityValidationError("All item URLs must be distinct.")
-    # TODO(mjkelly): implement me
-    #raise EntityValidationError("test error")
-    pass
+    Args:
+      req_dict: (list) The data structure from Triple.parse_request.
+      userip: (str) The IP of the user who made the request
+    """
+    # This must be synchronized with the number of pages the creation interface
+    # shows. Raising it incurs a large performance penalty.
+    check_pages = 1
+
+    names = [item['n'] for item in req]
+    urls = [item['u'] for item in req]
+    if len(set(names)) < 3:
+      raise EntityValidationError('All item names must be distinct: %s', names)
+    if len(set(urls)) < 3:
+      raise EntityValidationError('All item URLs must be distinct: %s', urls)
+
+    for item in req:
+      images = Triple._get_images_for_query(item['q'], 3, userip)
+      search_urls = [image['tbUrl'] for image in images]
+      if item['u'] not in search_urls:
+        raise EntityValidationError(
+            "URL '%s' is not in result set for query '%s'." % (item['u'],
+                                                               item['q']))
+
+  @staticmethod
+  def _get_images_for_query(query, num_pages, userip):
+    start = 0
+    images = []
+    for page in range(num_pages):
+      # TODO(mjkelly): add userip parameter
+      url = ('https://ajax.googleapis.com/ajax/services/search/images'
+             '?v=1.0'
+             '&safe=moderate'
+             '&userip=%(ip)s'
+             '&q=%(q)s'
+             '&start=%(start)s'
+             '&key=%(key)s' % {'q': urllib2.quote(query),
+                               'start': start,
+                               'ip': userip,
+                               'key': Triple.GOOGLE_API_KEY})
+      logging.info('_get_images_for_query: url=%s', url)
+      req = urllib2.Request(url, None, {'Referer': Triple.SEARCH_REFERER})
+      results = simplejson.load(urllib2.urlopen(req))
+      images += results['responseData']['results']
+      logging.info('_get_images_for_query: %d results so far', len(images))
+
+      # Make sure there are more pages before advancing 'start'
+      pages = results['responseData']['cursor']['pages']
+      if len(pages) >= num_pages:
+        start = pages[page+1]['start']
+      else:
+        break
+
+    return images
+
 
 def PutTriple(one, two, three, creator):
   """Put a triple in the DB with canonical key.
