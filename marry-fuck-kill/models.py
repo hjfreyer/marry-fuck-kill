@@ -48,7 +48,7 @@ class Entity(db.Model):
     return {'name': self.name, 'url': self.get_full_url()}
 
   def get_full_url(self):
-    logging.info('get_full_url (for %d): returning %s',
+    logging.debug('get_full_url (for %d): returning %s',
         self.key().id(), Entity.BASE_URL + str(self.key()))
     return Entity.BASE_URL + str(self.key())
 
