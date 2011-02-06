@@ -1,7 +1,5 @@
 LAUNCH BLOCKERS:
-- Random playlist impl (mjk).
 - Admin interface.
-- Server side verification (mjk).
 - Make picker more usable (hjfreyer).
 - Throttle search requests (hjfreyer).
 - Comply with TOS.
