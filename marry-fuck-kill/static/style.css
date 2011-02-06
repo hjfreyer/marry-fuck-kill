@@ -162,10 +162,15 @@ img {
     font-weight: bold;
 }
 
-.votebar div {
+.actionbar {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.actionbar .button {
     display: inline-block;
     width: 30%;
-    margin: 30px 20px;
+    margin: 0 20px;
 }
 
 .nav {

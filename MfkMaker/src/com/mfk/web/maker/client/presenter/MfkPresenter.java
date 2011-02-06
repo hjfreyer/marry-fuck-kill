@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.event.shared.HasHandlers;
+import com.google.gwt.user.client.Window;
 import com.mfk.web.maker.client.event.ImageResultsAvailableEvent;
 import com.mfk.web.maker.client.event.QueryUpdatedEvent;
 import com.mfk.web.maker.client.model.EntityInfo;
@@ -17,6 +18,13 @@ import com.mfk.web.maker.client.view.OutputForm;
 public class MfkPresenter implements ImageResultsAvailableEvent.Handler {
 
   private final HasHandlers eventBus;
+
+  private final EntityInfo default1 = 
+    new EntityInfo("Treehouse 1", "/s/treehouse-1.jpeg");
+  private final EntityInfo default2 = 
+    new EntityInfo("Treehouse 2", "/s/treehouse-2.jpeg");
+  private final EntityInfo default3 = 
+    new EntityInfo("Treehouse 3", "/s/treehouse-3.jpeg");
   
   private final EntityView ev1;
   private final EntityView ev2;
@@ -96,9 +104,9 @@ public class MfkPresenter implements ImageResultsAvailableEvent.Handler {
     });
     
     picker.setVisible(false);
-    ev1.setEntityInfo(new EntityInfo("Treehouse 1", "/s/treehouse-1.jpeg"));
-    ev2.setEntityInfo(new EntityInfo("Treehouse 2", "/s/treehouse-2.jpeg"));
-    ev3.setEntityInfo(new EntityInfo("Treehouse 3", "/s/treehouse-3.jpeg"));
+    ev1.setEntityInfo(default1);
+    ev2.setEntityInfo(default2);
+    ev3.setEntityInfo(default3);
   }
   
   public void onQueryUpdated() {
@@ -155,6 +163,13 @@ public class MfkPresenter implements ImageResultsAvailableEvent.Handler {
   }
   
   private void submit() {
+    if (!ev1.getEntityInfo().getImageUrl().startsWith("http://images.google.com") ||
+        !ev2.getEntityInfo().getImageUrl().startsWith("http://images.google.com") ||
+        !ev3.getEntityInfo().getImageUrl().startsWith("http://images.google.com")) {    
+      Window.alert("You must change all the items from their defaults.");
+      return;
+    }
+
     outputForm.setEntity1(ev1.getEntityInfo());
     outputForm.setEntity2(ev2.getEntityInfo());
     outputForm.setEntity3(ev3.getEntityInfo());
