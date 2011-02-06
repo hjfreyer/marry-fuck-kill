@@ -266,7 +266,7 @@ class Triple(db.Model):
     """
     # This must be synchronized with the number of pages the creation interface
     # shows. Raising it incurs a large performance penalty.
-    check_pages = 1
+    check_pages = 3
 
     names = [item['n'] for item in req]
     urls = [item['u'] for item in req]
@@ -276,9 +276,12 @@ class Triple(db.Model):
       raise EntityValidationError('All item URLs must be distinct: %s', urls)
 
     for item in req:
-      images = Triple._get_images_for_query(item['q'], 3, userip)
+      images = Triple._get_images_for_query(item['q'], check_pages, userip)
       search_urls = [image['tbUrl'] for image in images]
       if item['u'] not in search_urls:
+        logging.error("URL '%s' is not in result set for query '%s'. "
+                      "Result set over %d pages is: %s" % (
+                          item['u'], item['q'], check_pages, search_urls))
         raise EntityValidationError(
             "URL '%s' is not in result set for query '%s'." % (item['u'],
                                                                item['q']))
