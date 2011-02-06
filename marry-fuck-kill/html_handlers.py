@@ -16,9 +16,11 @@
 
 import ezt
 import logging
+import random
 
 from google.appengine.api import users
 from google.appengine.ext import webapp
+from google.appengine.ext import db
 
 import models
 import triple_handlers
@@ -36,7 +38,7 @@ def GetUserData(url_base):
 
 class MainPageHandler(webapp.RequestHandler):
   def get(self):
-    rand = models.Triple.get_random_id()
+    rand = models.Triple.get_next_id(self.request, self.response)
     if not rand:
       self.redirect('/about')
     else:
@@ -111,7 +113,7 @@ class VoteSubmitHandler(webapp.RequestHandler):
     else:
       query_suffix = ''
 
-    rand = models.Triple.get_random_id()
+    rand = models.Triple.get_next_id(self.request, self.response)
     self.redirect('/vote/%s%s' % (str(rand), query_suffix))
 
 
@@ -157,6 +159,29 @@ class MyMfksHandler(webapp.RequestHandler):
     template_values.update(dict(triples=items))
     template = ezt.Template('templates/mymfks.html')
     template.generate(self.response.out, template_values)
+
+class GenerateRandHandler(webapp.RequestHandler):
+  """Regenerates the 'rand' attributes of all Triples.
+
+  We go through some acrobatics to batch our query to avoid running afoul of
+  the 1000-item limit.
+  """
+  def get(self):
+    batch_size = 1000
+    template_values = dict(page='mine')
+    user = users.get_current_user()
+    triples = db.Query(models.Triple).order('__key__').fetch(batch_size)
+    logging.info('GenerateRandHandler: initial query got %d', len(triples))
+    count = 0
+    while triples:
+      for t in triples:
+        count += 1
+        t.rand = random.random()
+        logging.debug('GenerateRandHandler: id=%s rand=%.15f', t.key(), t.rand)
+        t.put()
+      triples = db.Query(models.Triple).filter('__key__ >', t.key()).order('__key__').fetch(batch_size)
+      logging.info('GenerateRandHandler: subsequent query got %d', len(triples))
+    self.response.out.write('Regenerated %d Triples' % count)
 
 class EztItem(object):
   """A simple wrapper to convert dict keys to object attributes.

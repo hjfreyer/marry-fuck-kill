@@ -32,6 +32,7 @@ def main():
       ("/mymfks", html_handlers.MyMfksHandler),
       ("/vote/(.*)", html_handlers.VoteHandler),
       ("/vote.do", html_handlers.VoteSubmitHandler),
+      ("/admin/generate_rand", html_handlers.GenerateRandHandler),
       ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
       ("/i/(.*)", entity_handlers.EntityImageHandler),
     ], debug=True)
