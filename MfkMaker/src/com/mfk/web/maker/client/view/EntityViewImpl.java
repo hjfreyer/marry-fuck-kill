@@ -16,7 +16,11 @@ public class EntityViewImpl implements EntityView {
   public EntityViewImpl(Panel name, Panel img, Panel edit) {
     name.add(this.name);
     img.add(this.img);
-    edit.add(this.editButton);
+    edit.add(editButton);
+
+    editButton.removeStyleName("gwt-Button");
+    editButton.addStyleName("button");
+    editButton.addStyleName("clickable");
   }
 
   @Override

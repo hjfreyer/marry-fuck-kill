@@ -37,6 +37,10 @@ public class MfkMaker implements EntryPoint {
     EntityPickerView picker = new EntityPickerViewImpl();
     
     Button createButton = new Button("Create");
+    createButton.removeStyleName("gwt-Button");
+    createButton.addStyleName("button");
+    createButton.addStyleName("clickable");
+
     RootPanel.get("createButton").add(createButton);
 
     OutputForm outputForm = new OutputFormImpl(RootPanel.get("outputForm"));
