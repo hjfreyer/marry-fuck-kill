@@ -128,7 +128,11 @@ class Triple(db.Model):
     # cut down on the number of DB requests we make.
     prev_id = None
     next_id = None
-    prev_id = long(request.cookies.get(Triple.CONTEXT_COOKIE_NAME))
+    try:
+      # This fails if there is no cookie, or it isn't a valid long.
+      prev_id = long(request.cookies.get(Triple.CONTEXT_COOKIE_NAME))
+    except TypeError:
+      pass
     logging.info('get_next_id: prev_id = %s', prev_id)
     if prev_id is not None:
       prev_triple = Triple.get_by_id(long(prev_id))
