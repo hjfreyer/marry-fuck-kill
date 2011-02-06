@@ -97,6 +97,9 @@ class Entity(db.Model):
 class Triple(db.Model):
   # User who created the Triple, or None if no user was logged in.
   creator = db.UserProperty()
+  # These fields are not required for DB backwards-compatibility.
+  creatorip = db.StringProperty(required=False, default='')
+  time = db.DateTimeProperty(required=False, auto_now_add=True)
   # A measure of quality. Currently ignored.
   quality = db.FloatProperty(default=1.0)
   # A random value used to determine a randomized, repeatable display order.
@@ -221,25 +224,25 @@ class Triple(db.Model):
     return "%s.%s.%s" % (keys[0], keys[1], keys[2])
 
   @staticmethod
-  def make_triple(entities, creator, userip):
+  def make_triple(request, creator):
     """Create the named triple.
 
     Args:
-      entities: a data structure representing the parsed triple request, from
-                html_handlers.parse_request.
+      request: the POST request from the client
       creator: the user who created the Triple.
 
     The only non-obvious part of this is that we check that q[1-3] actually
     include u[1-3]. This is to prevent users from adding any URL they
     please.
     """
+    entities = Triple.parse_request(request)
     for i in range(len(entities)):
       for k in ['n', 'u', 'q']:
         if not entities[i][k]:
           raise ValueError("Entity %s missing attribute '%s'" % (i, k))
 
     # This may raise an EntityValidationError.
-    Triple.validate_request(entities, userip)
+    Triple.validate_request(entities, request.remote_addr)
 
     # This may raise a URLError or EntityValidatationError.
     one = Entity.make_entity(entities[0]['n'], entities[0]['u'],
@@ -249,7 +252,9 @@ class Triple(db.Model):
     three = Entity.make_entity(entities[2]['n'], entities[2]['u'],
                                entities[2]['q'])
 
-    triple = Triple(one=one, two=two, three=three, creator=creator,
+    triple = Triple(one=one, two=two, three=three,
+                    creator=creator,
+                    creatorip=request.remote_addr,
                     rand=random.random())
     triple.put()
     return triple
@@ -258,11 +263,14 @@ class Triple(db.Model):
   def validate_request(req, userip):
     """Verify that the 3 given entities can make a valid triple.
 
-    Raises EntityValidationError if there was a problem.
 
     Args:
       req_dict: (list) The data structure from Triple.parse_request.
       userip: (str) The IP of the user who made the request
+
+    Raises:
+      EntityValidationError if the triple does not validate.
+      DownloadError if there was a network error checking the triple. 
     """
     # This must be synchronized with the number of pages the creation interface
     # shows. Raising it incurs a large performance penalty.
@@ -276,6 +284,7 @@ class Triple(db.Model):
       raise EntityValidationError('All item URLs must be distinct: %s', urls)
 
     for item in req:
+      # This may raise a DownloadError
       images = Triple._get_images_for_query(item['q'], check_pages, userip)
       search_urls = [image['tbUrl'] for image in images]
       if item['u'] not in search_urls:
@@ -303,6 +312,7 @@ class Triple(db.Model):
                                'key': Triple.GOOGLE_API_KEY})
       logging.info('_get_images_for_query: url=%s', url)
       req = urllib2.Request(url, None, {'Referer': Triple.SEARCH_REFERER})
+      # This may raise a DownloadError
       results = simplejson.load(urllib2.urlopen(req))
       images += results['responseData']['results']
       logging.info('_get_images_for_query: %d results so far', len(images))
@@ -316,9 +326,31 @@ class Triple(db.Model):
 
     return images
 
+  @staticmethod
+  def parse_request(request):
+    """Parses a Triple creation request and puts it in a convenient format.
+
+    We expect the following request params:
+    n[1-3]: the 3 triple display names
+    u[1-3]: the 3 triple image URLs
+    q[1-3]: the search string used to find u[1-3]
+    """
+    return [{'n': request.get('n1'),
+             'u': request.get('u1'),
+             'q': request.get('q1')},
+            {'n': request.get('n2'),
+             'u': request.get('u2'),
+             'q': request.get('q2')},
+            {'n': request.get('n3'),
+             'u': request.get('u3'),
+             'q': request.get('q3')}]
+
 
 class Assignment(db.Model):
   user = db.UserProperty()
+  # These fields are not required for DB backwards-compatibility.
+  userip = db.StringProperty(required=False, default='')
+  time = db.DateTimeProperty(required=False, auto_now_add=True)
 
   triple = db.ReferenceProperty(Triple)
 
@@ -339,7 +371,13 @@ class Assignment(db.Model):
     return str(self)
 
   @staticmethod
-  def make_assignment(request):
+  def make_assignment(request, user):
+    """Create a new assignment.
+
+    Args:
+      request: the POST request from the client
+      user: the user who made the assignment request
+    """
     triple_key = request.get('key')
     values = [request.get('v1'), request.get('v2'), request.get('v3')]
 
@@ -373,7 +411,9 @@ class Assignment(db.Model):
 
     assign = Assignment(marry=entities['m'],
                         fuck=entities['f'],
-                        kill=entities['k'])
+                        kill=entities['k'],
+                        user=user,
+                        userip=str(request.remote_addr))
     assign.put()
     logging.info("Assigned m=%s, f=%s, k=%s to %s", entities['m'],
         entities['f'], entities['k'], triple)

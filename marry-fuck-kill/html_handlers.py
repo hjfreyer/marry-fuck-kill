@@ -109,7 +109,7 @@ class VoteSubmitHandler(webapp.RequestHandler):
     logging.info('Vote handler. Action: %s', action)
 
     if action == 'submit':
-      models.Assignment.make_assignment(self.request)
+      models.Assignment.make_assignment(self.request, users.get_current_user())
       query_suffix = '?prev=%s' % self.request.get('key')
     else:
       query_suffix = ''
@@ -121,28 +121,8 @@ class VoteSubmitHandler(webapp.RequestHandler):
 class MakeSubmitHandler(webapp.RequestHandler):
   def post(self):
     logging.info('Make handler')
-    triple = models.Triple.make_triple(self.parse_request(),
-                                       users.get_current_user(),
-                                       self.request.remote_addr)
+    triple = models.Triple.make_triple(self.request, users.get_current_user())
     self.redirect('/vote/%s?new' % triple.key().id())
-
-  def parse_request(self):
-    """Parses a Triple creation request and puts it in a convenient format.
-
-    We expect the following request params:
-    n[1-3]: the 3 triple display names
-    u[1-3]: the 3 triple image URLs
-    q[1-3]: the search string used to find u[1-3]
-    """
-    return [{'n': self.request.get('n1'),
-             'u': self.request.get('u1'),
-             'q': self.request.get('q1')},
-            {'n': self.request.get('n2'),
-             'u': self.request.get('u2'),
-             'q': self.request.get('q2')},
-            {'n': self.request.get('n3'),
-             'u': self.request.get('u3'),
-             'q': self.request.get('q3')}]
 
 
 class MakeHandler(webapp.RequestHandler):
