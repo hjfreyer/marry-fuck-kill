@@ -77,20 +77,22 @@ class Entity(db.Model):
         '&chdlp=r' % (dict(m=m, f=f, k=k, max=max([m,f,k]), w=w, h=h)))
     return url
 
-def PutEntity(name, url, query):
-  if not url.startswith('http://images.google.com/images?q'):
-    raise EntityValidationError('URL must come from Google image search.')
+  @staticmethod
+  def make_entity(name, url, query):
+    if not url.startswith('http://images.google.com/images?q'):
+      raise EntityValidationError('URL must come from Google image search.')
 
-  # This could throw URLError. We'll let it bubble up.
-  fh = urllib2.urlopen(url)
-  logging.info('Downloading %s' % url)
-  data = fh.read()
-  logging.info('Downloaded %s bytes' % len(data))
+    # This could throw URLError. We'll let it bubble up.
+    fh = urllib2.urlopen(url)
+    logging.info('Downloading %s' % url)
+    data = fh.read()
+    logging.info('Downloaded %s bytes' % len(data))
 
-  entity = Entity(name=name, data=data, query=query)
+    entity = Entity(name=name, data=data, query=query)
 
-  entity.put()
-  return entity
+    entity.put()
+    return entity
+
 
 class Triple(db.Model):
   # User who created the Triple, or None if no user was logged in.
@@ -219,6 +221,39 @@ class Triple(db.Model):
     return "%s.%s.%s" % (keys[0], keys[1], keys[2])
 
   @staticmethod
+  def make_triple(entities, creator, userip):
+    """Create the named triple.
+
+    Args:
+      entities: a data structure representing the parsed triple request, from
+                html_handlers.parse_request.
+      creator: the user who created the Triple.
+
+    The only non-obvious part of this is that we check that q[1-3] actually
+    include u[1-3]. This is to prevent users from adding any URL they
+    please.
+    """
+    for i in range(len(entities)):
+      for k in ['n', 'u', 'q']:
+        if not entities[i][k]:
+          raise ValueError("Entity %s missing attribute '%s'" % (i, k))
+
+    # This may raise an EntityValidationError.
+    Triple.validate_request(entities, userip)
+
+    # This may raise a URLError or EntityValidatationError.
+    one = Entity.make_entity(entities[0]['n'], entities[0]['u'],
+                             entities[0]['q'])
+    two = Entity.make_entity(entities[1]['n'], entities[1]['u'],
+                             entities[0]['q'])
+    three = Entity.make_entity(entities[2]['n'], entities[2]['u'],
+                               entities[0]['q'])
+
+    triple = Triple(one=one, two=two, three=three, creator=creator)
+    triple.put()
+    return triple
+
+  @staticmethod
   def validate_request(req, userip):
     """Verify that the 3 given entities can make a valid triple.
 
@@ -252,7 +287,6 @@ class Triple(db.Model):
     start = 0
     images = []
     for page in range(num_pages):
-      # TODO(mjkelly): add userip parameter
       url = ('https://ajax.googleapis.com/ajax/services/search/images'
              '?v=1.0'
              '&safe=moderate'
@@ -278,18 +312,6 @@ class Triple(db.Model):
 
     return images
 
-
-def PutTriple(one, two, three, creator):
-  """Put a triple in the DB with canonical key.
-
-  See Triple.key_name_from_entities().
-  """
-  triple = Triple(one=one,
-                  two=two,
-                  three=three,
-                  creator=creator)
-  triple.put()
-  return triple
 
 class Assignment(db.Model):
   user = db.UserProperty()

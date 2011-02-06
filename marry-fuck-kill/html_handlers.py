@@ -17,15 +17,16 @@
 import ezt
 import logging
 import random
+import urllib2
 
 from google.appengine.api import users
-from google.appengine.ext import webapp
 from google.appengine.ext import db
+from google.appengine.ext import webapp
 
 import models
-import triple_handlers
 
 def GetUserData(url_base):
+  # This must be in this module to have access to the current user.
   nickname = ''
   user = users.get_current_user()
   if user:
@@ -120,11 +121,28 @@ class VoteSubmitHandler(webapp.RequestHandler):
 class MakeSubmitHandler(webapp.RequestHandler):
   def post(self):
     logging.info('Make handler')
-
-    triple = triple_handlers.TripleCreationHandler.MakeTriple(
-      self.request, users.get_current_user())
-
+    triple = models.Triple.make_triple(self.parse_request(),
+                                       users.get_current_user(),
+                                       self.request.remote_addr)
     self.redirect('/vote/%s?new' % triple.key().id())
+
+  def parse_request(self):
+    """Parses a Triple creation request and puts it in a convenient format.
+
+    We expect the following request params:
+    n[1-3]: the 3 triple display names
+    u[1-3]: the 3 triple image URLs
+    q[1-3]: the search string used to find u[1-3]
+    """
+    return [{'n': self.request.get('n1'),
+             'u': self.request.get('u1'),
+             'q': self.request.get('q1')},
+            {'n': self.request.get('n2'),
+             'u': self.request.get('u2'),
+             'q': self.request.get('q2')},
+            {'n': self.request.get('n3'),
+             'u': self.request.get('u3'),
+             'q': self.request.get('q3')}]
 
 
 class MakeHandler(webapp.RequestHandler):
@@ -133,6 +151,13 @@ class MakeHandler(webapp.RequestHandler):
     template_values.update(GetUserData('/make'))
     template = ezt.Template('templates/make.html')
     template.generate(self.response.out, template_values)
+
+
+class EntityImageHandler(webapp.RequestHandler):
+  def get(self, entity_id):
+    entity = models.Entity.get(urllib2.unquote(entity_id))
+    self.response.headers['Content-Type'] = "image/jpg";
+    self.response.out.write(entity.data)
 
 
 class MyMfksHandler(webapp.RequestHandler):
@@ -160,6 +185,7 @@ class MyMfksHandler(webapp.RequestHandler):
     template = ezt.Template('templates/mymfks.html')
     template.generate(self.response.out, template_values)
 
+
 class GenerateRandHandler(webapp.RequestHandler):
   """Regenerates the 'rand' attributes of all Triples.
 
@@ -182,6 +208,7 @@ class GenerateRandHandler(webapp.RequestHandler):
       triples = db.Query(models.Triple).filter('__key__ >', t.key()).order('__key__').fetch(batch_size)
       logging.info('GenerateRandHandler: subsequent query got %d', len(triples))
     self.response.out.write('Regenerated %d Triples' % count)
+
 
 class EztItem(object):
   """A simple wrapper to convert dict keys to object attributes.
