@@ -173,6 +173,16 @@ class GenerateRandHandler(webapp.RequestHandler):
   the 1000-item limit.
   """
   def get(self):
+    count = GenerateRandHandler.generate_rand()
+    self.response.out.write('Regenerated %d Triples' % count)
+
+  @staticmethod
+  def generate_rand():
+    """Generate all rand values for all Triples.
+
+    Returns:
+      (int) the number of triples processed
+    """
     batch_size = 1000
     template_values = dict(page='mine')
     user = users.get_current_user()
@@ -187,7 +197,7 @@ class GenerateRandHandler(webapp.RequestHandler):
         t.put()
       triples = db.Query(models.Triple).filter('__key__ >', t.key()).order('__key__').fetch(batch_size)
       logging.info('GenerateRandHandler: subsequent query got %d', len(triples))
-    self.response.out.write('Regenerated %d Triples' % count)
+    return count
 
 
 class EztItem(object):
