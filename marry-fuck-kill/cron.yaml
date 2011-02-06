@@ -1,0 +1,5 @@
+cron:
+- description: daily random order regeneration
+  url: /admin/generate_rand
+  schedule: every day 04:00
+  timezone: America/New_York

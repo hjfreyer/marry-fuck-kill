@@ -245,11 +245,12 @@ class Triple(db.Model):
     one = Entity.make_entity(entities[0]['n'], entities[0]['u'],
                              entities[0]['q'])
     two = Entity.make_entity(entities[1]['n'], entities[1]['u'],
-                             entities[0]['q'])
+                             entities[1]['q'])
     three = Entity.make_entity(entities[2]['n'], entities[2]['u'],
-                               entities[0]['q'])
+                               entities[2]['q'])
 
-    triple = Triple(one=one, two=two, three=three, creator=creator)
+    triple = Triple(one=one, two=two, three=three, creator=creator,
+                    rand=random.random())
     triple.put()
     return triple
 

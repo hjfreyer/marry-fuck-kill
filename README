@@ -1,26 +1,17 @@
 === Intro ===
-This is the MFK code. The main directories are:
+This is the code for Marry Fuck Kill, a web game. The main directories are:
 
 marry-fuck-kill: The appengine application. This handles the database and JSON
         interface, and provides some debugging facilities.
-MfkWeb: The voting interface (a GWT app).
-MfkMake: The creation interface (a GWT app).
+MfkMaker: The creation interface (a GWT app).
 
 It's all horribly messy, and mostly an excuse for me to learn a bit about GWT
 and App Engine.
 
-=== Tasks ===
-- basic stats
-  - Histogram for individual triple (right after rating, HotOrNot style)
+=== Notes ===
+The GWT code must be built with build_gwt.sh before the JS functions.
 
-=== Hosted Mode GWT Debugging ===
-0) ./marry-fuck-kill/gwt-war/ is seeded with an ant build.
-1) Run the devmode gwt server in ./MfkWeb with -noserver, etc ("ant devmode"
-   works; or set eclipse args to be the same as build.xml)
-2) Start the appengine project in ./marry-fuck-kill.
-3) Access http://localhost:8080/MfkWeb.html?gwt.codesvr=127.0.0.1:9997 and
-   debug in style.
+For debugging the GWT code, hosted mode is best -- add
+"?gwt.codesvr=127.0.0.1:9997" (or the appropriate port) to the GWT page.
 
-If RPCs are blank, be wary of the browser's same-origin policy. Obviously make
-sure you're accessing the GWT app through the appengine dev webserver. Check
-"localhost" vs "127.0.0.1", if that gets embedded anywhere (it shouldn't).
+See also the "TODO" file.
