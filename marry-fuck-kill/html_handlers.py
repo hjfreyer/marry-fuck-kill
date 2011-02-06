@@ -21,13 +21,14 @@ from google.appengine.api import users
 from google.appengine.ext import webapp
 
 import models
+import triple_handlers
 
 def GetUserData(url_base):
   nickname = ''
   user = users.get_current_user()
   if user:
     nickname = user.nickname()
-  
+
   return dict(nickname=nickname,
               login_url=users.create_login_url(url_base),
               logout_url=users.create_logout_url(url_base))
@@ -112,6 +113,16 @@ class VoteSubmitHandler(webapp.RequestHandler):
 
     rand = models.Triple.get_random_id()
     self.redirect('/vote/%s%s' % (str(rand), query_suffix))
+
+
+class MakeSubmitHandler(webapp.RequestHandler):
+  def post(self):
+    logging.info('Make handler')
+
+    triple = triple_handlers.TripleCreationHandler.MakeTriple(
+      self.request, users.get_current_user())
+
+    self.redirect('/vote/%s?new' % triple.key().id())
 
 
 class MakeHandler(webapp.RequestHandler):
