@@ -126,10 +126,11 @@ class Triple(db.Model):
     """
     # We _could_ also store the random value on the client side if we want to
     # cut down on the number of DB requests we make.
-    prev_id = request.cookies.get(Triple.CONTEXT_COOKIE_NAME)
+    prev_id = None
     next_id = None
+    prev_id = long(request.cookies.get(Triple.CONTEXT_COOKIE_NAME))
+    logging.info('get_next_id: prev_id = %s', prev_id)
     if prev_id is not None:
-      # A maliciously-constructed cookie could cause this to fail.
       prev_triple = Triple.get_by_id(long(prev_id))
       if prev_triple is not None:
         prev_rand = prev_triple.rand
@@ -151,8 +152,8 @@ class Triple(db.Model):
 
     This method contains all the real logic.
     """
-    logging.info("_get_next_id_after_rand: prev_rand = %s", prev_rand)
-    query = Triple.all().filter('rand >', prev_rand).order('rand')
+    logging.debug("_get_next_id_after_rand: prev_rand = %s", prev_rand)
+    query = db.Query(Triple, keys_only=True).filter('rand >', prev_rand).order('rand')
     if not query.count():
       if prev_rand >= 0.0:
         # If we were using a rand value > 0, we probably hit the end of the
@@ -164,7 +165,7 @@ class Triple(db.Model):
         # is the base case for the recursion above.
         return None
     else:
-      return query.get().key().id()
+      return query.get().id()
 
   @staticmethod
   def _get_random_id():
@@ -173,12 +174,16 @@ class Triple(db.Model):
     This is a fallback used by get_next_id for when we don't have any context
     on previously-seen Triples from the client.
     """
-    # TODO(hjfreyer): Change to a constant-time randomization scheme.
-    keys = [k for k in db.Query(Triple, keys_only=True)]
-    if not keys:
-      return None
+    rand = random.random()
+    logging.debug('_get_random_id: rand = %f', rand)
+    query = db.Query(Triple, keys_only=True).filter('rand >', rand).order('rand')
+    if query.count():
+        return query.get().id()
     else:
-      return random.choice(keys).id()
+      logging.debug('_get_random_id: no results, trying other direction')
+      query = db.Query(Triple, keys_only=True).filter('rand <', rand).order('-rand')
+      if query.count():
+        return query.get().id()
 
   def __str__(self):
     return Triple.name_from_entities(self.one, self.two, self.three)
