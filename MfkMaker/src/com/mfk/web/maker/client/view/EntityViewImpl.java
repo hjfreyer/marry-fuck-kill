@@ -1,5 +1,7 @@
 package com.mfk.web.maker.client.view;
 
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.dom.client.Style.Visibility;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Image;
@@ -9,18 +11,25 @@ import com.mfk.web.maker.client.model.EntityInfo;
 
 public class EntityViewImpl implements EntityView {
 
-  private Label name = new Label();
-  private Image img = new Image();
-  private Button editButton = new Button("Edit");
+  private final Label name = new Label();
+  private final Image img = new Image();
+  private final Button editButton = new Button("Edit");
   
-  public EntityViewImpl(Panel name, Panel img, Panel edit) {
-    name.add(this.name);
-    img.add(this.img);
-    edit.add(editButton);
+  public EntityViewImpl(Panel namePanel, Panel imgPanel, Panel editPanel) {
+    namePanel.add(name);
+    imgPanel.add(img);
+    editPanel.add(editButton);
 
     editButton.removeStyleName("gwt-Button");
     editButton.addStyleName("button");
     editButton.addStyleName("clickable");
+
+    name.setText("?");
+    img.setUrl("/s/mfk.png");
+
+    name.getElement().getStyle().setVisibility(Visibility.HIDDEN);
+    img.getElement().getStyle().setOpacity(0.3);
+    img.getElement().getStyle().setMarginTop(-20, Unit.PX);
   }
 
   @Override
@@ -29,12 +38,11 @@ public class EntityViewImpl implements EntityView {
   }
   
   @Override
-  public EntityInfo getEntityInfo() {
-    return new EntityInfo(name.getText(), img.getUrl());
-  }
-
-  @Override
-  public void setEntityInfo(EntityInfo info) {
+  public void showEntity(EntityInfo info) {
+    name.getElement().getStyle().clearVisibility();
+    img.getElement().getStyle().clearOpacity();
+    img.getElement().getStyle().clearMarginTop();
+    
     name.setText(info.getName());
     img.setUrl(info.getImageUrl());
   }

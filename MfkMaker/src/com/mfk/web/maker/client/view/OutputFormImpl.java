@@ -1,5 +1,7 @@
 package com.mfk.web.maker.client.view;
 
+import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.Hidden;
@@ -23,9 +25,11 @@ public class OutputFormImpl implements OutputForm {
   private final Hidden n3 = new Hidden("n3");
   private final Hidden u3 = new Hidden("u3");
   private final Hidden q3 = new Hidden("q3");
-  
-  public OutputFormImpl(Panel panel) {
-    panel.add(form);
+
+  private final Button createButton = new Button("Create");  
+    
+  public OutputFormImpl(Panel createButtonPanel, Panel formPanel) {
+    formPanel.add(form);
     form.setWidget(subPanel);
 
     form.setAction("/make.do");
@@ -40,6 +44,11 @@ public class OutputFormImpl implements OutputForm {
     subPanel.add(n3);
     subPanel.add(u3);
     subPanel.add(q3);
+    
+    createButton.removeStyleName("gwt-Button");
+    createButton.addStyleName("button");
+    
+    createButtonPanel.add(createButton);
   }
   
   @Override
@@ -66,5 +75,19 @@ public class OutputFormImpl implements OutputForm {
   @Override
   public void submit() {
     form.submit();
+  }
+
+  @Override
+  public HasClickHandlers getSubmitButton() {
+    return createButton;
+  }
+    
+  @Override
+  public void setClickable(boolean clickable) {
+    if (clickable) {
+      createButton.addStyleName("clickable");
+    } else {
+      createButton.removeStyleName("clickable");
+    }
   }
 }
