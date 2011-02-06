@@ -166,6 +166,24 @@ class MyMfksHandler(webapp.RequestHandler):
     template.generate(self.response.out, template_values)
 
 
+class DisableTripleHandler(webapp.RequestHandler):
+  """Admin-only handler to remove Triple from random display."""
+  def get(self, triple_id):
+    triple = models.Triple.get_by_id(long(triple_id))
+    triple.disable()
+    triple.put()
+    self.response.out.write('disabled %s (rand = %s)' % (triple_id, triple.rand))
+
+
+class EnableTripleHandler(webapp.RequestHandler):
+  """Admin-only handler to enable Triple for random display."""
+  def get(self, triple_id):
+    triple = models.Triple.get_by_id(long(triple_id))
+    triple.enable()
+    triple.put()
+    self.response.out.write('enabled %s (rand = %s)' % (triple_id, triple.rand))
+    
+
 class GenerateRandHandler(webapp.RequestHandler):
   """Regenerates the 'rand' attributes of all Triples.
 

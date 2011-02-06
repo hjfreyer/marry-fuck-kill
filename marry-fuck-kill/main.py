@@ -31,6 +31,8 @@ def main():
       ("/vote/(.*)", html_handlers.VoteHandler),
       ("/vote.do", html_handlers.VoteSubmitHandler),
       ("/admin/generate_rand", html_handlers.GenerateRandHandler),
+      ("/admin/disable/(.*)", html_handlers.DisableTripleHandler),
+      ("/admin/enable/(.*)", html_handlers.EnableTripleHandler),
       ("/i/(.*)", html_handlers.EntityImageHandler),
     ], debug=True)
   util.run_wsgi_app(application)
