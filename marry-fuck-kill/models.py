@@ -146,7 +146,8 @@ class Triple(db.Model):
 
     # TODO(mjkelly): Try to find a lightweight wrapper for cookie-setting
     # instead of manually constructing them.
-    response.headers.add_header('Set-Cookie', '%s=%d' % (Triple.CONTEXT_COOKIE_NAME, next_id))
+    if next_id is not None:
+      response.headers.add_header('Set-Cookie', '%s=%d' % (Triple.CONTEXT_COOKIE_NAME, next_id))
 
     return next_id
 
