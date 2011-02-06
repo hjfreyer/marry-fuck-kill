@@ -189,7 +189,7 @@ public class MfkPresenter implements ImageResultsAvailableEvent.Handler {
   }
   
   private void submit() {
-    if (isClickable()) {
+    if (!isClickable()) {
       return;
     }
     
