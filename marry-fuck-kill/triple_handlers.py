@@ -76,21 +76,15 @@ class TripleCreationHandler(webapp.RequestHandler):
     include u[1-3]. This is to prevent users from adding any URL they
     please.
     """
-    # Grab all the URL params at once.
-    entities = [{'n': request.get('n1'),
-           'u': request.get('u1'),
-           'q': request.get('q1')},
-          {'n': request.get('n2'),
-           'u': request.get('u2'),
-           'q': request.get('q2')},
-          {'n': request.get('n3'),
-           'u': request.get('u3'),
-           'q': request.get('q3')}]
+    entities = TripleCreationHandler.parse_request(request)
 
     for i in range(len(entities)):
       for k in ['n', 'u', 'q']:
         if not entities[i][k]:
           raise ValueError("Entity %s missing attribute '%s'" % (i, k))
+
+    # This may raise an EntityValidationError.
+    models.Triple.validate_request(entities, request.remote_addr)
 
     # This may raise a URLError or EntityValidatationError.
     one = models.PutEntity(entities[0]['n'], entities[0]['u'],
@@ -99,13 +93,26 @@ class TripleCreationHandler(webapp.RequestHandler):
                  entities[0]['q'])
     three = models.PutEntity(entities[2]['n'], entities[2]['u'],
                  entities[0]['q'])
-    # This may raise an EntityValidationError.
-    models.Triple.validate(one, two, three)
+    #models.Triple.validate(one, two, three)
 
     return models.PutTriple(one=one,
                 two=two,
                 three=three,
                 creator=creator)
+
+  @staticmethod
+  def parse_request(request):
+    """Parses a Triple creation request and puts it in a convenient format."""
+    # Grab all the URL params at once.
+    return [{'n': request.get('n1'),
+             'u': request.get('u1'),
+             'q': request.get('q1')},
+            {'n': request.get('n2'),
+             'u': request.get('u2'),
+             'q': request.get('q2')},
+            {'n': request.get('n3'),
+             'u': request.get('u3'),
+             'q': request.get('q3')}]
 
 
 class TripleJsonHandler(webapp.RequestHandler):
