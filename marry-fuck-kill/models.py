@@ -153,7 +153,8 @@ class Triple(db.Model):
     This method contains all the real logic.
     """
     logging.debug("_get_next_id_after_rand: prev_rand = %s", prev_rand)
-    query = db.Query(Triple, keys_only=True).filter('rand >', prev_rand).order('rand')
+    query = db.Query(Triple, keys_only=True).filter('rand >',
+        prev_rand).order('rand').order('__key__')
     if not query.count():
       if prev_rand >= 0.0:
         # If we were using a rand value > 0, we probably hit the end of the
@@ -176,12 +177,14 @@ class Triple(db.Model):
     """
     rand = random.random()
     logging.debug('_get_random_id: rand = %f', rand)
-    query = db.Query(Triple, keys_only=True).filter('rand >', rand).order('rand')
+    query = db.Query(Triple, keys_only=True).filter('rand >',
+        rand).order('rand').order('__key__')
     if query.count():
         return query.get().id()
     else:
       logging.debug('_get_random_id: no results, trying other direction')
-      query = db.Query(Triple, keys_only=True).filter('rand <', rand).order('-rand')
+      query = db.Query(Triple, keys_only=True).filter('rand <',
+          rand).order('-rand').order('__key__')
       if query.count():
         return query.get().id()
 
