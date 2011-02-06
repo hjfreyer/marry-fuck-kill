@@ -36,20 +36,20 @@ class Entity(db.Model):
   BASE_URL = '/i/'
 
   # TODO(mjkelly): do something with this or get rid of it
-  type = db.StringProperty(choices=set(["abstract", "person", "object"]))
+  type = db.StringProperty(choices=set(['abstract', 'person', 'object']))
 
   def __str__(self):
     return self.name
 
   def __repr__(self):
-    return "Entity(%r)" % self.name
+    return 'Entity(%r)' % self.name
 
   def json(self):
     return {'name': self.name, 'url': self.get_full_url()}
 
   def get_full_url(self):
-    logging.info("get_full_url: returning %s",
-        Entity.BASE_URL + str(self.key()))
+    logging.info('get_full_url (for %d): returning %s',
+        self.key().id(), Entity.BASE_URL + str(self.key()))
     return Entity.BASE_URL + str(self.key())
 
   def get_stats_url(self, w=160, h=85):
@@ -78,13 +78,13 @@ class Entity(db.Model):
 
 def PutEntity(name, url, query):
   if not url.startswith('http://images.google.com/images?q'):
-    raise EntityValidationError("URL must come from Google image search.")
+    raise EntityValidationError('URL must come from Google image search.')
 
   # This could throw URLError. We'll let it bubble up.
   fh = urllib2.urlopen(url)
-  logging.info("Downloading %s" % url)
+  logging.info('Downloading %s' % url)
   data = fh.read()
-  logging.info("Downloaded %s bytes" % len(data))
+  logging.info('Downloaded %s bytes' % len(data))
 
   entity = Entity(name=name, data=data, query=query)
 
@@ -152,7 +152,7 @@ class Triple(db.Model):
 
     This method contains all the real logic.
     """
-    logging.debug("_get_next_id_after_rand: prev_rand = %s", prev_rand)
+    logging.debug('_get_next_id_after_rand: prev_rand = %s', prev_rand)
     query = db.Query(Triple, keys_only=True).filter('rand >',
         prev_rand).order('rand').order('__key__')
     if not query.count():
