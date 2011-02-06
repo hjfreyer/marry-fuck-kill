@@ -53,23 +53,23 @@ public class OutputFormImpl implements OutputForm {
   
   @Override
   public void setEntity1(EntityInfo info) {
-    n1.setValue(info.getName());
-    u1.setValue(info.getImageUrl());
-    q1.setValue(info.getName());
+    n1.setValue(info.name);
+    u1.setValue(info.imageUrl);
+    q1.setValue(info.name);
   }
 
   @Override
   public void setEntity2(EntityInfo info) {
-    n2.setValue(info.getName());
-    u2.setValue(info.getImageUrl());
-    q2.setValue(info.getName());
+    n2.setValue(info.name);
+    u2.setValue(info.imageUrl);
+    q2.setValue(info.name);
   }
 
   @Override
   public void setEntity3(EntityInfo info) {
-    n3.setValue(info.getName());
-    u3.setValue(info.getImageUrl());
-    q3.setValue(info.getName());
+    n3.setValue(info.name);
+    u3.setValue(info.imageUrl);
+    q3.setValue(info.name);
   }
 
   @Override

@@ -135,8 +135,8 @@ public class MfkPresenter implements ImageResultsAvailableEvent.Handler {
     if (entity == null) {
       picker.setName("");
     } else {
-      picker.setName(entity.getName());    
-      eventBus.fireEvent(new QueryUpdatedEvent(entity.getName()));
+      picker.setName(entity.name);    
+      eventBus.fireEvent(new QueryUpdatedEvent(entity.name));
     }
     picker.setVisible(true);
   }

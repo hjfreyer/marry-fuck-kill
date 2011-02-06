@@ -43,7 +43,7 @@ public class EntityViewImpl implements EntityView {
     img.getElement().getStyle().clearOpacity();
     img.getElement().getStyle().clearMarginTop();
     
-    name.setText(info.getName());
-    img.setUrl(info.getImageUrl());
+    name.setText(info.name);
+    img.setUrl(info.imageUrl);
   }
 }
