@@ -17,10 +17,8 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-import entity_handlers
 import html_handlers
 import models
-import triple_handlers
 
 def main():
   # TODO(mjkelly): Clean up these handlers.
@@ -33,8 +31,7 @@ def main():
       ("/vote/(.*)", html_handlers.VoteHandler),
       ("/vote.do", html_handlers.VoteSubmitHandler),
       ("/admin/generate_rand", html_handlers.GenerateRandHandler),
-      ("/rpc/create/(.*)", triple_handlers.TripleJsonHandler),
-      ("/i/(.*)", entity_handlers.EntityImageHandler),
+      ("/i/(.*)", html_handlers.EntityImageHandler),
     ], debug=True)
   util.run_wsgi_app(application)
 
