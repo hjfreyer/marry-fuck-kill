@@ -92,9 +92,13 @@ def PutEntity(name, url, query):
   return entity
 
 class Triple(db.Model):
+  # User who created the Triple, or None if no user was logged in.
   creator = db.UserProperty()
-
+  # A measure of quality. Currently ignored.
   quality = db.FloatProperty(default=1.0)
+  # A random value used to determine a randomized, repeatable display order.
+  # Not necessarily unique. 'default' value is for backwards-compatibility.
+  rand = db.FloatProperty(required=True, default=0.0)
 
   one = db.ReferenceProperty(Entity,
                  collection_name="triple_reference_one_set")
@@ -103,23 +107,78 @@ class Triple(db.Model):
   three = db.ReferenceProperty(Entity,
                  collection_name="triple_reference_three_set")
 
+  CONTEXT_COOKIE_NAME = 'mfkcontext'
+
   @staticmethod
-  def get_random_id():
+  def get_next_id(request, response):
+    """Gets the next Triple ID, apparently at random.
+
+    We use cookies in the request, if available, to determine what the next
+    Triple will be.
+
+    Args:
+      request: request object from the client
+      response: the response object that will be sent to the client.
+
+    Returns:
+      (ID) The ID of the next Triple, and a cookie to set on the client
+           to maintain state.
+    """
+    # We _could_ also store the random value on the client side if we want to
+    # cut down on the number of DB requests we make.
+    prev_id = request.cookies.get(Triple.CONTEXT_COOKIE_NAME)
+    next_id = None
+    if prev_id is not None:
+      # A maliciously-constructed cookie could cause this to fail.
+      prev_triple = Triple.get_by_id(long(prev_id))
+      if prev_triple is not None:
+        prev_rand = prev_triple.rand
+        next_id = Triple._get_next_id_after_rand(prev_rand)
+
+    # If we failed to intelligently determine the next triple, pick at random.
+    if next_id is None:
+      next_id = Triple._get_random_id()
+
+    # TODO(mjkelly): Try to find a lightweight wrapper for cookie-setting
+    # instead of manually constructing them.
+    response.headers.add_header('Set-Cookie', '%s=%d' % (Triple.CONTEXT_COOKIE_NAME, next_id))
+
+    return next_id
+
+  @staticmethod
+  def _get_next_id_after_rand(prev_rand):
+    """Given the rand value of the last Triple we saw, determine the next.
+
+    This method contains all the real logic.
+    """
+    logging.info("_get_next_id_after_rand: prev_rand = %s", prev_rand)
+    query = Triple.all().filter('rand >', prev_rand).order('rand')
+    if not query.count():
+      if prev_rand >= 0.0:
+        # If we were using a rand value > 0, we probably hit the end of the
+        # list naturally. Retry with -1, which should return everything.
+        return Triple._get_next_id_after_rand(-1.0)
+      else:
+        # If we returned no results and yet were using a rand value < 0, the
+        # database is empty or contains only invalid rand values. Give up. This
+        # is the base case for the recursion above.
+        return None
+    else:
+      return query.get().key().id()
+
+  @staticmethod
+  def _get_random_id():
+    """Returns a truly random Triple.
+
+    This is a fallback used by get_next_id for when we don't have any context
+    on previously-seen Triples from the client.
+    """
     # TODO(hjfreyer): Change to a constant-time randomization scheme.
-    keys = [k for k in db.Query(Triple, keys_only=True).filter(
-        'quality >', 0.0)]
+    keys = [k for k in db.Query(Triple, keys_only=True)]
     if not keys:
       return None
     else:
       return random.choice(keys).id()
-
-  @staticmethod
-  def get_random():
-    id_ = Triple.get_random_id()
-    if not id_:
-      return None
-    else:
-      return Triple.get_by_id(id_)
 
   def __str__(self):
     return Triple.name_from_entities(self.one, self.two, self.three)

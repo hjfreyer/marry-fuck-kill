@@ -36,7 +36,7 @@ def GetUserData(url_base):
 
 class MainPageHandler(webapp.RequestHandler):
   def get(self):
-    rand = models.Triple.get_random_id()
+    rand = models.Triple.get_next_id(self.request, self.response)
     if not rand:
       self.redirect('/about')
     else:
@@ -111,7 +111,7 @@ class VoteSubmitHandler(webapp.RequestHandler):
     else:
       query_suffix = ''
 
-    rand = models.Triple.get_random_id()
+    rand = models.Triple.get_next_id(self.request, self.response)
     self.redirect('/vote/%s%s' % (str(rand), query_suffix))
 
 
