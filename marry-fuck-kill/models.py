@@ -101,10 +101,13 @@ class Triple(db.Model):
   creatorip = db.StringProperty(required=False, default='')
   time = db.DateTimeProperty(required=False, auto_now_add=True)
   # A measure of quality. Currently ignored.
+  # TODO(mjkelly): Remove this.
   quality = db.FloatProperty(default=1.0)
   # A random value used to determine a randomized, repeatable display order.
   # Not necessarily unique. 'default' value is for backwards-compatibility.
-  rand = db.FloatProperty(required=True, default=0.0)
+  # If this is None, this Triple will not be returned by get_next_id() under
+  # any cirumstances.
+  rand = db.FloatProperty(required=False, default=0.0)
 
   one = db.ReferenceProperty(Entity,
                  collection_name="triple_reference_one_set")
@@ -117,6 +120,20 @@ class Triple(db.Model):
 
   GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
   SEARCH_REFERER = 'http://marry-fuck-kill.appspot.com'
+
+  def disable(self):
+    """Prevent this Triple from being picked in the random rotation.
+
+    It will still be visible from a direct link.
+
+    This works by removing the 'rand' attribute from this object entirely, to
+    prevent it from being returned in sort operations involving 'rand'.
+    """
+    self.rand = -1.0
+
+  def enable(self):
+    """Allow this Triple to be picked in the random rotation."""
+    self.rand = random.random()
 
   @staticmethod
   def get_next_id(request, response):
@@ -147,7 +164,7 @@ class Triple(db.Model):
       prev_triple = Triple.get_by_id(long(prev_id))
       if prev_triple is not None:
         prev_rand = prev_triple.rand
-        next_id = Triple._get_next_id_after_rand(prev_rand)
+        next_id = Triple._get_greater_rand(prev_rand)
 
     # If we failed to intelligently determine the next triple, pick at random.
     if next_id is None:
@@ -161,19 +178,28 @@ class Triple(db.Model):
     return next_id
 
   @staticmethod
-  def _get_next_id_after_rand(prev_rand):
-    """Given the rand value of the last Triple we saw, determine the next.
+  def _get_greater_rand(rand, _or_equal=False):
+    """Get the Triple ID with the next-greater rand value.
 
-    This method contains all the real logic.
+    This method contains all the real logic for picking random values.
+
+    Args:
+      rand: The value to compare against.
     """
-    logging.debug('_get_next_id_after_rand: prev_rand = %s', prev_rand)
-    query = db.Query(Triple, keys_only=True).filter('rand >',
-        prev_rand).order('rand').order('__key__')
+    if _or_equal:
+      logging.info('_get_greater_rand: rand >= %s', rand)
+      query = db.Query(Triple, keys_only=True).filter(
+          'rand >=', rand).order('rand').order('__key__')
+    else:
+      logging.info('_get_greater_rand: rand > %s', rand)
+      query = db.Query(Triple, keys_only=True).filter(
+          'rand >', rand).order('rand').order('__key__')
     if not query.count():
-      if prev_rand >= 0.0:
+      if not _or_equal:
         # If we were using a rand value > 0, we probably hit the end of the
-        # list naturally. Retry with -1, which should return everything.
-        return Triple._get_next_id_after_rand(-1.0)
+        # list naturally. We want to wrap around to the lowest triple, so we
+        # use rand >= 0.0.
+        return Triple._get_greater_rand(0.0, _or_equal=True)
       else:
         # If we returned no results and yet were using a rand value < 0, the
         # database is empty or contains only invalid rand values. Give up. This
@@ -190,17 +216,8 @@ class Triple(db.Model):
     on previously-seen Triples from the client.
     """
     rand = random.random()
-    logging.debug('_get_random_id: rand = %f', rand)
-    query = db.Query(Triple, keys_only=True).filter('rand >',
-        rand).order('rand').order('__key__')
-    if query.count():
-        return query.get().id()
-    else:
-      logging.debug('_get_random_id: no results, trying other direction')
-      query = db.Query(Triple, keys_only=True).filter('rand <',
-          rand).order('-rand').order('__key__')
-      if query.count():
-        return query.get().id()
+    logging.info('_get_random_id: rand = %f', rand)
+    return Triple._get_greater_rand(rand)
 
   def __str__(self):
     return Triple.name_from_entities(self.one, self.two, self.three)
