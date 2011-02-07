@@ -178,7 +178,12 @@ img {
 }
 
 .adminbar {
-  background: #ccc;
+  padding: 5px;
+  background: #dd8;
+  border: 1px solid black;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -o-border-radius: 5px;
 }
 
 .nav {
