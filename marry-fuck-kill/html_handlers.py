@@ -32,9 +32,15 @@ def GetUserData(url_base):
   if user:
     nickname = user.nickname()
 
+  if users.is_current_user_admin():
+    is_current_user_admin = True
+  else:
+    is_current_user_admin = None
+
   return dict(nickname=nickname,
               login_url=users.create_login_url(url_base),
-              logout_url=users.create_logout_url(url_base))
+              logout_url=users.create_logout_url(url_base),
+              is_current_user_admin=is_current_user_admin)
 
 
 class MainPageHandler(webapp.RequestHandler):
@@ -82,8 +88,16 @@ class VoteHandler(webapp.RequestHandler):
     two = triple.two
     three = triple.three
 
+    # Map False -> None so EZT understands.
+    if triple.is_enabled():
+      triple_enabled = True
+    else:
+      triple_enabled = None
+
     template_values = dict(page='vote',
                            triple_id=triple_id,
+                           triple_rand=triple.rand,
+                           triple_enabled=triple_enabled,
                            e1_name=one.name,
                            e1_url=one.get_full_url(),
                            e2_name=two.name,
@@ -109,7 +123,7 @@ class VoteSubmitHandler(webapp.RequestHandler):
     logging.info('Vote handler. Action: %s', action)
 
     if action == 'submit':
-      models.Assignment.make_assignment(self.request)
+      models.Assignment.make_assignment(self.request, users.get_current_user())
       query_suffix = '?prev=%s' % self.request.get('key')
     else:
       query_suffix = ''
@@ -121,28 +135,8 @@ class VoteSubmitHandler(webapp.RequestHandler):
 class MakeSubmitHandler(webapp.RequestHandler):
   def post(self):
     logging.info('Make handler')
-    triple = models.Triple.make_triple(self.parse_request(),
-                                       users.get_current_user(),
-                                       self.request.remote_addr)
+    triple = models.Triple.make_triple(self.request, users.get_current_user())
     self.redirect('/vote/%s?new' % triple.key().id())
-
-  def parse_request(self):
-    """Parses a Triple creation request and puts it in a convenient format.
-
-    We expect the following request params:
-    n[1-3]: the 3 triple display names
-    u[1-3]: the 3 triple image URLs
-    q[1-3]: the search string used to find u[1-3]
-    """
-    return [{'n': self.request.get('n1'),
-             'u': self.request.get('u1'),
-             'q': self.request.get('q1')},
-            {'n': self.request.get('n2'),
-             'u': self.request.get('u2'),
-             'q': self.request.get('q2')},
-            {'n': self.request.get('n3'),
-             'u': self.request.get('u3'),
-             'q': self.request.get('q3')}]
 
 
 class MakeHandler(webapp.RequestHandler):
@@ -186,6 +180,23 @@ class MyMfksHandler(webapp.RequestHandler):
     template.generate(self.response.out, template_values)
 
 
+class EnableDisableTripleHandler(webapp.RequestHandler):
+  """Admin-only handler to remove Triple from random display."""
+  def post(self):
+    action = self.request.get('action')
+    triple_id = self.request.get('key')
+    triple = models.Triple.get_by_id(long(triple_id))
+    if action == "disable":
+      triple.disable()
+    elif action == "enable":
+      triple.enable()
+    else:
+      raise ValueError("Invalid action '%s'." % action)
+    triple.put()
+    self.response.out.write('%s %s (rand = %s)' % (
+        action, triple_id, triple.rand))
+
+
 class GenerateRandHandler(webapp.RequestHandler):
   """Regenerates the 'rand' attributes of all Triples.
 
@@ -193,6 +204,16 @@ class GenerateRandHandler(webapp.RequestHandler):
   the 1000-item limit.
   """
   def get(self):
+    count = GenerateRandHandler.generate_rand()
+    self.response.out.write('Regenerated %d Triples' % count)
+
+  @staticmethod
+  def generate_rand():
+    """Generate all rand values for all Triples.
+
+    Returns:
+      (int) the number of triples processed
+    """
     batch_size = 1000
     template_values = dict(page='mine')
     user = users.get_current_user()
@@ -207,7 +228,7 @@ class GenerateRandHandler(webapp.RequestHandler):
         t.put()
       triples = db.Query(models.Triple).filter('__key__ >', t.key()).order('__key__').fetch(batch_size)
       logging.info('GenerateRandHandler: subsequent query got %d', len(triples))
-    self.response.out.write('Regenerated %d Triples' % count)
+    return count
 
 
 class EztItem(object):
