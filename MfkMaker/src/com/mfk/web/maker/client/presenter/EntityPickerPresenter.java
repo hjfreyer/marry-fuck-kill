@@ -24,6 +24,8 @@ public class EntityPickerPresenter implements ImageResultsHandler {
   private String previewedUrl = "";
   private boolean resultsStale = false;
   
+  private ImageView currentlySelectedImage = null;
+  
   public EntityPickerPresenter(EntityPickerView view,
       ImageSearchManager searchManager) {
     this.view = view;
@@ -99,7 +101,7 @@ public class EntityPickerPresenter implements ImageResultsHandler {
     if (entity == null) {
       enteredName = "";  
       previewedUrl = "";
-      
+            
       view.setName("");
       view.clearPreview();
       view.clearImages();
@@ -130,8 +132,9 @@ public class EntityPickerPresenter implements ImageResultsHandler {
     }
     
     for (final String resultUrl : resultUrls) {
-      ImageView img = view.addImageView();
+      final ImageView img = view.addImageView();
       img.setImageUrl(resultUrl);
+      img.setSelected(false);
       
       if (previewedUrl.isEmpty()) {
         previewedUrl = resultUrl;
@@ -140,12 +143,22 @@ public class EntityPickerPresenter implements ImageResultsHandler {
       
       if (previewedUrl.equals(resultUrl)) {
         img.setSelected(true);
+        currentlySelectedImage = img;
       }
       
       img.getClickable().addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
           previewedUrl = resultUrl;
+          
+          if (currentlySelectedImage != null) {
+            currentlySelectedImage.setSelected(false);
+          }
+          
+          currentlySelectedImage = img;
+
+          img.setSelected(true);
+          
           view.showPreview(resultUrl);         
         }
       });

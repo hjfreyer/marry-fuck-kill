@@ -46,6 +46,8 @@ public class ImageSearchManager {
   }
   
   private void handleSearchResults(String query, JsArray<? extends Result> results) {
+    System.out.println("Got results for " + query);
+    
     if (!query.equals(currentQuery)) {
       return;
     }

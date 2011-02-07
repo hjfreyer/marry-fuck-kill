@@ -21,6 +21,8 @@ public class ImageViewImpl implements ImageView {
     image.addLoadHandler(new LoadHandler() {
       @Override
       public void onLoad(LoadEvent event) {
+        image.setPixelSize((int) (image.getWidth() / 1.5), 
+            (int) (image.getHeight() / 1.5));
         image.setVisible(true);
       }
     });
@@ -28,7 +30,11 @@ public class ImageViewImpl implements ImageView {
   
   @Override
   public void setSelected(boolean selected) {
-
+    if (selected) {
+      image.setStyleName("selected");
+    } else {
+      image.setStyleName("unselected");
+    }
   }
   
   public Image getImage() {

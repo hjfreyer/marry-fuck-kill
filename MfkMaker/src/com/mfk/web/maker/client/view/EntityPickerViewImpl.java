@@ -6,35 +6,46 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.TextBox;
 
 public class EntityPickerViewImpl implements EntityPickerView {
 
   private final DialogBox dialog = new DialogBox();
-  private final Panel panel = new FlowPanel();
-
   private Image autoThrobber = new Image("/s/loading.gif");
-  private final Panel imgPanel = new FlowPanel();
 
   private final TextBox searchField = new TextBox();
   private final Button saveButton = new Button("Save");
   private final Button cancelButton = new Button("Cancel");
-  
-  public EntityPickerViewImpl() {
-    panel.add(searchField);
-    panel.add(cancelButton);
-    panel.add(saveButton);
-    panel.add(autoThrobber);
-    panel.add(imgPanel);
-    
-    panel.setWidth("600px");
-    panel.setHeight("500px");
 
+  private final Image imagePreview = new Image();
+  private final Panel imageChoices;
+
+  public EntityPickerViewImpl() {
+    Panel dialogPanel = new FlowPanel();
+    dialogPanel.setStyleName("pickerBody");
+       
+    Panel rightside = makeSubPanel(dialogPanel, "rightSide");
+    imageChoices = makeSubPanel(dialogPanel, "imageChoices");
+    Panel submitBar = makeSubPanel(dialogPanel, "submitBar");
+        
+    rightside.add(new Label("Item name:"));
+    rightside.add(searchField);
+    rightside.add(autoThrobber);    
+
+    Panel primaryImgBox = makeSubPanel(rightside, "primaryImgBox");
+    primaryImgBox.add(imagePreview);    
+    
+    submitBar.add(cancelButton);
+    submitBar.add(saveButton);
+    
+    imagePreview.setStyleName("imagePreview");
+    
     dialog.setText("Pick your poison");
+    dialog.addStyleName("picker");
     dialog.setGlassEnabled(true);
-    dialog.setWidget(panel);
-    dialog.center();
+    dialog.setWidget(dialogPanel);
   }
 
   @Override
@@ -66,7 +77,7 @@ public class EntityPickerViewImpl implements EntityPickerView {
   public ImageView addImageView() {
     ImageViewImpl imageView = new ImageViewImpl();
     
-    imgPanel.add(imageView.getImage());
+    imageChoices.add(imageView.getImage());
     
     return imageView;
   }
@@ -79,6 +90,7 @@ public class EntityPickerViewImpl implements EntityPickerView {
   @Override
   public void setVisible(boolean visible) {
     if (visible) {
+      dialog.center();
       dialog.show();
       searchField.setFocus(true);
     } else {
@@ -88,17 +100,25 @@ public class EntityPickerViewImpl implements EntityPickerView {
 
   @Override
   public void clearImages() {
-    imgPanel.clear();
+    imageChoices.clear();
   }
 
   @Override
   public void showPreview(String imageUrl) {
-    
+    imagePreview.setUrl(imageUrl);
+    imagePreview.setVisible(true);
   }
   
   @Override
   public void clearPreview() {
-    // TODO Auto-generated method stub
+    imagePreview.setVisible(false);
+  }
+  
+  private Panel makeSubPanel(Panel parent, String styleName) {
+    Panel result = new FlowPanel();
+    result.setStyleName(styleName);
+    parent.add(result);
     
+    return result;
   }
 }

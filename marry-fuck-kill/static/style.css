@@ -239,3 +239,44 @@ img {
     margin: 5px 2px 0 2px;
 }
 
+.pickerBody {
+    white-space: nowrap;
+}
+
+.picker .rightSide {
+    display: inline-block;
+    vertical-align: top;
+    border-right: 1px solid lightgray;
+}
+
+.picker .primaryImgBox {
+    display: table-cell;
+
+    width: 200px;
+    height: 200px;
+
+    vertical-align: middle;
+    text-align: center;
+}
+
+.picker .imageChoices {
+    display: inline-block;
+
+    width: 400px;
+
+    white-space: normal;
+}
+
+.picker .unselected {
+    padding: 4px;
+}
+
+.unselected:hover {
+    border: 2px solid gray;
+    padding: 2px;
+}
+
+.picker .selected {
+    border: 2px solid #9911bb;
+    padding: 2px;
+}
