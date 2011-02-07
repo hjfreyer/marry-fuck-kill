@@ -32,10 +32,15 @@ def GetUserData(url_base):
   if user:
     nickname = user.nickname()
 
+  if users.is_current_user_admin():
+    is_current_user_admin = True
+  else:
+    is_current_user_admin = None
+
   return dict(nickname=nickname,
               login_url=users.create_login_url(url_base),
               logout_url=users.create_logout_url(url_base),
-              is_current_user_admin=users.is_current_user_admin())
+              is_current_user_admin=is_current_user_admin)
 
 
 class MainPageHandler(webapp.RequestHandler):
