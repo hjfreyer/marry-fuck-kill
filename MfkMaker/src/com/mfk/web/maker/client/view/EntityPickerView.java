@@ -25,4 +25,6 @@ public interface EntityPickerView {
   public void showPreview(String imageUrl);
 
   public void clearPreview();
+
+  public void setSaveable(boolean saveable);
 }

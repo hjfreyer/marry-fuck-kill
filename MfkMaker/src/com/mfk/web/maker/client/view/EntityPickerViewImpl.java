@@ -39,6 +39,10 @@ public class EntityPickerViewImpl implements EntityPickerView {
 
     submitBar.add(cancelButton);
     submitBar.add(saveButton);
+    
+    cancelButton.setStyleName("button");
+    cancelButton.addStyleName("clickable");
+    saveButton.setStyleName("button");
 
     imagePreview.setStyleName("imagePreview");
 
@@ -109,6 +113,15 @@ public class EntityPickerViewImpl implements EntityPickerView {
     imagePreview.setVisible(true);
   }
 
+  @Override
+  public void setSaveable(boolean saveable) {
+    if (saveable) {
+      saveButton.addStyleName("clickable");
+    } else {
+      saveButton.removeStyleName("clickable");
+    }    
+  }
+  
   @Override
   public void clearPreview() {
     imagePreview.setVisible(false);
