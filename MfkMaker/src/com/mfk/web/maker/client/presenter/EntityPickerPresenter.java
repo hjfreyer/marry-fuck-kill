@@ -25,6 +25,7 @@ public class EntityPickerPresenter implements ImageResultsHandler {
   private boolean resultsStale = false;
 
   private ImageView currentlySelectedImage = null;
+  private boolean saveable = false;
 
   public EntityPickerPresenter(EntityPickerView view,
       ImageSearchManager searchManager) {
@@ -45,7 +46,9 @@ public class EntityPickerPresenter implements ImageResultsHandler {
     view.getSaveButton().addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
-        save();
+        if (saveable) {
+          save();
+        }
       }
     });
 
@@ -89,10 +92,14 @@ public class EntityPickerPresenter implements ImageResultsHandler {
       view.clearImages();
       view.clearPreview();
       searchManager.searchForQuery("");
+      saveable = false;
+      view.setSaveable(false);
     } else {
       resultsStale = true;
       view.setThrob(true);
       searchManager.searchForQuery(enteredName);
+      saveable = true;
+      view.setSaveable(true);
     }
   }
 
@@ -107,6 +114,8 @@ public class EntityPickerPresenter implements ImageResultsHandler {
       view.clearImages();
 
       view.setThrob(false);
+      saveable = false;
+      view.setSaveable(false);
     } else {
       enteredName = entity.name;
       previewedUrl = entity.imageUrl;
@@ -117,6 +126,8 @@ public class EntityPickerPresenter implements ImageResultsHandler {
 
       view.setThrob(true);
       searchManager.searchForQuery(enteredName);
+      saveable = true;
+      view.setSaveable(true);
     }
 
     view.setVisible(true);

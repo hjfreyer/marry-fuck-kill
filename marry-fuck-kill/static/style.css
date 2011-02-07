@@ -280,3 +280,12 @@ img {
     border: 2px solid #9911bb;
     padding: 2px;
 }
+
+.picker .submitBar {
+    text-align: right;
+}
+
+.picker .button {
+    margin: 5px 10px;
+    width: 120px;
+}
