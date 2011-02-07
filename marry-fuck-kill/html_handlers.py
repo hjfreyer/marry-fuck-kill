@@ -34,7 +34,8 @@ def GetUserData(url_base):
 
   return dict(nickname=nickname,
               login_url=users.create_login_url(url_base),
-              logout_url=users.create_logout_url(url_base))
+              logout_url=users.create_logout_url(url_base),
+              is_current_user_admin=users.is_current_user_admin())
 
 
 class MainPageHandler(webapp.RequestHandler):
@@ -82,8 +83,16 @@ class VoteHandler(webapp.RequestHandler):
     two = triple.two
     three = triple.three
 
+    # Map False -> None so EZT understands.
+    if triple.is_enabled():
+      triple_enabled = True
+    else:
+      triple_enabled = None
+
     template_values = dict(page='vote',
                            triple_id=triple_id,
+                           triple_rand=triple.rand,
+                           triple_enabled=triple_enabled,
                            e1_name=one.name,
                            e1_url=one.get_full_url(),
                            e2_name=two.name,
@@ -166,23 +175,22 @@ class MyMfksHandler(webapp.RequestHandler):
     template.generate(self.response.out, template_values)
 
 
-class DisableTripleHandler(webapp.RequestHandler):
+class EnableDisableTripleHandler(webapp.RequestHandler):
   """Admin-only handler to remove Triple from random display."""
-  def get(self, triple_id):
+  def post(self):
+    action = self.request.get('action')
+    triple_id = self.request.get('key')
     triple = models.Triple.get_by_id(long(triple_id))
-    triple.disable()
+    if action == "disable":
+      triple.disable()
+    elif action == "enable":
+      triple.enable()
+    else:
+      raise ValueError("Invalid action '%s'." % action)
     triple.put()
-    self.response.out.write('disabled %s (rand = %s)' % (triple_id, triple.rand))
+    self.response.out.write('%s %s (rand = %s)' % (
+        action, triple_id, triple.rand))
 
-
-class EnableTripleHandler(webapp.RequestHandler):
-  """Admin-only handler to enable Triple for random display."""
-  def get(self, triple_id):
-    triple = models.Triple.get_by_id(long(triple_id))
-    triple.enable()
-    triple.put()
-    self.response.out.write('enabled %s (rand = %s)' % (triple_id, triple.rand))
-    
 
 class GenerateRandHandler(webapp.RequestHandler):
   """Regenerates the 'rand' attributes of all Triples.

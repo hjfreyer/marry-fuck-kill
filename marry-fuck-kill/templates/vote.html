@@ -75,6 +75,23 @@
         <div class="button clickable" id="skip">Skip</div>
       </div>
 
+      [if-any is_current_user_admin]
+      <div class="adminbar">
+        <p>Admin:</p>
+        <form action="/admin/enable_disable" method="post">
+          <input type="hidden" name="key" value="[triple_id]">
+          [if-any triple_enabled]
+            rand = [triple_rand]
+            <input type="submit" name="action" value="disable">
+          [else]
+            This Triple is disabled:
+            rand = [triple_rand]
+            <input type="submit" name="action" value="enable">
+          [end]
+        </form>
+      </div>
+      [end]
+
       <form action="/vote.do" method="post">
         <input type="hidden" id="key" name="key" value="[triple_id]">
         <input type="hidden" id="v1" name="v1">

@@ -173,6 +173,10 @@ img {
     margin: 0 20px;
 }
 
+.adminbar {
+  background: #ccc;
+}
+
 .nav {
     display: block;
     text-align: center;

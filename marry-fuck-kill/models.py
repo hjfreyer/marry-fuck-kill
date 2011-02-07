@@ -135,6 +135,9 @@ class Triple(db.Model):
     """Allow this Triple to be picked in the random rotation."""
     self.rand = random.random()
 
+  def is_enabled(self):
+    return self.rand != -1.0
+
   @staticmethod
   def get_next_id(request, response):
     """Gets the next Triple ID, apparently at random.
