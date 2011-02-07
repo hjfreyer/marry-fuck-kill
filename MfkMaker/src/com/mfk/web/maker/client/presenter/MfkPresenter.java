@@ -13,15 +13,15 @@ public class MfkPresenter {
   private final EntityView ev1;
   private final EntityView ev2;
   private final EntityView ev3;
-  
+
   private final OutputForm outputForm;
-  
+
   private EntityPickerPresenter picker;
-  
+
   private EntityInfo entity1 = null;
   private EntityInfo entity2 = null;
   private EntityInfo entity3 = null;
-  
+
   private int currentlyEditing = 0;
 
   public MfkPresenter(EntityView ev1, EntityView ev2, EntityView ev3,
@@ -31,7 +31,7 @@ public class MfkPresenter {
     this.ev3 = ev3;
     this.outputForm = outputForm;
     this.picker = picker;
-  
+
     init();
   }
 
@@ -49,21 +49,21 @@ public class MfkPresenter {
         editEntity(2);
       }
     });
-    
+
     ev3.getEditButton().addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
         editEntity(3);
       }
     });
-    
+
     picker.setEntityPickedHandler(new EntityPickedHandler() {
       @Override
       public void handlePickingCancelled() {
         System.out.println("Picker cancelled");
         currentlyEditing = 0;
       }
-      
+
       @Override
       public void handleEntityPicked(EntityInfo newEntity) {
         System.out.println("Entity picked");
@@ -87,7 +87,7 @@ public class MfkPresenter {
         }
       }
     });
-    
+
     outputForm.getSubmitButton().addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
@@ -98,9 +98,9 @@ public class MfkPresenter {
 
   public void editEntity(int entityIndex) {
     currentlyEditing = entityIndex;
-    
+
     EntityInfo entity = null;
-    
+
     if (currentlyEditing == 1) {
       entity = entity1;
     } else if (currentlyEditing == 2) {
@@ -111,20 +111,20 @@ public class MfkPresenter {
 
     picker.showPicker(entity);
   }
-  
+
   private boolean isClickable() {
     return entity1 != null && entity2 != null && entity3 != null;
   }
-  
+
   private void submit() {
     if (!isClickable()) {
       return;
     }
-    
+
     outputForm.setEntity1(entity1);
     outputForm.setEntity2(entity2);
     outputForm.setEntity3(entity3);
-    
+
     outputForm.submit();
   }
 }

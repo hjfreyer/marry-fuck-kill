@@ -25,23 +25,23 @@ public class EntityPickerViewImpl implements EntityPickerView {
   public EntityPickerViewImpl() {
     Panel dialogPanel = new FlowPanel();
     dialogPanel.setStyleName("pickerBody");
-       
+
     Panel rightside = makeSubPanel(dialogPanel, "rightSide");
     imageChoices = makeSubPanel(dialogPanel, "imageChoices");
     Panel submitBar = makeSubPanel(dialogPanel, "submitBar");
-        
+
     rightside.add(new Label("Item name:"));
     rightside.add(searchField);
-    rightside.add(autoThrobber);    
+    rightside.add(autoThrobber);
 
     Panel primaryImgBox = makeSubPanel(rightside, "primaryImgBox");
-    primaryImgBox.add(imagePreview);    
-    
+    primaryImgBox.add(imagePreview);
+
     submitBar.add(cancelButton);
     submitBar.add(saveButton);
-    
+
     imagePreview.setStyleName("imagePreview");
-    
+
     dialog.setText("Pick your poison");
     dialog.addStyleName("picker");
     dialog.setGlassEnabled(true);
@@ -76,15 +76,15 @@ public class EntityPickerViewImpl implements EntityPickerView {
   @Override
   public ImageView addImageView() {
     ImageViewImpl imageView = new ImageViewImpl();
-    
+
     imageChoices.add(imageView.getImage());
-    
+
     return imageView;
   }
-    
+
   @Override
   public void setThrob(boolean enabled) {
-    autoThrobber.setVisible(enabled);    
+    autoThrobber.setVisible(enabled);
   }
 
   @Override
@@ -108,17 +108,17 @@ public class EntityPickerViewImpl implements EntityPickerView {
     imagePreview.setUrl(imageUrl);
     imagePreview.setVisible(true);
   }
-  
+
   @Override
   public void clearPreview() {
     imagePreview.setVisible(false);
   }
-  
+
   private Panel makeSubPanel(Panel parent, String styleName) {
     Panel result = new FlowPanel();
     result.setStyleName(styleName);
     parent.add(result);
-    
+
     return result;
   }
 }

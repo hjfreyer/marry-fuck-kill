@@ -15,17 +15,17 @@ import com.mfk.web.maker.client.view.ImageView;
 public class EntityPickerPresenter implements ImageResultsHandler {
 
   private final EntityPickerView view;
-  
+
   private final ImageSearchManager searchManager;
-  
+
   private EntityPickedHandler pickedHandler = null;
 
-  private String enteredName = ""; 
+  private String enteredName = "";
   private String previewedUrl = "";
   private boolean resultsStale = false;
-  
+
   private ImageView currentlySelectedImage = null;
-  
+
   public EntityPickerPresenter(EntityPickerView view,
       ImageSearchManager searchManager) {
     this.view = view;
@@ -41,15 +41,15 @@ public class EntityPickerPresenter implements ImageResultsHandler {
         cancel();
       }
     });
-    
+
     view.getSaveButton().addClickHandler(new ClickHandler() {
       @Override
       public void onClick(ClickEvent event) {
         save();
       }
-    });    
-    
-    view.getSearchTextField().addKeyUpHandler(new KeyUpHandler() {      
+    });
+
+    view.getSearchTextField().addKeyUpHandler(new KeyUpHandler() {
       @Override
       public void onKeyUp(KeyUpEvent event) {
         if (!view.getName().equals(enteredName)) {
@@ -58,19 +58,19 @@ public class EntityPickerPresenter implements ImageResultsHandler {
         }
       }
     });
-    
+
     searchManager.setImageResultsHandler(this);
 
-    view.setVisible(false);    
+    view.setVisible(false);
   }
-  
+
   public void setEntityPickedHandler(EntityPickedHandler pickedHandler) {
     this.pickedHandler = pickedHandler;
   }
-  
+
   public void save() {
-    view.setVisible(false); 
-    
+    view.setVisible(false);
+
     if (enteredName.isEmpty() || previewedUrl.isEmpty()) {
       pickedHandler.handlePickingCancelled();
     } else {
@@ -78,30 +78,30 @@ public class EntityPickerPresenter implements ImageResultsHandler {
           new EntityInfo(enteredName, previewedUrl));
     }
   }
-  
+
   public void cancel() {
     view.setVisible(false);
     pickedHandler.handlePickingCancelled();
   }
-  
+
   public void updateQuery() {
     if (enteredName.isEmpty()) {
       view.clearImages();
       view.clearPreview();
-      searchManager.searchForQuery("");    
+      searchManager.searchForQuery("");
     } else {
       resultsStale = true;
       view.setThrob(true);
-      searchManager.searchForQuery(enteredName);    
+      searchManager.searchForQuery(enteredName);
     }
   }
-  
+
   // Null if we have no starting entity.
-  public void showPicker(EntityInfo entity) {    
+  public void showPicker(EntityInfo entity) {
     if (entity == null) {
-      enteredName = "";  
+      enteredName = "";
       previewedUrl = "";
-            
+
       view.setName("");
       view.clearPreview();
       view.clearImages();
@@ -112,16 +112,16 @@ public class EntityPickerPresenter implements ImageResultsHandler {
       previewedUrl = entity.imageUrl;
 
       view.setName(enteredName);
-      view.showPreview(previewedUrl);      
+      view.showPreview(previewedUrl);
       view.clearImages();
-      
+
       view.setThrob(true);
       searchManager.searchForQuery(enteredName);
     }
-    
+
     view.setVisible(true);
   }
-  
+
   @Override
   public void handleImageResults(String query, List<String> resultUrls) {
     if (resultsStale) {
@@ -130,40 +130,40 @@ public class EntityPickerPresenter implements ImageResultsHandler {
       previewedUrl = "";
       resultsStale = false;
     }
-    
+
     for (final String resultUrl : resultUrls) {
       final ImageView img = view.addImageView();
       img.setImageUrl(resultUrl);
       img.setSelected(false);
-      
+
       if (previewedUrl.isEmpty()) {
         previewedUrl = resultUrl;
         view.showPreview(resultUrl);
       }
-      
+
       if (previewedUrl.equals(resultUrl)) {
         img.setSelected(true);
         currentlySelectedImage = img;
       }
-      
+
       img.getClickable().addClickHandler(new ClickHandler() {
         @Override
         public void onClick(ClickEvent event) {
           previewedUrl = resultUrl;
-          
+
           if (currentlySelectedImage != null) {
             currentlySelectedImage.setSelected(false);
           }
-          
+
           currentlySelectedImage = img;
 
           img.setSelected(true);
-          
-          view.showPreview(resultUrl);         
+
+          view.showPreview(resultUrl);
         }
       });
     }
-    
+
     view.setThrob(false);
   }
 }
