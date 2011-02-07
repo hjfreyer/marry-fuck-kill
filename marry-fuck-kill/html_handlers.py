@@ -204,31 +204,38 @@ class GenerateRandHandler(webapp.RequestHandler):
   the 1000-item limit.
   """
   def get(self):
-    count = GenerateRandHandler.generate_rand()
-    self.response.out.write('Regenerated %d Triples' % count)
+    processed, skipped = GenerateRandHandler.generate_rand()
+    self.response.out.write('Regenerated %d, skipped %d' % (processed,
+                                                            skipped))
 
   @staticmethod
   def generate_rand():
     """Generate all rand values for all Triples.
 
     Returns:
-      (int) the number of triples processed
+      (int, int) the number of triples processed, and the number skipped
+                 because they were disabled
     """
     batch_size = 1000
     template_values = dict(page='mine')
     user = users.get_current_user()
     triples = db.Query(models.Triple).order('__key__').fetch(batch_size)
-    logging.info('GenerateRandHandler: initial query got %d', len(triples))
-    count = 0
+    logging.info('generate_rand: initial query got %d', len(triples))
+    processed = 0
+    skipped = 0
     while triples:
       for t in triples:
-        count += 1
-        t.rand = random.random()
-        logging.debug('GenerateRandHandler: id=%s rand=%.15f', t.key(), t.rand)
-        t.put()
+        if t.is_enabled():
+          processed += 1
+          t.rand = random.random()
+          logging.debug('generate_rand: id=%s rand=%.15f', t.key().id(), t.rand)
+          t.put()
+        else:
+          skipped += 1
+          logging.debug('generate_rand: skipped id=%s', t.key().id())
       triples = db.Query(models.Triple).filter('__key__ >', t.key()).order('__key__').fetch(batch_size)
-      logging.info('GenerateRandHandler: subsequent query got %d', len(triples))
-    return count
+      logging.info('generate_rand: subsequent query got %d', len(triples))
+    return processed, skipped
 
 
 class EztItem(object):
