@@ -4,33 +4,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.event.shared.HasHandlers;
 import com.google.gwt.search.client.ImageResult;
 import com.google.gwt.search.client.ImageSearch;
 import com.google.gwt.search.client.Result;
 import com.google.gwt.search.client.ResultSetSize;
 import com.google.gwt.search.client.SafeSearchValue;
 import com.google.gwt.search.client.SearchResultsHandler;
-import com.mfk.web.maker.client.event.ImageResultsAvailableEvent;
-import com.mfk.web.maker.client.event.QueryUpdatedEvent;
+import com.mfk.web.maker.client.event.ImageResultsHandler;
 
 // TODO(mjkelly): See this example:
 // https://code.google.com/apis/ajax/playground/#raw_search
 
-public class ImageSearchManager implements QueryUpdatedEvent.Handler {
+public class ImageSearchManager {
   
-  private final HasHandlers eventBus;
-    
+  private ImageResultsHandler handler;
   private String currentQuery = "";
-  private String lastReceivedQuery = "";
   
-  public ImageSearchManager(HasHandlers eventBus) {
-    this.eventBus = eventBus;
+  public void setImageResultsHandler(ImageResultsHandler handler) {
+    this.handler = handler;
   }
 
-  @Override
-  public void handleNewQuery(final QueryUpdatedEvent event) {
-    System.out.println("Query changed to: " + event.query);
+  public void searchForQuery(final String query) {
+    System.out.println("Searching for: " + query);
             
     ImageSearch imageSearch = new ImageSearch();
     imageSearch.setSafeSearch(SafeSearchValue.MODERATE);
@@ -38,15 +33,19 @@ public class ImageSearchManager implements QueryUpdatedEvent.Handler {
     
     imageSearch.addSearchResultsHandler(new SearchResultsHandler() {
       public void onSearchResults(SearchResultsEvent resultsEvent) {
-        handleSearchResults(event.query, resultsEvent.getResults());
+        handleSearchResults(query, resultsEvent.getResults());
       }
     });
     
-    imageSearch.execute(event.query);
-    currentQuery = event.query;
+    imageSearch.execute(query);
+    currentQuery = query;
   }
   
-  public void handleSearchResults(String query, JsArray<? extends Result> results) {
+  public void clearState() {
+    currentQuery = "";
+  }
+  
+  private void handleSearchResults(String query, JsArray<? extends Result> results) {
     if (!query.equals(currentQuery)) {
       return;
     }
@@ -58,9 +57,6 @@ public class ImageSearchManager implements QueryUpdatedEvent.Handler {
       urls.add(r.getThumbnailUrl());
     }
 
-    eventBus.fireEvent(new ImageResultsAvailableEvent(
-        !query.equals(lastReceivedQuery), query, urls));    
-
-    lastReceivedQuery = query;
+    handler.handleImageResults(query, urls);
   }
 }

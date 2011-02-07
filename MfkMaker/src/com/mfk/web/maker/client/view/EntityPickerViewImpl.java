@@ -1,11 +1,5 @@
 package com.mfk.web.maker.client.view;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.dom.client.HasKeyUpHandlers;
 import com.google.gwt.user.client.ui.Button;
@@ -26,10 +20,6 @@ public class EntityPickerViewImpl implements EntityPickerView {
   private final TextBox searchField = new TextBox();
   private final Button saveButton = new Button("Save");
   private final Button cancelButton = new Button("Cancel");
-  
-  private final Set<String> shownUrls = new HashSet<String>();
-
-  private String selectedUrl = "";
   
   public EntityPickerViewImpl() {
     panel.add(searchField);
@@ -68,42 +58,19 @@ public class EntityPickerViewImpl implements EntityPickerView {
   }
 
   @Override
-  public String getSelectedImageUrl() {
-    return selectedUrl;
-  }
-
-  @Override
   public void setName(String name) {
     searchField.setText(name);
   }
 
   @Override
-  public void addImageUrls(List<String> imageUrls) {
-    for (final String imageUrl : imageUrls) {
-      if (shownUrls.add(imageUrl)) {
-        Image i = new Image(imageUrl);
-        imgPanel.add(i);
-
-        i.addClickHandler(new ClickHandler() {
-          @Override
-          public void onClick(ClickEvent event) {
-            selectedUrl = imageUrl;
-          }
-        });
-        
-        if (selectedUrl.isEmpty()) {
-          selectedUrl = imageUrl;
-        }
-      }
-    }
+  public ImageView addImageView() {
+    ImageViewImpl imageView = new ImageViewImpl();
+    
+    imgPanel.add(imageView.getImage());
+    
+    return imageView;
   }
-
-  public void clearImageUrls() {
-    selectedUrl = "";
-    shownUrls.clear();
-    imgPanel.clear();
-  }
-  
+    
   @Override
   public void setThrob(boolean enabled) {
     autoThrobber.setVisible(enabled);    
@@ -117,5 +84,21 @@ public class EntityPickerViewImpl implements EntityPickerView {
     } else {
       dialog.hide();
     }
+  }
+
+  @Override
+  public void clearImages() {
+    imgPanel.clear();
+  }
+
+  @Override
+  public void showPreview(String imageUrl) {
+    
+  }
+  
+  @Override
+  public void clearPreview() {
+    // TODO Auto-generated method stub
+    
   }
 }

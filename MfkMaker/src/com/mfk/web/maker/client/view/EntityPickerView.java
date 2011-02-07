@@ -1,7 +1,5 @@
 package com.mfk.web.maker.client.view;
 
-import java.util.List;
-
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.dom.client.HasKeyUpHandlers;
 
@@ -13,8 +11,6 @@ public interface EntityPickerView {
   public HasKeyUpHandlers getSearchTextField();
   
   public String getName();
-
-  public String getSelectedImageUrl();
     
   public void setVisible(boolean visible);
   
@@ -22,7 +18,11 @@ public interface EntityPickerView {
   
   public void setName(String name);
   
-  public void addImageUrls(List<String> imageUrl);
+  public ImageView addImageView();
 
-  public void clearImageUrls();
+  public void clearImages();
+
+  public void showPreview(String imageUrl);
+
+  public void clearPreview();
 }
