@@ -1,10 +1,8 @@
 package com.mfk.web.maker.client;
 
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.event.shared.SimpleEventBus;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.mfk.web.maker.client.event.ImageResultsAvailableEvent;
-import com.mfk.web.maker.client.event.QueryUpdatedEvent;
+import com.mfk.web.maker.client.presenter.EntityPickerPresenter;
 import com.mfk.web.maker.client.presenter.ImageSearchManager;
 import com.mfk.web.maker.client.presenter.MfkPresenter;
 import com.mfk.web.maker.client.view.EntityPickerView;
@@ -38,13 +36,11 @@ public class MfkMaker implements EntryPoint {
     OutputForm outputForm = new OutputFormImpl(RootPanel.get("createButton"),
         RootPanel.get("outputForm"));
 
-    SimpleEventBus eventBus = new SimpleEventBus();
+    ImageSearchManager searchManager = new ImageSearchManager();
     
-    MfkPresenter presenter = new MfkPresenter(eventBus, ev1, ev2, ev3, 
-        picker, outputForm);
-    ImageSearchManager imageSearchManager = new ImageSearchManager(eventBus);
+    EntityPickerPresenter pickerPresenter = 
+      new EntityPickerPresenter(picker, searchManager);
     
-    eventBus.addHandler(ImageResultsAvailableEvent.TYPE, presenter);
-    eventBus.addHandler(QueryUpdatedEvent.TYPE, imageSearchManager);
+    new MfkPresenter(ev1, ev2, ev3, outputForm, pickerPresenter);
   }
 }
