@@ -56,18 +56,7 @@ public class ImageSearchManager {
         if (now - lastSearchTime > MIN_SEARCH_TIME) {
           executeSearch(currentQuery);
         }
-        else {
-          System.out.println("No search: MIN_SEARCH_TIME = " + 
-              (now - lastSearchTime));
-        }
       }
-      else {
-        System.out.println("No search: MIN_CHANGE_TIME = " +
-            (now - lastChangeTime));
-      }
-    }
-    else {
-      System.out.println("No search: old=new: " + currentQuery);
     }
   }
   
