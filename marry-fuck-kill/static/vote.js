@@ -48,7 +48,7 @@ function mfk_select(element) {
 function submit(element) {
   if (element.hasClass('clickable')) {
     $('#action').val(element.attr("id"));
-    $('form').submit();
+    $('#voteform').submit();
   }
 }
 
