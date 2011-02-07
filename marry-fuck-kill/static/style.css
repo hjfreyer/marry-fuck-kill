@@ -162,6 +162,10 @@ img {
     font-weight: bold;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 .actionbar {
     text-align: center;
     margin: 30px 0;

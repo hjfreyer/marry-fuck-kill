@@ -88,7 +88,11 @@ public class EntityPickerViewImpl implements EntityPickerView {
 
   @Override
   public void setThrob(boolean enabled) {
-    autoThrobber.setVisible(enabled);
+    if (enabled) {
+      autoThrobber.removeStyleName("hidden");
+    } else {
+      autoThrobber.addStyleName("hidden");
+    }
   }
 
   @Override
