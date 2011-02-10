@@ -401,20 +401,22 @@ class Assignment(db.Model):
     triple_key = request.get('key')
     values = [request.get('v1'), request.get('v2'), request.get('v3')]
 
-    logging.debug("triple_key = %s", triple_key)
-    logging.debug("values = %s", values)
-
     if set(values) != set(['m', 'f', 'k']):
+      return None
+
+    try:
+      triple_key = long(triple_key)
+    except ValueError:
+      logging.error("make_assignment: bad triple key '%s'", triple_key)
+
+    triple = Triple.get_by_id(triple_key)
+    logging.debug('triple = %s', triple)
+    if triple is None:
+      logging.error('make_assignment: No triple with key %s', triple_key)
       return None
 
     # We get an entity->action map from the client, but we need to reverse
     # it to action->entity to update the DB.
-    triple = Triple.get_by_id(int(triple_key))
-    logging.debug("triple = %s", triple)
-    if triple is None:
-      logging.error("No triple with key %s", triple_key)
-      return None
-
     triple_entities = [triple.one,
                        triple.two,
                        triple.three]
@@ -425,11 +427,12 @@ class Assignment(db.Model):
 
     if (entities['m'] is None or entities['f'] is None
         or entities['k'] is None):
-      logging.error("Not all non-None: marry = %s, fuck = %s, kill = %s",
+      logging.error('Not all non-None: marry = %s, fuck = %s, kill = %s',
               entities['m'], entities['f'], entities['k'])
       return None
 
-    assign = Assignment(marry=entities['m'],
+    assign = Assignment(triple=triple,
+                        marry=entities['m'],
                         fuck=entities['f'],
                         kill=entities['k'],
                         user=user,

@@ -78,7 +78,7 @@
       [if-any is_current_user_admin]
       <div class="adminbar">
         <p>Admin:</p>
-        <form action="/admin/enable_disable" method="post">
+        <form action="/admin/enable_disable" method="post" id="adminform">
           <input type="hidden" name="key" value="[triple_id]">
           [if-any triple_enabled]
             rand = [triple_rand]
@@ -92,13 +92,13 @@
       </div>
       [end]
 
-      <form action="/vote.do" method="post">
+      <form action="/vote.do" method="post" id="voteform">
         <input type="hidden" id="key" name="key" value="[triple_id]">
         <input type="hidden" id="v1" name="v1">
         <input type="hidden" id="v2" name="v2">
         <input type="hidden" id="v3" name="v3">
 
-        <input type="hidden" id="action" name="action"></input>
+        <input type="hidden" id="action" name="action">
       </form>
       [include "nav.html"]
     </div>

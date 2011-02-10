@@ -22,7 +22,7 @@ public class EntityPickerPresenter implements ImageResultsHandler {
 
   private String enteredName = "";
   private String previewedUrl = "";
-  private boolean resultsStale = false;
+  private String resultsQuery = "";
 
   private ImageView currentlySelectedImage = null;
   private boolean saveable = false;
@@ -80,11 +80,14 @@ public class EntityPickerPresenter implements ImageResultsHandler {
       pickedHandler.handleEntityPicked(
           new EntityInfo(enteredName, previewedUrl));
     }
+    
+    searchManager.clearState();
   }
 
   public void cancel() {
     view.setVisible(false);
     pickedHandler.handlePickingCancelled();
+    searchManager.clearState();
   }
 
   public void updateQuery() {
@@ -92,12 +95,19 @@ public class EntityPickerPresenter implements ImageResultsHandler {
       view.clearImages();
       view.clearPreview();
       searchManager.searchForQuery("");
+      
       saveable = false;
       view.setSaveable(false);
-    } else {
-      resultsStale = true;
+    } else if (!enteredName.equals(resultsQuery)) {
       view.setThrob(true);
       searchManager.searchForQuery(enteredName);
+      
+      saveable = true;
+      view.setSaveable(true);
+    } else {
+      view.setThrob(false);
+      searchManager.searchForQuery(enteredName);
+      
       saveable = true;
       view.setSaveable(true);
     }
@@ -135,12 +145,10 @@ public class EntityPickerPresenter implements ImageResultsHandler {
 
   @Override
   public void handleImageResults(String query, List<String> resultUrls) {
-    if (resultsStale) {
-      view.clearPreview();
-      view.clearImages();
-      previewedUrl = "";
-      resultsStale = false;
-    }
+    resultsQuery = query;
+    view.clearPreview();
+    view.clearImages();
+    previewedUrl = "";
 
     for (final String resultUrl : resultUrls) {
       final ImageView img = view.addImageView();
