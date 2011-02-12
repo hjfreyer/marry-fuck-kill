@@ -17,15 +17,18 @@ public class OutputFormImpl implements OutputForm {
   private final Hidden n1 = new Hidden("n1");
   private final Hidden u1 = new Hidden("u1");
   private final Hidden q1 = new Hidden("q1");
-
+  private final Hidden ou1 = new Hidden("ou1");
+  
   private final Hidden n2 = new Hidden("n2");
   private final Hidden u2 = new Hidden("u2");
   private final Hidden q2 = new Hidden("q2");
-
+  private final Hidden ou2 = new Hidden("ou2");
+  
   private final Hidden n3 = new Hidden("n3");
   private final Hidden u3 = new Hidden("u3");
   private final Hidden q3 = new Hidden("q3");
-
+  private final Hidden ou3 = new Hidden("ou3");
+  
   private final Button createButton = new Button("Create");
 
   public OutputFormImpl(Panel createButtonPanel, Panel formPanel) {
@@ -38,12 +41,17 @@ public class OutputFormImpl implements OutputForm {
     subPanel.add(n1);
     subPanel.add(u1);
     subPanel.add(q1);
+    subPanel.add(ou1);
+    
     subPanel.add(n2);
     subPanel.add(u2);
     subPanel.add(q2);
+    subPanel.add(ou2);
+    
     subPanel.add(n3);
     subPanel.add(u3);
     subPanel.add(q3);
+    subPanel.add(ou3);
 
     createButton.removeStyleName("gwt-Button");
     createButton.addStyleName("button");
@@ -55,6 +63,7 @@ public class OutputFormImpl implements OutputForm {
   public void setEntity1(EntityInfo info) {
     n1.setValue(info.name);
     u1.setValue(info.imageUrl);
+    ou1.setValue(info.originalImageUrl);
     q1.setValue(info.name);
   }
 
@@ -62,6 +71,7 @@ public class OutputFormImpl implements OutputForm {
   public void setEntity2(EntityInfo info) {
     n2.setValue(info.name);
     u2.setValue(info.imageUrl);
+    ou2.setValue(info.originalImageUrl);
     q2.setValue(info.name);
   }
 
@@ -69,6 +79,7 @@ public class OutputFormImpl implements OutputForm {
   public void setEntity3(EntityInfo info) {
     n3.setValue(info.name);
     u3.setValue(info.imageUrl);
+    ou3.setValue(info.originalImageUrl);
     q3.setValue(info.name);
   }
 

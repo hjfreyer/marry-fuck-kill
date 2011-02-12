@@ -32,6 +32,7 @@ class Entity(db.Model):
   data = db.BlobProperty(required=True)
   query = db.StringProperty(required=False)
   creator = db.UserProperty()
+  original_url = db.StringProperty(required=False)
 
   # Where images live on the server.
   BASE_URL = '/i/'
@@ -78,7 +79,11 @@ class Entity(db.Model):
     return url
 
   @staticmethod
-  def make_entity(name, url, query):
+  def make_entity(url, **kwargs):
+    """Makes an Entity with the given attributes (as keyword arguments).
+
+    This method sets the 'data' attribute based on the 'url' attributes.
+    """
     if not url.startswith('http://images.google.com/images?q'):
       raise EntityValidationError('URL must come from Google image search.')
 
@@ -88,7 +93,7 @@ class Entity(db.Model):
     data = fh.read()
     logging.info('Downloaded %s bytes' % len(data))
 
-    entity = Entity(name=name, data=data, query=query)
+    entity = Entity(data=data, **kwargs)
 
     entity.put()
     return entity
@@ -259,7 +264,7 @@ class Triple(db.Model):
     """
     entities = Triple.parse_request(request)
     for i in range(len(entities)):
-      for k in ['n', 'u', 'q']:
+      for k in ['n', 'u', 'q', 'ou']:
         if not entities[i][k]:
           raise ValueError("Entity %s missing attribute '%s'" % (i, k))
 
@@ -267,12 +272,18 @@ class Triple(db.Model):
     Triple.validate_request(entities, request.remote_addr)
 
     # This may raise a URLError or EntityValidatationError.
-    one = Entity.make_entity(entities[0]['n'], entities[0]['u'],
-                             entities[0]['q'])
-    two = Entity.make_entity(entities[1]['n'], entities[1]['u'],
-                             entities[1]['q'])
-    three = Entity.make_entity(entities[2]['n'], entities[2]['u'],
-                               entities[2]['q'])
+    one = Entity.make_entity(name=entities[0]['n'],
+                             url=entities[0]['u'],
+                             query=entities[0]['q'],
+                             original_url=entities[0]['ou'])
+    two = Entity.make_entity(name=entities[1]['n'],
+                             url=entities[1]['u'],
+                             query=entities[1]['q'],
+                             original_url=entities[1]['ou'])
+    three = Entity.make_entity(name=entities[2]['n'],
+                             url=entities[2]['u'],
+                             query=entities[2]['q'],
+                             original_url=entities[2]['ou'])
 
     triple = Triple(one=one, two=two, three=three,
                     creator=creator,
@@ -356,16 +367,15 @@ class Triple(db.Model):
     n[1-3]: the 3 triple display names
     u[1-3]: the 3 triple image URLs
     q[1-3]: the search string used to find u[1-3]
+    ou[1-3]: the original URL of the image
     """
-    return [{'n': request.get('n1'),
-             'u': request.get('u1'),
-             'q': request.get('q1')},
-            {'n': request.get('n2'),
-             'u': request.get('u2'),
-             'q': request.get('q2')},
-            {'n': request.get('n3'),
-             'u': request.get('u3'),
-             'q': request.get('q3')}]
+    ret = []
+    for n in range(1, 4):
+      ret.append({'n': request.get('n' + str(n)),
+                  'u': request.get('u' + str(n)),
+                  'q': request.get('q' + str(n)),
+                  'ou': request.get('ou' + str(n))})
+    return ret
 
 
 class Assignment(db.Model):

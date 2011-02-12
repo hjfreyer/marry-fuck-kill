@@ -12,6 +12,7 @@ import com.google.gwt.search.client.SafeSearchValue;
 import com.google.gwt.search.client.SearchResultsHandler;
 import com.google.gwt.user.client.Timer;
 import com.mfk.web.maker.client.event.ImageResultsHandler;
+import com.mfk.web.maker.client.model.ImageInfo;
 
 // TODO(mjkelly): See this example:
 // https://code.google.com/apis/ajax/playground/#raw_search
@@ -86,20 +87,21 @@ public class ImageSearchManager {
     searchTimer = null;
   }
 
-  private void handleSearchResults(String query, JsArray<? extends Result> results) {
+  private void handleSearchResults(String query,
+      JsArray<? extends Result> results) {
     if (!query.equals(lastExecutedQuery)) {
       System.out.println("Discarded results for: " + query);
       return;
     }
     System.out.println("Accepted results for: " + query);
 
-    List<String> urls = new ArrayList<String>();
+    List<ImageInfo> images = new ArrayList<ImageInfo>();
 
     for (int i = 0; i < results.length(); i++) {
       ImageResult r = (ImageResult) results.get(i);
-      urls.add(r.getThumbnailUrl());
+      images.add(new ImageInfo(r.getThumbnailUrl(), r.getUnescapedUrl()));
     }
 
-    handler.handleImageResults(query, urls);
+    handler.handleImageResults(query, images);
   }
 }
