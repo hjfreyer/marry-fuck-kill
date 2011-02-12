@@ -23,6 +23,7 @@ from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
+import ezt_util
 import models
 
 def GetUserData(url_base):
@@ -56,8 +57,7 @@ class AboutHandler(webapp.RequestHandler):
   def get(self):
     template_values = dict(page='about')
     template_values.update(GetUserData('/about'))
-    template = ezt.Template('templates/about.html')
-    template.generate(self.response.out, template_values)
+    ezt_util.WriteTemplate('about.html', template_values, self.response.out)
 
 
 class VoteHandler(webapp.RequestHandler):
@@ -112,8 +112,7 @@ class VoteHandler(webapp.RequestHandler):
                            prev_e2_stat_url=prev_urls[1],
                            prev_e3_stat_url=prev_urls[2])
     template_values.update(GetUserData('/vote/' + triple_id))
-    template = ezt.Template('templates/vote.html')
-    template.generate(self.response.out, template_values)
+    ezt_util.WriteTemplate('vote.html', template_values, self.response.out)
 
 
 class VoteSubmitHandler(webapp.RequestHandler):
@@ -143,8 +142,7 @@ class MakeHandler(webapp.RequestHandler):
   def get(self):
     template_values = dict(page='make')
     template_values.update(GetUserData('/make'))
-    template = ezt.Template('templates/make.html')
-    template.generate(self.response.out, template_values)
+    ezt_util.WriteTemplate('make.html', template_values, self.response.out)
 
 
 class EntityImageHandler(webapp.RequestHandler):
@@ -162,22 +160,21 @@ class MyMfksHandler(webapp.RequestHandler):
 
     items = []
     for t in triples:
-      item = EztItem(key=str(t.key().id()),
-                     one_name=t.one.name,
-                     two_name=t.two.name,
-                     three_name=t.three.name,
-                     one_url=t.one.get_full_url(),
-                     two_url=t.two.get_full_url(),
-                     three_url=t.three.get_full_url(),
-                     one_stats=t.one.get_stats_url(),
-                     two_stats=t.two.get_stats_url(),
-                     three_stats=t.three.get_stats_url())
+      item = ezt_util.EztItem(key=str(t.key().id()),
+                              one_name=t.one.name,
+                              two_name=t.two.name,
+                              three_name=t.three.name,
+                              one_url=t.one.get_full_url(),
+                              two_url=t.two.get_full_url(),
+                              three_url=t.three.get_full_url(),
+                              one_stats=t.one.get_stats_url(),
+                              two_stats=t.two.get_stats_url(),
+                              three_stats=t.three.get_stats_url())
       items.append(item)
 
     template_values.update(GetUserData('/mymfks'))
     template_values.update(dict(triples=items))
-    template = ezt.Template('templates/mymfks.html')
-    template.generate(self.response.out, template_values)
+    ezt_util.WriteTemplate('mymfks.html', template_values, self.response.out)
 
 
 class EnableDisableTripleHandler(webapp.RequestHandler):
@@ -236,12 +233,3 @@ class GenerateRandHandler(webapp.RequestHandler):
       triples = db.Query(models.Triple).filter('__key__ >', t.key()).order('__key__').fetch(batch_size)
       logging.info('generate_rand: subsequent query got %d', len(triples))
     return processed, skipped
-
-
-class EztItem(object):
-  """A simple wrapper to convert dict keys to object attributes.
-
-  This makes sending complex objects to EZT much easier.
-  """
-  def __init__(self, **kwargs):
-    vars(self).update(kwargs)
