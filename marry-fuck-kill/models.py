@@ -116,6 +116,8 @@ class Triple(db.Model):
   three = db.ReferenceProperty(Entity,
                  collection_name="triple_reference_three_set")
 
+  reviewed = db.BooleanProperty(default=False)
+
   CONTEXT_COOKIE_NAME = 'mfkcontext'
 
   GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
@@ -290,7 +292,7 @@ class Triple(db.Model):
 
     Raises:
       EntityValidationError if the triple does not validate.
-      DownloadError if there was a network error checking the triple. 
+      DownloadError if there was a network error checking the triple.
     """
     # This must be synchronized with the number of pages the creation interface
     # shows. Raising it incurs a large performance penalty.
