@@ -1,0 +1,7 @@
+mapreduce:
+- name: Recreate All Entities
+  mapper:
+    input_reader: mapreduce.input_readers.DatastoreInputReader
+    handler: mapreduces.RecreateMapper
+    params:
+    - name: entity_kind
