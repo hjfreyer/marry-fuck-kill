@@ -26,6 +26,7 @@ from google.appengine.ext import webapp
 import ezt_util
 import models
 
+
 def GetUserData(url_base):
   # This must be in this module to have access to the current user.
   nickname = ''
@@ -44,7 +45,17 @@ def GetUserData(url_base):
               is_current_user_admin=is_current_user_admin)
 
 
-class MainPageHandler(webapp.RequestHandler):
+class RequestHandler(webapp.RequestHandler):
+  def error(self, code):
+    super(RequestHandler, self).error(code)
+    if code == 404:
+      template_values = dict(page='')
+      template_values.update(GetUserData('/about'))
+      ezt_util.WriteTemplate('notfound.html', template_values,
+                             self.response.out)
+
+
+class MainPageHandler(RequestHandler):
   def get(self):
     rand = models.Triple.get_next_id(self.request, self.response)
     if not rand:
@@ -53,14 +64,14 @@ class MainPageHandler(webapp.RequestHandler):
       self.redirect('/vote/' + str(rand))
 
 
-class AboutHandler(webapp.RequestHandler):
+class AboutHandler(RequestHandler):
   def get(self):
     template_values = dict(page='about')
     template_values.update(GetUserData('/about'))
     ezt_util.WriteTemplate('about.html', template_values, self.response.out)
 
 
-class VoteHandler(webapp.RequestHandler):
+class VoteHandler(RequestHandler):
   def get(self, triple_id):
     if not triple_id.isdigit():
       self.error(404)
@@ -115,7 +126,7 @@ class VoteHandler(webapp.RequestHandler):
     ezt_util.WriteTemplate('vote.html', template_values, self.response.out)
 
 
-class VoteSubmitHandler(webapp.RequestHandler):
+class VoteSubmitHandler(RequestHandler):
   def post(self):
     action = self.request.get('action')
 
@@ -131,28 +142,28 @@ class VoteSubmitHandler(webapp.RequestHandler):
     self.redirect('/vote/%s%s' % (str(rand), query_suffix))
 
 
-class MakeSubmitHandler(webapp.RequestHandler):
+class MakeSubmitHandler(RequestHandler):
   def post(self):
     logging.info('Make handler')
     triple = models.Triple.make_triple(self.request, users.get_current_user())
     self.redirect('/vote/%s?new' % triple.key().id())
 
 
-class MakeHandler(webapp.RequestHandler):
+class MakeHandler(RequestHandler):
   def get(self):
     template_values = dict(page='make')
     template_values.update(GetUserData('/make'))
     ezt_util.WriteTemplate('make.html', template_values, self.response.out)
 
 
-class EntityImageHandler(webapp.RequestHandler):
+class EntityImageHandler(RequestHandler):
   def get(self, entity_id):
     entity = models.Entity.get(urllib2.unquote(entity_id))
     self.response.headers['Content-Type'] = "image/jpg";
     self.response.out.write(entity.data)
 
 
-class MyMfksHandler(webapp.RequestHandler):
+class MyMfksHandler(RequestHandler):
   def get(self):
     template_values = dict(page='mine')
     user = users.get_current_user()
@@ -177,59 +188,6 @@ class MyMfksHandler(webapp.RequestHandler):
     ezt_util.WriteTemplate('mymfks.html', template_values, self.response.out)
 
 
-class EnableDisableTripleHandler(webapp.RequestHandler):
-  """Admin-only handler to remove Triple from random display."""
-  def post(self):
-    action = self.request.get('action')
-    triple_id = self.request.get('key')
-    triple = models.Triple.get_by_id(long(triple_id))
-    if action == "disable":
-      triple.disable()
-    elif action == "enable":
-      triple.enable()
-    else:
-      raise ValueError("Invalid action '%s'." % action)
-    triple.put()
-    self.response.out.write('%s %s (rand = %s)' % (
-        action, triple_id, triple.rand))
-
-
-class GenerateRandHandler(webapp.RequestHandler):
-  """Regenerates the 'rand' attributes of all Triples.
-
-  We go through some acrobatics to batch our query to avoid running afoul of
-  the 1000-item limit.
-  """
+class CatchAllHandler(RequestHandler):
   def get(self):
-    processed, skipped = GenerateRandHandler.generate_rand()
-    self.response.out.write('Regenerated %d, skipped %d' % (processed,
-                                                            skipped))
-
-  @staticmethod
-  def generate_rand():
-    """Generate all rand values for all Triples.
-
-    Returns:
-      (int, int) the number of triples processed, and the number skipped
-                 because they were disabled
-    """
-    batch_size = 1000
-    template_values = dict(page='mine')
-    user = users.get_current_user()
-    triples = db.Query(models.Triple).order('__key__').fetch(batch_size)
-    logging.info('generate_rand: initial query got %d', len(triples))
-    processed = 0
-    skipped = 0
-    while triples:
-      for t in triples:
-        if t.is_enabled():
-          processed += 1
-          t.rand = random.random()
-          logging.debug('generate_rand: id=%s rand=%.15f', t.key().id(), t.rand)
-          t.put()
-        else:
-          skipped += 1
-          logging.debug('generate_rand: skipped id=%s', t.key().id())
-      triples = db.Query(models.Triple).filter('__key__ >', t.key()).order('__key__').fetch(batch_size)
-      logging.info('generate_rand: subsequent query got %d', len(triples))
-    return processed, skipped
+    self.error(404)
