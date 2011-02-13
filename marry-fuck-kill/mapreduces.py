@@ -21,13 +21,42 @@ import logging
 from mapreduce import operation as op
 
 def RecreateMapper(entity):
+  """This sets all the default values on an entity's fields.
+
+  It's useful when we add fields.
+  """
   yield op.db.Put(entity)
 
 
 def RandomizeMapper(triple):
+  """This regenerates the 'rand' field in a triple.
+
+  We run this periodically with a cronjob to mix up our sort order.
+  """
   if triple.is_enabled():
     triple.rand = random.random()
     logging.debug('generate_rand: id=%s rand=%.15f',
                   triple.key().id(), triple.rand)
     yield op.db.Put(triple)
 
+
+def SetAssignmentTriple(assignment):
+  """We didn't always have the 'triple' field in Assignments.
+
+  It's straightforward, but a bit of a pain, to derive it -- this sets it on
+  the Assignments that didn't already have it.
+  """
+  m, f, k = (assignment.marry, assignment.fuck,
+             assignment.kill)
+  logging.info('m = %s, f = %s, k = %s', m, f, k)
+  
+  for ref in [m.triple_reference_one_set.get(), 
+              m.triple_reference_two_set.get(), 
+              m.triple_reference_three_set.get()]:
+    if ref is not None:
+      triple = ref
+
+  logging.info('triple = %s', triple)
+  assignment.triple = triple
+
+  yield op.db.Put(assignment)
