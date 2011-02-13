@@ -1,20 +1,3 @@
-h1 {
-    font-size: 30px;
-    font-weight: bold;
-    margin: 20px;
-    text-align: center;
-}
-
-h2 {
-    font-size: 20px;
-    font-weight: bold;
-    margin: 5px 20px 20px 0px;
-}
-
-img {
-  border: 0;
-}
-
 /* The whole browser window. */
 #body {
     background: #9911bb;
@@ -39,23 +22,35 @@ img {
 
 /* Extra display panel on the left. */
 #lefty {
-  padding-left: 0;
-  display: block;
-  float: left;
-  background: white;
-  padding: 15px;
+    padding-left: 0;
+    display: block;
+    float: left;
+    background: white;
+    padding: 15px;
 
-  /* This is based on the width of the Google Charts images that will be inside
-   * this panel. */
-  width: 150px;
-  height: 100%;
-  overflow: hidden;
-  margin: 0 auto;
+    /* This is based on the width of the Google Charts images that */
+    /* will be inside this panel. */
+    width: 150px;
+    height: 100%;
+    overflow: hidden;
+    margin: 0 auto;
 
-  border: 1px solid #330033;
-  border-left: 0;
-  border-radius: 0 15px 15px 0;
-  -moz-border-radius: 0 15px 15px 0;
+    border: 1px solid #330033;
+    border-left: 0;
+    border-radius: 0 15px 15px 0;
+    -moz-border-radius: 0 15px 15px 0;
+}
+
+#lefty .title {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#lefty .prev-name {
+    font-weight: bold;
+    font-size: 20px;
+    vertical-align: top;
+    margin: 5px 2px 0 2px;
 }
 
 /* This only affects non-gwt-styled elements. */
@@ -63,8 +58,13 @@ img {
     color: black;
 }
 
-.errorText {
-    margin: 20px;
+.titleImage {
+    margin: 20px 0;
+}
+
+.topText {
+    padding: 0 10px 20px 10px;
+    font-size: 15px;
 }
 
 .tripletable {
@@ -106,7 +106,7 @@ img {
 }
 
 .statstable {
-    margin-bottom: 25px;
+    margin-bottom: 40px;
 }
 
 .button {
@@ -178,12 +178,12 @@ img {
 }
 
 .adminbar {
-  padding: 5px;
-  background: #dd8;
-  border: 1px solid black;
-  -moz-border-radius: 5px;
-  -webkit-border-radius: 5px;
-  -o-border-radius: 5px;
+    padding: 5px;
+    background: #dd8;
+    border: 1px solid black;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -o-border-radius: 5px;
 }
 
 .nav {
@@ -194,58 +194,10 @@ img {
     margin-bottom: 10px;
 }
 
-.control {
-    margin: 10px;
-}
-
-.saved {
-    width: 200px;
-    height: 200px;
-}
-
-.instructions {
-    font-size: 14px;
-    padding: 8px 4px 4px 4px;
-}
-
-.fakelink {
-    text-decoration: underline;
-    cursor: pointer;
-    color: blue;
-}
-
-.mfkpanel {
-    padding: 5px;
-    height: 200px;
-    border: 1px solid #660066;
-    background: white;
-}
-
-.mfkpanel:hover {
-    border: 1px solid black;
-}
-
-.searchimage {
-/*border: 1px dotted black;*/
-}
-
-.itemtitle {
-    font-size: 16px;
-    font-style: italic;
-    padding: 2px 2px 6px 2px;
-}
-
 .foot {
     text-align: center;
     margin: 10px 0 0 0;
     font-size: 10px;
-}
-
-.prev-title {
-    font-weight: bold;
-    font-size: 20px;
-    vertical-align: top;
-    margin: 5px 2px 0 2px;
 }
 
 .pickerBody {
@@ -271,9 +223,7 @@ img {
 
 .picker .imageChoices {
     display: inline-block;
-
     width: 400px;
-
     white-space: normal;
 }
 
@@ -281,16 +231,16 @@ img {
     padding: 4px;
 }
 
-.picker .branding {
-  position: absolute;
-  right: 0;
-  bottom: 35px;
-  opacity: .6;
-}
-
-.unselected:hover {
+.picker .unselected:hover {
     border: 2px solid gray;
     padding: 2px;
+}
+
+.picker .branding {
+    position: absolute;
+    right: 0;
+    bottom: 35px;
+    opacity: .6;
 }
 
 .picker .selected {
