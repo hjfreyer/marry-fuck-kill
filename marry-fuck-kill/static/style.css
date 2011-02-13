@@ -92,6 +92,10 @@
     -moz-border-radius: 10px 10px 0 0;
 }
 
+.image-row img {
+  border: 0;
+}
+
 .image-row td {
     height: 180px;
 
