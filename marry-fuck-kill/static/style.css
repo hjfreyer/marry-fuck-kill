@@ -60,6 +60,7 @@
 
 .titleImage {
     margin: 20px 0;
+    border: 0;
 }
 
 .topText {
@@ -107,6 +108,10 @@
 
 .statstable {
     margin-bottom: 40px;
+}
+
+.stats-row img{
+    border: 0;
 }
 
 .button {
