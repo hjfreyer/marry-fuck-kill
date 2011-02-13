@@ -250,6 +250,7 @@ img {
 
 .pickerBody {
     white-space: nowrap;
+    position: relative;
 }
 
 .picker .rightSide {
@@ -278,6 +279,12 @@ img {
 
 .picker .unselected {
     padding: 4px;
+}
+
+.picker .branding {
+  position: absolute;
+  left: 5px;
+  bottom: 5px;
 }
 
 .unselected:hover {
