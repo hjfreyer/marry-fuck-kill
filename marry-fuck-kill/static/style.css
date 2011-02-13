@@ -283,8 +283,9 @@ img {
 
 .picker .branding {
   position: absolute;
-  left: 5px;
-  bottom: 5px;
+  right: 0;
+  bottom: 35px;
+  opacity: .6;
 }
 
 .unselected:hover {
