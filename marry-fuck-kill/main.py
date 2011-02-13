@@ -30,8 +30,6 @@ def main():
       ("/mymfks", html_handlers.MyMfksHandler),
       ("/vote/(.*)", html_handlers.VoteHandler),
       ("/vote.do", html_handlers.VoteSubmitHandler),
-      ("/admin/generate_rand", html_handlers.GenerateRandHandler),
-      ("/admin/enable_disable", html_handlers.EnableDisableTripleHandler),
       ("/i/(.*)", html_handlers.EntityImageHandler),
     ], debug=True)
   util.run_wsgi_app(application)
