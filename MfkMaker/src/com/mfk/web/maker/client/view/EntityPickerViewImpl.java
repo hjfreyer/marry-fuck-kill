@@ -14,6 +14,7 @@ public class EntityPickerViewImpl implements EntityPickerView {
 
   private final DialogBox dialog = new DialogBox();
   private Image autoThrobber = new Image("/s/loading.gif");
+  private Image googleBranding = new Image("/s/powered-by-google.gif");
 
   private final TextBox searchField = new TextBox();
   private final Button saveButton = new Button("Save");
@@ -29,11 +30,14 @@ public class EntityPickerViewImpl implements EntityPickerView {
     Panel rightside = makeSubPanel(dialogPanel, "rightSide");
     imageChoices = makeSubPanel(dialogPanel, "imageChoices");
     Panel submitBar = makeSubPanel(dialogPanel, "submitBar");
-
+    
     rightside.add(new Label("Item name:"));
     rightside.add(searchField);
     rightside.add(autoThrobber);
 
+    googleBranding.setStyleName("branding");
+    rightside.add(googleBranding);
+    
     Panel primaryImgBox = makeSubPanel(rightside, "primaryImgBox");
     primaryImgBox.add(imagePreview);
 
