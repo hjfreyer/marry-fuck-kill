@@ -21,6 +21,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 from mapreduce import control
 
+import ezt_util
 import models
 
 class MapReduceTriggerHandler(webapp.RequestHandler):
@@ -42,6 +43,25 @@ class MapReduceTriggerHandler(webapp.RequestHandler):
       self.response.out.write('MR Cron Not Found: %s' % mr_name)
 
 
+class TripleReviewHandler(webapp.RequestHandler):
+  """Admin-only handler to remove manually review Triples."""
+  def get(self):
+    ten = models.Triple.all().filter('reviewed =', False).fetch(10)
+
+    ezt_util.WriteTemplate('review.html', dict(triples=ten), self.response.out)
+
+  def post(self):
+    ids = self.request.get('ids').split(',')
+    ids = [long(i) for i in ids if i]
+
+    triples = models.Triple.get_by_id(ids)
+
+    for triple in triples:
+      triple.reviewed = True
+      triple.put()
+
+    self.redirect('/admin/review')
+
 class EnableDisableTripleHandler(webapp.RequestHandler):
   """Admin-only handler to remove Triple from random display."""
   def post(self):
@@ -55,14 +75,15 @@ class EnableDisableTripleHandler(webapp.RequestHandler):
     else:
       raise ValueError("Invalid action '%s'." % action)
     triple.put()
-    self.response.out.write('%s %s (rand = %s)' % (
-        action, triple_id, triple.rand))
+
+    self.redirect('/vote/%s' % triple_id)
 
 
 def main():
   application = webapp.WSGIApplication([
       ("/admin/trigger_mr/(.*)", MapReduceTriggerHandler),
       ("/admin/enable_disable", EnableDisableTripleHandler),
+      ("/admin/review", TripleReviewHandler),
     ], debug=True)
   util.run_wsgi_app(application)
 

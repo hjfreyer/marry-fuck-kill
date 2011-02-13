@@ -37,6 +37,10 @@ class Entity(db.Model):
   # Where images live on the server.
   BASE_URL = '/i/'
 
+  @property
+  def url(self):
+    return Entity.BASE_URL + str(self.key())
+
   def __str__(self):
     return self.name
 
@@ -121,6 +125,10 @@ class Triple(db.Model):
 
   GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
   SEARCH_REFERER = 'http://marry-fuck-kill.appspot.com'
+
+  @property
+  def id_string(self):
+    return self.key().id()
 
   def disable(self):
     """Prevent this Triple from being picked in the random rotation.
