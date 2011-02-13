@@ -15,7 +15,19 @@
 # limitations under the License.
 #
 
+import random
+import logging
+
 from mapreduce import operation as op
 
 def RecreateMapper(entity):
   yield op.db.Put(entity)
+
+
+def RandomizeMapper(triple):
+  if triple.is_enabled():
+    triple.rand = random.random()
+    logging.debug('generate_rand: id=%s rand=%.15f',
+                  triple.key().id(), triple.rand)
+    yield op.db.Put(triple)
+

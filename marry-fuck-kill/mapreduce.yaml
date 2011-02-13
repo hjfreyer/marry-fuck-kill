@@ -1,7 +1,14 @@
 mapreduce:
-- name: Recreate All Entities
+- name: RecreateEntities
   mapper:
     input_reader: mapreduce.input_readers.DatastoreInputReader
     handler: mapreduces.RecreateMapper
     params:
     - name: entity_kind
+- name: Randomize
+  mapper:
+    input_reader: mapreduce.input_readers.DatastoreInputReader
+    handler: mapreduces.RandomizeMapper
+    params:
+    - name: entity_kind
+      default: models.Triple
