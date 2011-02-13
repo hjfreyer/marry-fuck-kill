@@ -28,17 +28,14 @@ class EntityValidationError(Exception):
   pass
 
 class Entity(db.Model):
-  name = db.StringProperty(required=True)
-  data = db.BlobProperty(required=True)
-  query = db.StringProperty(required=False)
+  name = db.StringProperty(default=None)
+  data = db.BlobProperty(default=None)
+  query = db.StringProperty(default=None)
   creator = db.UserProperty()
-  original_url = db.StringProperty(required=False)
+  original_url = db.StringProperty(default=None)
 
   # Where images live on the server.
   BASE_URL = '/i/'
-
-  # TODO(mjkelly): do something with this or get rid of it
-  type = db.StringProperty(choices=set(['abstract', 'person', 'object']))
 
   def __str__(self):
     return self.name
@@ -103,23 +100,20 @@ class Triple(db.Model):
   # User who created the Triple, or None if no user was logged in.
   creator = db.UserProperty()
   # These fields are not required for DB backwards-compatibility.
-  creatorip = db.StringProperty(required=False, default='')
-  time = db.DateTimeProperty(required=False, auto_now_add=True)
-  # A measure of quality. Currently ignored.
-  # TODO(mjkelly): Remove this.
-  quality = db.FloatProperty(default=1.0)
+  creatorip = db.StringProperty(default='')
+  time = db.DateTimeProperty(auto_now_add=True)
   # A random value used to determine a randomized, repeatable display order.
   # Not necessarily unique. 'default' value is for backwards-compatibility.
   # If this is None, this Triple will not be returned by get_next_id() under
   # any cirumstances.
-  rand = db.FloatProperty(required=False, default=0.0)
+  rand = db.FloatProperty(default=0.0)
 
   one = db.ReferenceProperty(Entity,
-                 collection_name="triple_reference_one_set")
+      collection_name="triple_reference_one_set")
   two = db.ReferenceProperty(Entity,
-                 collection_name="triple_reference_two_set")
+      collection_name="triple_reference_two_set")
   three = db.ReferenceProperty(Entity,
-                 collection_name="triple_reference_three_set")
+      collection_name="triple_reference_three_set")
 
   reviewed = db.BooleanProperty(default=False)
 
@@ -319,20 +313,21 @@ class Triple(db.Model):
     for item in req:
       # This may raise a DownloadError
       images = Triple._get_images_for_query(item['q'], check_pages, userip)
-      search_urls = [image['tbUrl'] for image in images]
-      if item['u'] not in search_urls:
+      valid_urls = [image['tbUrl'] for image in images]
+      logging.info('validate_request: possible valid urls = %s', valid_urls)
+      if item['u'] not in valid_urls:
         logging.error("URL '%s' is not in result set for query '%s'. "
                       "Result set over %d pages is: %s" % (
-                          item['u'], item['q'], check_pages, search_urls))
+                          item['u'], item['q'], check_pages, valid_urls))
         raise EntityValidationError(
             "URL '%s' is not in result set for query '%s'." % (item['u'],
                                                                item['q']))
 
   @staticmethod
-  def _get_images_for_query(query, num_pages, userip):
+  def _get_images_for_query(query, check_pages, userip):
     start = 0
     images = []
-    for page in range(num_pages):
+    for page in range(check_pages):
       url = ('https://ajax.googleapis.com/ajax/services/search/images'
              '?v=1.0'
              '&safe=moderate'
@@ -343,16 +338,18 @@ class Triple(db.Model):
                                'start': start,
                                'ip': userip,
                                'key': Triple.GOOGLE_API_KEY})
-      logging.info('_get_images_for_query: url=%s', url)
+      logging.info('_get_images_for_query: query url=%s', url)
       req = urllib2.Request(url, None, {'Referer': Triple.SEARCH_REFERER})
       # This may raise a DownloadError
       results = simplejson.load(urllib2.urlopen(req))
       images += results['responseData']['results']
-      logging.info('_get_images_for_query: %d results so far', len(images))
 
       # Make sure there are more pages before advancing 'start'
       pages = results['responseData']['cursor']['pages']
-      if len(pages) >= num_pages:
+      logging.info('_get_images_for_query: %d results so far,'
+                   ' on page %s of %s (will try up to %s)',
+                   len(images), page+1, len(pages), check_pages)
+      if len(pages) > page + 1:
         start = pages[page+1]['start']
       else:
         break
@@ -380,18 +377,17 @@ class Triple(db.Model):
 
 class Assignment(db.Model):
   user = db.UserProperty()
-  # These fields are not required for DB backwards-compatibility.
-  userip = db.StringProperty(required=False, default='')
-  time = db.DateTimeProperty(required=False, auto_now_add=True)
+  userip = db.StringProperty(default='')
+  time = db.DateTimeProperty(auto_now_add=True)
 
   triple = db.ReferenceProperty(Triple)
 
   marry = db.ReferenceProperty(Entity,
-                 collection_name="assignment_reference_marry_set")
+      collection_name="assignment_reference_marry_set")
   fuck = db.ReferenceProperty(Entity,
-                 collection_name="assignment_reference_fuck_set")
+      collection_name="assignment_reference_fuck_set")
   kill = db.ReferenceProperty(Entity,
-                 collection_name="assignment_reference_kill_set")
+      collection_name="assignment_reference_kill_set")
 
   def __str__(self):
     return "Assignment(marry=%s, fuck=%s, kill=%s)" % (
