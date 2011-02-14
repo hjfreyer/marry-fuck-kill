@@ -61,7 +61,7 @@ class MainPageHandler(RequestHandler):
     if not rand:
       self.redirect('/about')
     else:
-      self.redirect('/vote/' + str(rand))
+      RenderVotePage(self, str(rand))
 
 
 class AboutHandler(RequestHandler):
@@ -73,57 +73,61 @@ class AboutHandler(RequestHandler):
 
 class VoteHandler(RequestHandler):
   def get(self, triple_id):
-    if not triple_id.isdigit():
-      self.error(404)
-      return
+    RenderVotePage(self, triple_id)
 
-    triple = models.Triple.get_by_id(long(triple_id))
 
-    if not triple:
-      self.error(404)
-      return
+def RenderVotePage(handler, triple_id):
+  if not triple_id.isdigit():
+    handler.error(404)
+    return
 
-    prev_id = self.request.get('prev')
-    logging.info('Vote page for %s. Prev = %s', triple_id, prev_id)
+  triple = models.Triple.get_by_id(long(triple_id))
 
-    if prev_id:
-      prev_triple = models.Triple.get_by_id(int(prev_id))
-      prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
-      prev_names = [e.name for e in prev_entities]
-      prev_urls = [e.get_stats_url() for e in prev_entities]
-    else:
-      prev_names = ['', '', '']
-      prev_urls = ['', '', '']
+  if not triple:
+    handler.error(404)
+    return
 
-    one = triple.one
-    two = triple.two
-    three = triple.three
+  prev_id = handler.request.get('prev')
+  logging.info('Vote page for %s. Prev = %s', triple_id, prev_id)
 
-    # Map False -> None so EZT understands.
-    if triple.is_enabled():
-      triple_enabled = True
-    else:
-      triple_enabled = None
+  if prev_id:
+    prev_triple = models.Triple.get_by_id(int(prev_id))
+    prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
+    prev_names = [e.name for e in prev_entities]
+    prev_urls = [e.get_stats_url() for e in prev_entities]
+  else:
+    prev_names = ['', '', '']
+    prev_urls = ['', '', '']
 
-    template_values = dict(page='vote',
-                           triple_id=triple_id,
-                           triple_rand=triple.rand,
-                           triple_enabled=triple_enabled,
-                           e1_name=one.name,
-                           e1_url=one.get_full_url(),
-                           e2_name=two.name,
-                           e2_url=two.get_full_url(),
-                           e3_name=three.name,
-                           e3_url=three.get_full_url(),
-                           prev_id=prev_id,
-                           prev_e1_name=prev_names[0],
-                           prev_e2_name=prev_names[1],
-                           prev_e3_name=prev_names[2],
-                           prev_e1_stat_url=prev_urls[0],
-                           prev_e2_stat_url=prev_urls[1],
-                           prev_e3_stat_url=prev_urls[2])
-    template_values.update(GetUserData('/vote/' + triple_id))
-    ezt_util.WriteTemplate('vote.html', template_values, self.response.out)
+  one = triple.one
+  two = triple.two
+  three = triple.three
+
+  # Map False -> None so EZT understands.
+  if triple.is_enabled():
+    triple_enabled = True
+  else:
+    triple_enabled = None
+
+  template_values = dict(page='vote',
+                         triple_id=triple_id,
+                         triple_rand=triple.rand,
+                         triple_enabled=triple_enabled,
+                         e1_name=one.name,
+                         e1_url=one.get_full_url(),
+                         e2_name=two.name,
+                         e2_url=two.get_full_url(),
+                         e3_name=three.name,
+                         e3_url=three.get_full_url(),
+                         prev_id=prev_id,
+                         prev_e1_name=prev_names[0],
+                         prev_e2_name=prev_names[1],
+                         prev_e3_name=prev_names[2],
+                         prev_e1_stat_url=prev_urls[0],
+                         prev_e2_stat_url=prev_urls[1],
+                         prev_e3_stat_url=prev_urls[2])
+  template_values.update(GetUserData('/vote/' + triple_id))
+  ezt_util.WriteTemplate('vote.html', template_values, handler.response.out)
 
 
 class VoteSubmitHandler(RequestHandler):
