@@ -130,6 +130,10 @@ class Triple(db.Model):
   def id_string(self):
     return self.key().id()
 
+  @property
+  def creator_nickname(self):
+    return self.creator and self.creator.nickname() or ''
+
   def disable(self):
     """Prevent this Triple from being picked in the random rotation.
 
