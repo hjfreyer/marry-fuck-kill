@@ -21,10 +21,6 @@
     [end]
     <div id="page">
       [include "noscript.html"]
-      <div class="topText">
-        Vote for "marry", "fuck", or "kill" on each item below. You must vote for each on exactly once!
-      </div>
-
       <table class="tripletable">
         <tr class="title-row">
           <td>[e1_name]</td>
@@ -64,7 +60,10 @@
         <div class="button" id="submit">Vote</div>
         <div class="button clickable" id="skip">Skip</div>
       </div>
-
+      <div class="topText">
+        Pick one of the above to marry, one to fuck, and one to
+        kill. Choose wisely!
+      </div>
       [if-any is_current_user_admin]
       <div class="adminbar">
         <form action="/admin/enable_disable" method="post" id="adminform">

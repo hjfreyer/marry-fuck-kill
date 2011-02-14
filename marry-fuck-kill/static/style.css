@@ -73,6 +73,7 @@
     table-layout: fixed;
 
     border-spacing: 2px 0;
+    margin-top: 3px;
 }
 
 .tripletable td {

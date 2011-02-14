@@ -30,7 +30,7 @@ public class EntityPickerViewImpl implements EntityPickerView {
     imageChoices = makeSubPanel(dialogPanel, "imageChoices");
     Panel submitBar = makeSubPanel(dialogPanel, "submitBar");
 
-    rightside.add(new Label("Item name:"));
+    rightside.add(new Label("Name:"));
     rightside.add(searchField);
     rightside.add(autoThrobber);
 

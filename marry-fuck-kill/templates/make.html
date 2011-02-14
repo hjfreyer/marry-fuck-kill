@@ -12,11 +12,6 @@
   <body id="body">
     [include "header.html"]
     <div id="page">
-      <div class="topText">
-        Edit the three items below and select your own images from
-        Google image search. Once you hit "Create!", other users will
-        see your MFK and be able to vote on it!
-      </div>
       <table class="tripletable">
         <tr class="title-row">
           <td><div id="name_1"></div></td>
@@ -48,6 +43,15 @@
       </table>
       <div class="actionbar" id="createButton"></div>
       <div id="outputForm"></div>
+      <div class="topText">
+        Make your own MFK by picking three things with the "Edit"
+        buttons above. Other users will vote on which to marry, fuck,
+        or kill.
+
+        [if-any nickname][else]
+        <p><a href="[login_url]">Log in</a> now if you want to see the
+        results later!</p>  [end]
+      </div>
       [include "nav.html"]
     </div>
     [insertfile "foot.html"]

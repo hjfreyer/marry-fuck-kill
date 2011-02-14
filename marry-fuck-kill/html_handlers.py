@@ -169,7 +169,7 @@ class EntityImageHandler(RequestHandler):
 
 class MyMfksHandler(RequestHandler):
   def get(self):
-    template_values = dict(page='mine')
+    template_values = dict(page='mymfks')
     user = users.get_current_user()
     triples = [t for t in models.Triple.all().filter('creator =', user)]
 
