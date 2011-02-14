@@ -12,3 +12,9 @@ mapreduce:
     params:
     - name: entity_kind
       default: models.Triple
+- name: SetAssignmentTriple
+  mapper:
+    input_reader: mapreduce.input_readers.DatastoreInputReader
+    handler: mapreduces.SetAssignmentTriple
+    params:
+    - name: entity_kind

@@ -67,18 +67,17 @@
 
       [if-any is_current_user_admin]
       <div class="adminbar">
-        <p>Admin:</p>
         <form action="/admin/enable_disable" method="post" id="adminform">
           <input type="hidden" name="key" value="[triple_id]">
           [if-any triple_enabled]
             rand = [triple_rand]
             <input type="submit" name="action" value="disable">
           [else]
-            This Triple is disabled:
-            rand = [triple_rand]
+            rand = [triple_rand] (disabled)
             <input type="submit" name="action" value="enable">
           [end]
         </form>
+        <a href="/admin/review">Review new triples</a>
       </div>
       [end]
 

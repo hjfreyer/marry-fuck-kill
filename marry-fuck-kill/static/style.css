@@ -60,6 +60,7 @@
 
 .titleImage {
     margin: 20px 0;
+    border: 0;
 }
 
 .topText {
@@ -91,6 +92,10 @@
     -moz-border-radius: 10px 10px 0 0;
 }
 
+.image-row img {
+  border: 0;
+}
+
 .image-row td {
     height: 180px;
 
@@ -107,6 +112,10 @@
 
 .statstable {
     margin-bottom: 40px;
+}
+
+.stats-row img{
+    border: 0;
 }
 
 .button {
