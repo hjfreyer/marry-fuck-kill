@@ -1,5 +1,5 @@
 cron:
-- description: daily random order regeneration
+- description: weekly random order regeneration
   url: /admin/trigger_mr/RANDOMIZE
-  schedule: every day 04:00
+  schedule: every sunday 04:00
   timezone: America/New_York
