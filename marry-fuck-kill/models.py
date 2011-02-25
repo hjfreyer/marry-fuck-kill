@@ -80,23 +80,43 @@ class Entity(db.Model):
     return url
 
   @staticmethod
-  def make_entity(url, **kwargs):
-    """Makes an Entity with the given attributes (as keyword arguments).
+  def make_entity(name, query, user_ip, original_url):
+    """Makes an Entity with the given attributes.
 
-    This method sets the 'data' attribute based on the 'url' attributes.
+    Ensures that the URL actually comes from a google search for the
+    query. If it doesn't, may throw an EntityValidationError.
     """
-    if not url.startswith('http://images.google.com/images?q'):
-      raise EntityValidationError('URL must come from Google image search.')
+    # This must be synchronized with the number of pages the creation interface
+    # shows. Raising it incurs a large performance penalty.
+    check_pages = 3
 
-    # This could throw URLError. We'll let it bubble up.
-    fh = urllib2.urlopen(url)
-    logging.info('Downloading %s' % url)
+    images = Triple._get_images_for_query(query, check_pages, user_ip)
+    images_by_url = dict([(image['unescapedUrl'], image) for image in images])
+    logging.info('validate_request: possible valid urls = %s',
+                 list(images_by_url))
+    if original_url not in images_by_url:
+      logging.error("URL '%s' is not in result set for query '%s'. "
+                    "Result set over %d pages is: %s" % (
+          orignal_url, query, check_pages, list(images_by_url)))
+      raise EntityValidationError(
+        "URL '%s' is not in result set for query '%s'." % (original_url,
+                                                           query))
+
+    tb_url = images_by_url[original_url]['tbUrl']
+
+    # Get the thumbnail URL for the entity.  This could throw
+    # URLError. We'll let it bubble up.
+    fh = urllib2.urlopen(tb_url)
+    logging.info('Downloading %s' % tb_url)
     data = fh.read()
     logging.info('Downloaded %s bytes' % len(data))
 
-    entity = Entity(data=data, **kwargs)
-
+    entity = Entity(name=name,
+                    data=data,
+                    query=query,
+                    original_url=original_url)
     entity.put()
+
     return entity
 
 
@@ -274,22 +294,19 @@ class Triple(db.Model):
         if not entities[i][k]:
           raise ValueError("Entity %s missing attribute '%s'" % (i, k))
 
-    # This may raise an EntityValidationError.
-    Triple.validate_request(entities, request.remote_addr)
-
     # This may raise a URLError or EntityValidatationError.
     one = Entity.make_entity(name=entities[0]['n'],
-                             url=entities[0]['u'],
                              query=entities[0]['q'],
-                             original_url=entities[0]['ou'])
+                             original_url=entities[0]['ou'],
+                             user_ip=request.remote_addr)
     two = Entity.make_entity(name=entities[1]['n'],
-                             url=entities[1]['u'],
                              query=entities[1]['q'],
-                             original_url=entities[1]['ou'])
+                             original_url=entities[1]['ou'],
+                             user_ip=request.remote_addr)
     three = Entity.make_entity(name=entities[2]['n'],
-                             url=entities[2]['u'],
-                             query=entities[2]['q'],
-                             original_url=entities[2]['ou'])
+                               query=entities[2]['q'],
+                               original_url=entities[2]['ou'],
+                               user_ip=request.remote_addr)
 
     triple = Triple(one=one, two=two, three=three,
                     creator=creator,
@@ -297,36 +314,6 @@ class Triple(db.Model):
                     rand=random.random())
     triple.put()
     return triple
-
-  @staticmethod
-  def validate_request(req, userip):
-    """Verify that the 3 given entities can make a valid triple.
-
-
-    Args:
-      req_dict: (list) The data structure from Triple.parse_request.
-      userip: (str) The IP of the user who made the request
-
-    Raises:
-      EntityValidationError if the triple does not validate.
-      DownloadError if there was a network error checking the triple.
-    """
-    # This must be synchronized with the number of pages the creation interface
-    # shows. Raising it incurs a large performance penalty.
-    check_pages = 3
-
-    for item in req:
-      # This may raise a DownloadError
-      images = Triple._get_images_for_query(item['q'], check_pages, userip)
-      valid_urls = [image['unescapedUrl'] for image in images]
-      logging.info('validate_request: possible valid urls = %s', valid_urls)
-      if item['ou'] not in valid_urls:
-        logging.error("URL '%s' is not in result set for query '%s'. "
-                      "Result set over %d pages is: %s" % (
-                          item['ou'], item['q'], check_pages, valid_urls))
-        raise EntityValidationError(
-            "URL '%s' is not in result set for query '%s'." % (item['ou'],
-                                                               item['q']))
 
   @staticmethod
   def _get_images_for_query(query, check_pages, userip):
