@@ -142,9 +142,8 @@ class VoteSubmitHandler(RequestHandler):
 
     if action == 'submit':
       models.Assignment.make_assignment(self.request, users.get_current_user())
-      query_suffix = '?prev=%s' % self.request.get('key')
-    else:
-      query_suffix = ''
+
+    query_suffix = '?prev=%s' % self.request.get('key')
 
     rand = models.Triple.get_next_id(self.request, self.response)
     self.redirect('/vote/%s%s' % (str(rand), query_suffix))
