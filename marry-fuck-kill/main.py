@@ -32,7 +32,7 @@ def main():
       ("/vote.do", html_handlers.VoteSubmitHandler),
       ("/i/(.*)", html_handlers.EntityImageHandler),
       ("/.*", html_handlers.CatchAllHandler),
-    ], debug=True)
+    ])
   util.run_wsgi_app(application)
 
 if __name__ == '__main__':
