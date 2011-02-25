@@ -325,14 +325,14 @@ class Triple(db.Model):
     for item in req:
       # This may raise a DownloadError
       images = Triple._get_images_for_query(item['q'], check_pages, userip)
-      valid_urls = [image['tbUrl'] for image in images]
+      valid_urls = [image['unescapedUrl'] for image in images]
       logging.info('validate_request: possible valid urls = %s', valid_urls)
-      if item['u'] not in valid_urls:
+      if item['ou'] not in valid_urls:
         logging.error("URL '%s' is not in result set for query '%s'. "
                       "Result set over %d pages is: %s" % (
-                          item['u'], item['q'], check_pages, valid_urls))
+                          item['ou'], item['q'], check_pages, valid_urls))
         raise EntityValidationError(
-            "URL '%s' is not in result set for query '%s'." % (item['u'],
+            "URL '%s' is not in result set for query '%s'." % (item['ou'],
                                                                item['q']))
 
   @staticmethod
