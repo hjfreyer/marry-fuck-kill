@@ -315,13 +315,6 @@ class Triple(db.Model):
     # shows. Raising it incurs a large performance penalty.
     check_pages = 3
 
-    names = [item['n'] for item in req]
-    urls = [item['u'] for item in req]
-    if len(set(names)) < 3:
-      raise EntityValidationError('All item names must be distinct: %s', names)
-    if len(set(urls)) < 3:
-      raise EntityValidationError('All item URLs must be distinct: %s', urls)
-
     for item in req:
       # This may raise a DownloadError
       images = Triple._get_images_for_query(item['q'], check_pages, userip)
