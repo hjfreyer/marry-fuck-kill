@@ -23,6 +23,7 @@ from google.appengine.api import users
 from google.appengine.ext import db
 from google.appengine.ext import webapp
 
+import core
 import ezt_util
 import models
 
@@ -94,7 +95,7 @@ def RenderVotePage(handler, triple_id):
     prev_triple = models.Triple.get_by_id(int(prev_id))
     prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
     prev_names = [e.name for e in prev_entities]
-    prev_urls = [e.get_stats_url() for e in prev_entities]
+    prev_urls = [core.GetStatsUrlForEntity(e) for e in prev_entities]
   else:
     prev_names = ['', '', '']
     prev_urls = ['', '', '']
@@ -104,7 +105,7 @@ def RenderVotePage(handler, triple_id):
   three = triple.three
 
   # Map False -> None so EZT understands.
-  if triple.is_enabled():
+  if triple.enabled:
     triple_enabled = True
   else:
     triple_enabled = None
@@ -118,11 +119,11 @@ def RenderVotePage(handler, triple_id):
                          triple_reviewed=triple.reviewed,
                          triple_time=str(triple.time),
                          e1_name=one.name,
-                         e1_url=one.get_full_url(),
+                         e1_url=one.image_url,
                          e2_name=two.name,
-                         e2_url=two.get_full_url(),
+                         e2_url=two.image_url,
                          e3_name=three.name,
-                         e3_url=three.get_full_url(),
+                         e3_url=three.image_url,
                          prev_id=prev_id,
                          prev_e1_name=prev_names[0],
                          prev_e2_name=prev_names[1],
@@ -152,7 +153,17 @@ class VoteSubmitHandler(RequestHandler):
 class MakeSubmitHandler(RequestHandler):
   def post(self):
     logging.info('Make handler')
-    triple = models.Triple.make_triple(self.request, users.get_current_user())
+
+    entities = []
+    for n in range(1, 4):
+      entities.append({'n': self.request.get('n' + str(n)),
+                       'u': self.request.get('u' + str(n)),
+                       'q': self.request.get('q' + str(n)),
+                       'ou': self.request.get('ou' + str(n))})
+
+    triple = core.MakeTriple(entities,
+                             creator=users.get_current_user(),
+                             creator_ip=self.request.remote_addr)
     self.redirect('/vote/%s?new' % triple.key().id())
 
 
@@ -179,15 +190,12 @@ class MyMfksHandler(RequestHandler):
     items = []
     for t in triples:
       item = ezt_util.EztItem(key=str(t.key().id()),
-                              one_name=t.one.name,
-                              two_name=t.two.name,
-                              three_name=t.three.name,
-                              one_url=t.one.get_full_url(),
-                              two_url=t.two.get_full_url(),
-                              three_url=t.three.get_full_url(),
-                              one_stats=t.one.get_stats_url(),
-                              two_stats=t.two.get_stats_url(),
-                              three_stats=t.three.get_stats_url())
+                              one=t.one,
+                              two=t.two,
+                              three=t.three,
+                              one_stats=core.GetStatsUrlForEntity(t.one),
+                              two_stats=core.GetStatsUrlForEntity(t.two),
+                              three_stats=core.GetStatsUrlForEntity(t.three))
       items.append(item)
 
     template_values.update(GetUserData('/mymfks'))

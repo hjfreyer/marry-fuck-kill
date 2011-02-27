@@ -23,10 +23,6 @@ from django.utils import simplejson
 from google.appengine.api import users
 from google.appengine.ext import db
 
-class EntityValidationError(Exception):
-  """There was an error validating an entity."""
-  pass
-
 class Entity(db.Model):
   name = db.StringProperty(default=None)
   data = db.BlobProperty(default=None)
@@ -38,7 +34,7 @@ class Entity(db.Model):
   BASE_URL = '/i/'
 
   @property
-  def url(self):
+  def image_url(self):
     return Entity.BASE_URL + str(self.key())
 
   def __str__(self):
@@ -49,75 +45,6 @@ class Entity(db.Model):
 
   def json(self):
     return {'name': self.name, 'url': self.get_full_url()}
-
-  def get_full_url(self):
-    logging.debug('get_full_url (for %d): returning %s',
-        self.key().id(), Entity.BASE_URL + str(self.key()))
-    return Entity.BASE_URL + str(self.key())
-
-  def get_stats_url(self, w=160, h=85):
-    """Returns the URL to a chart of MFK stats for this Entity.
-
-    Args:
-      w: (int) image width
-      h: (int) image height
-    """
-    m = self.assignment_reference_marry_set.count()
-    f = self.assignment_reference_fuck_set.count()
-    k = self.assignment_reference_kill_set.count()
-
-    url = ('http://chart.apis.google.com/chart'
-        '?chxr=0,0,%(max)d'
-        '&chxt=y'
-        '&chbh=a'
-        '&chs=%(w)dx%(h)d'
-        '&cht=bvg'
-        '&chco=9911BB,C76FDD,63067A'
-        '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
-        '&chd=t:%(m)d|%(f)d|%(k)d'
-        '&chdl=Marry|Fuck|Kill'
-        '&chdlp=r' % (dict(m=m, f=f, k=k, max=max([m,f,k]), w=w, h=h)))
-    return url
-
-  @staticmethod
-  def make_entity(name, query, user_ip, original_url):
-    """Makes an Entity with the given attributes.
-
-    Ensures that the URL actually comes from a google search for the
-    query. If it doesn't, may throw an EntityValidationError.
-    """
-    # This must be synchronized with the number of pages the creation interface
-    # shows. Raising it incurs a large performance penalty.
-    check_pages = 3
-
-    images = Triple._get_images_for_query(query, check_pages, user_ip)
-    images_by_url = dict([(image['unescapedUrl'], image) for image in images])
-    logging.info('validate_request: possible valid urls = %s',
-                 list(images_by_url))
-    if original_url not in images_by_url:
-      logging.error("URL '%s' is not in result set for query '%s'. "
-                    "Result set over %d pages is: %s" % (
-          orignal_url, query, check_pages, list(images_by_url)))
-      raise EntityValidationError(
-        "URL '%s' is not in result set for query '%s'." % (original_url,
-                                                           query))
-
-    tb_url = images_by_url[original_url]['tbUrl']
-
-    # Get the thumbnail URL for the entity.  This could throw
-    # URLError. We'll let it bubble up.
-    fh = urllib2.urlopen(tb_url)
-    logging.info('Downloading %s' % tb_url)
-    data = fh.read()
-    logging.info('Downloaded %s bytes' % len(data))
-
-    entity = Entity(name=name,
-                    data=data,
-                    query=query,
-                    original_url=original_url)
-    entity.put()
-
-    return entity
 
 
 class Triple(db.Model):
@@ -143,9 +70,6 @@ class Triple(db.Model):
 
   CONTEXT_COOKIE_NAME = 'mfkcontext'
 
-  GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
-  SEARCH_REFERER = 'http://marry-fuck-kill.appspot.com'
-
   @property
   def id_string(self):
     return self.key().id()
@@ -168,7 +92,8 @@ class Triple(db.Model):
     """Allow this Triple to be picked in the random rotation."""
     self.rand = random.random()
 
-  def is_enabled(self):
+  @property
+  def enabled(self):
     return self.rand != -1.0
 
   @staticmethod
@@ -275,96 +200,6 @@ class Triple(db.Model):
     keys = [one.name, two.name, three.name]
     keys.sort()
     return "%s.%s.%s" % (keys[0], keys[1], keys[2])
-
-  @staticmethod
-  def make_triple(request, creator):
-    """Create the named triple.
-
-    Args:
-      request: the POST request from the client
-      creator: the user who created the Triple.
-
-    The only non-obvious part of this is that we check that q[1-3] actually
-    include u[1-3]. This is to prevent users from adding any URL they
-    please.
-    """
-    entities = Triple.parse_request(request)
-    for i in range(len(entities)):
-      for k in ['n', 'u', 'q', 'ou']:
-        if not entities[i][k]:
-          raise ValueError("Entity %s missing attribute '%s'" % (i, k))
-
-    # This may raise a URLError or EntityValidatationError.
-    one = Entity.make_entity(name=entities[0]['n'],
-                             query=entities[0]['q'],
-                             original_url=entities[0]['ou'],
-                             user_ip=request.remote_addr)
-    two = Entity.make_entity(name=entities[1]['n'],
-                             query=entities[1]['q'],
-                             original_url=entities[1]['ou'],
-                             user_ip=request.remote_addr)
-    three = Entity.make_entity(name=entities[2]['n'],
-                               query=entities[2]['q'],
-                               original_url=entities[2]['ou'],
-                               user_ip=request.remote_addr)
-
-    triple = Triple(one=one, two=two, three=three,
-                    creator=creator,
-                    creatorip=request.remote_addr,
-                    rand=random.random())
-    triple.put()
-    return triple
-
-  @staticmethod
-  def _get_images_for_query(query, check_pages, userip):
-    start = 0
-    images = []
-    for page in range(check_pages):
-      url = ('https://ajax.googleapis.com/ajax/services/search/images'
-             '?v=1.0'
-             '&safe=moderate'
-             '&userip=%(ip)s'
-             '&q=%(q)s'
-             '&start=%(start)s'
-             '&key=%(key)s' % {'q': urllib2.quote(query),
-                               'start': start,
-                               'ip': userip,
-                               'key': Triple.GOOGLE_API_KEY})
-      logging.info('_get_images_for_query: query url=%s', url)
-      req = urllib2.Request(url, None, {'Referer': Triple.SEARCH_REFERER})
-      # This may raise a DownloadError
-      results = simplejson.load(urllib2.urlopen(req))
-      images += results['responseData']['results']
-
-      # Make sure there are more pages before advancing 'start'
-      pages = results['responseData']['cursor']['pages']
-      logging.info('_get_images_for_query: %d results so far,'
-                   ' on page %s of %s (will try up to %s)',
-                   len(images), page+1, len(pages), check_pages)
-      if len(pages) > page + 1:
-        start = pages[page+1]['start']
-      else:
-        break
-
-    return images
-
-  @staticmethod
-  def parse_request(request):
-    """Parses a Triple creation request and puts it in a convenient format.
-
-    We expect the following request params:
-    n[1-3]: the 3 triple display names
-    u[1-3]: the 3 triple image URLs
-    q[1-3]: the search string used to find u[1-3]
-    ou[1-3]: the original URL of the image
-    """
-    ret = []
-    for n in range(1, 4):
-      ret.append({'n': request.get('n' + str(n)),
-                  'u': request.get('u' + str(n)),
-                  'q': request.get('q' + str(n)),
-                  'ou': request.get('ou' + str(n))})
-    return ret
 
 
 class Assignment(db.Model):
