@@ -136,6 +136,56 @@ def MakeTriple(entities, creator, creator_ip):
   return triple
 
 
+def MakeAssignment(triple_id, v1, v2, v3, user, user_ip):
+  """Create a new assignment.
+
+  Args:
+    request: the POST request from the client
+    user: the user who made the assignment request
+  """
+  values = [v1, v2, v3]
+  if set(values) != set(['m', 'f', 'k']):
+    return None
+
+  try:
+    triple_id = long(triple_id)
+  except ValueError:
+    logging.error("make_assignment: bad triple key '%s'", triple_id)
+
+  triple = models.Triple.get_by_id(triple_id)
+  logging.debug('triple = %s', triple)
+  if triple is None:
+    logging.error('make_assignment: No triple with key %s', triple_id)
+    return None
+
+  # We get an entity->action map from the client, but we need to reverse
+  # it to action->entity to update the DB.
+  triple_entities = [triple.one,
+                     triple.two,
+                     triple.three]
+  entities = {}
+  for i in range(len(values)):
+    # Items in values are guaranteed to be 'm', 'f', 'k' (check above)
+    entities[values[i]] = triple_entities[i]
+
+  if (entities['m'] is None or entities['f'] is None
+      or entities['k'] is None):
+    logging.error('Not all non-None: marry = %s, fuck = %s, kill = %s',
+            entities['m'], entities['f'], entities['k'])
+    return None
+
+  assign = models.Assignment(triple=triple,
+                             marry=entities['m'],
+                             fuck=entities['f'],
+                             kill=entities['k'],
+                             user=user,
+                             userip=str(user_ip))
+  assign.put()
+  logging.info("Assigned m=%s, f=%s, k=%s to %s", entities['m'],
+      entities['f'], entities['k'], triple)
+  return assign
+
+
 def GetImagesForQuery(query, check_pages, userip):
   start = 0
   images = []

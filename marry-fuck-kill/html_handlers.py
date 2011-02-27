@@ -142,7 +142,12 @@ class VoteSubmitHandler(RequestHandler):
     logging.info('Vote handler. Action: %s', action)
 
     if action == 'submit':
-      models.Assignment.make_assignment(self.request, users.get_current_user())
+      core.MakeAssignment(triple_id=self.request.get('key'),
+                          v1=self.request.get('v1'),
+                          v2=self.request.get('v2'),
+                          v3=self.request.get('v3'),
+                          user=users.get_current_user(),
+                          user_ip=self.request.remote_addr)
 
     query_suffix = '?prev=%s' % self.request.get('key')
 
