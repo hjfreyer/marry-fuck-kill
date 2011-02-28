@@ -82,9 +82,6 @@ class Triple(db.Model):
     """Prevent this Triple from being picked in the random rotation.
 
     It will still be visible from a direct link.
-
-    This works by removing the 'rand' attribute from this object entirely, to
-    prevent it from being returned in sort operations involving 'rand'.
     """
     self.rand = -1.0
 
