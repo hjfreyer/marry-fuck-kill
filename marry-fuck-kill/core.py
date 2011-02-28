@@ -189,6 +189,7 @@ def MakeAssignment(triple_id, v1, v2, v3, user, user_ip):
 def GetImagesForQuery(query, check_pages, userip):
   start = 0
   images = []
+  query = query.encode('utf-8')
   for page in range(check_pages):
     url = ('https://ajax.googleapis.com/ajax/services/search/images'
            '?v=1.0'
