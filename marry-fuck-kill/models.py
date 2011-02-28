@@ -65,6 +65,8 @@ class Triple(db.Model):
   reviewed = db.BooleanProperty(default=False)
 
   CONTEXT_COOKIE_NAME = 'mfkcontext'
+  # week in seconds
+  CONTEXT_COOKIE_MAX_AGE_SECS = 604800
 
   @property
   def id_string(self):
@@ -127,7 +129,9 @@ class Triple(db.Model):
     # TODO(mjkelly): Try to find a lightweight wrapper for cookie-setting
     # instead of manually constructing them.
     if next_id is not None:
-      response.headers.add_header('Set-Cookie', '%s=%d' % (Triple.CONTEXT_COOKIE_NAME, next_id))
+      response.headers.add_header('Set-Cookie', '%s=%d; Max-Age=%d' % (
+          Triple.CONTEXT_COOKIE_NAME, next_id,
+          Triple.CONTEXT_COOKIE_MAX_AGE_SECS))
 
     return next_id
 
