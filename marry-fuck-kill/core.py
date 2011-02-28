@@ -65,7 +65,7 @@ def MakeEntity(name, query, user_ip, original_url):
   """
   # This must be synchronized with the number of pages the creation
   # interface shows. Raising it incurs a large performance penalty.
-  check_pages = 3
+  check_pages = 2
 
   images = GetImagesForQuery(query, check_pages, user_ip)
   images_by_url = dict([(image['unescapedUrl'], image) for image in images])
@@ -193,6 +193,7 @@ def GetImagesForQuery(query, check_pages, userip):
     url = ('https://ajax.googleapis.com/ajax/services/search/images'
            '?v=1.0'
            '&safe=moderate'
+           '&rsz=8'
            '&userip=%(ip)s'
            '&q=%(q)s'
            '&start=%(start)s'
