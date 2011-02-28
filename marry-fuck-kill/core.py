@@ -32,29 +32,56 @@ SEARCH_REFERER = 'http://marry-fuck-kill.appspot.com'
 class EntityValidationError(Exception): pass
 
 
-def GetStatsUrlForEntity(entity, w=160, h=85):
-  """Returns the URL to a chart of MFK stats for the given entity.
+def GetStatsUrlsForTriple(triple, w=160, h=85):
+  """Returns a list of stats URLs for the given triple.
 
   Args:
+    triple: (Triple) triple to examine
+    w: (int) Optional. Width of each chart image.
+    h: (int) Optional. Height of each chart image.
+
+  Returns:
+    [str, str, str]: URLs for the Triple's three Entities.
+  """
+  counts = [GetEntityVoteCounts(triple.one),
+            GetEntityVoteCounts(triple.two),
+            GetEntityVoteCounts(triple.three)]
+
+  urls = []
+  overall_max = max([max(c) for c in counts])
+  for count in counts:
+    urls.append('http://chart.apis.google.com/chart'
+                '?chxr=0,0,%(max)d'
+                '&chxt=y'
+                '&chbh=a'
+                '&chs=%(w)dx%(h)d'
+                '&cht=bvg'
+                '&chco=9911BB,C76FDD,63067A'
+                '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
+                '&chd=t:%(m)d|%(f)d|%(k)d'
+                '&chdl=Marry|Fuck|Kill'
+                '&chdlp=r' % (dict(m=count[0], f=count[1], k=count[2],
+                              max=overall_max,
+                              w=w,
+                              h=h)))
+  return urls
+
+
+def GetEntityVoteCounts(entity):
+  """Returns the marry, fuck, and kill vote counts for an entity.
+
+  Args:
+    entity: (Entity) the entity to examine
     w: (int) image width
     h: (int) image height
+
+  Returns:
+    [int, int, int]: marry, fuck, and kill vote counts
   """
   m = entity.assignment_reference_marry_set.count()
   f = entity.assignment_reference_fuck_set.count()
   k = entity.assignment_reference_kill_set.count()
-
-  url = ('http://chart.apis.google.com/chart'
-         '?chxr=0,0,%(max)d'
-         '&chxt=y'
-         '&chbh=a'
-         '&chs=%(w)dx%(h)d'
-         '&cht=bvg'
-         '&chco=9911BB,C76FDD,63067A'
-         '&chds=0,%(max)d,0,%(max)d,0,%(max)d'
-         '&chd=t:%(m)d|%(f)d|%(k)d'
-         '&chdl=Marry|Fuck|Kill'
-         '&chdlp=r' % (dict(m=m, f=f, k=k, max=max([m,f,k]), w=w, h=h)))
-  return url
+  return [m, f, k]
 
 
 def MakeEntity(name, query, user_ip, original_url):

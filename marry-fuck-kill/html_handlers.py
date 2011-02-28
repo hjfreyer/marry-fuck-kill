@@ -95,7 +95,7 @@ def RenderVotePage(handler, triple_id):
     prev_triple = models.Triple.get_by_id(int(prev_id))
     prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
     prev_names = [e.name for e in prev_entities]
-    prev_urls = [core.GetStatsUrlForEntity(e) for e in prev_entities]
+    prev_urls = core.GetStatsUrlsForTriple(prev_triple)
   else:
     prev_names = ['', '', '']
     prev_urls = ['', '', '']
@@ -194,13 +194,14 @@ class MyMfksHandler(RequestHandler):
 
     items = []
     for t in triples:
+      stats = core.GetStatsUrlsForTriple(t)
       item = ezt_util.EztItem(key=str(t.key().id()),
                               one=t.one,
                               two=t.two,
                               three=t.three,
-                              one_stats=core.GetStatsUrlForEntity(t.one),
-                              two_stats=core.GetStatsUrlForEntity(t.two),
-                              three_stats=core.GetStatsUrlForEntity(t.three))
+                              one_stats=stats[0],
+                              two_stats=stats[1],
+                              three_stats=stats[2])
       items.append(item)
 
     template_values.update(GetUserData('/mymfks'))
