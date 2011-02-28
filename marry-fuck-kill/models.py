@@ -18,7 +18,6 @@
 import logging
 import random
 import urllib2
-from django.utils import simplejson
 
 from google.appengine.api import users
 from google.appengine.ext import db
@@ -42,9 +41,6 @@ class Entity(db.Model):
 
   def __repr__(self):
     return 'Entity(%r)' % self.name
-
-  def json(self):
-    return {'name': self.name, 'url': self.get_full_url()}
 
 
 class Triple(db.Model):
@@ -182,12 +178,6 @@ class Triple(db.Model):
 
   def __repr__(self):
     return "Triple(one=%r, two=%r, three=%r)" % (self.one, self.two, self.three)
-
-  def json(self):
-    return {'one': self.one.json(),
-        'two': self.two.json(),
-        'three': self.three.json(),
-        'key': str(self.key())}
 
   @staticmethod
   def name_from_entities(one, two, three):
