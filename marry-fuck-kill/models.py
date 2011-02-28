@@ -126,8 +126,6 @@ class Triple(db.Model):
     if next_id is None:
       next_id = Triple._get_random_id()
 
-    # TODO(mjkelly): Try to find a lightweight wrapper for cookie-setting
-    # instead of manually constructing them.
     if next_id is not None:
       response.headers.add_header('Set-Cookie', '%s=%d; Max-Age=%d' % (
           Triple.CONTEXT_COOKIE_NAME, next_id,
