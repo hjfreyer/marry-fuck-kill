@@ -21,7 +21,6 @@ import html_handlers
 import models
 
 def main():
-  # TODO(mjkelly): Clean up these handlers.
   application = webapp.WSGIApplication([
       ("/", html_handlers.MainPageHandler),
       ("/about", html_handlers.AboutHandler),
