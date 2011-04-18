@@ -33,7 +33,7 @@ def RandomizeMapper(triple):
 
   We run this periodically with a cronjob to mix up our sort order.
   """
-  if triple.is_enabled():
+  if triple.enabled:
     triple.rand = random.random()
     logging.debug('generate_rand: id=%s rand=%.15f',
                   triple.key().id(), triple.rand)
