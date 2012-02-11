@@ -150,7 +150,8 @@ class Triple(db.Model):
       logging.info('_get_greater_rand: rand > %s', rand)
       query = db.Query(Triple, keys_only=True).filter(
           'rand >', rand).order('rand').order('__key__')
-    if not query.count():
+    result = query.get()
+    if result is None:
       if not _or_equal:
         # If we were using a rand value > 0, we probably hit the end of the
         # list naturally. We want to wrap around to the lowest triple, so we
@@ -160,9 +161,10 @@ class Triple(db.Model):
         # If we returned no results and yet were using a rand value < 0, the
         # database is empty or contains only invalid rand values. Give up. This
         # is the base case for the recursion above.
+        logging.error('_get_greater_rand: Found no Triples! Giving up.')
         return None
     else:
-      return query.get().id()
+      return result.id()
 
   @staticmethod
   def _get_random_id():
