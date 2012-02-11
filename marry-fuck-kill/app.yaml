@@ -1,5 +1,5 @@
 application: marry-fuck-kill
-version: 1
+version: staging
 runtime: python
 api_version: 1
 
@@ -23,9 +23,17 @@ handlers:
   script: mapreduce/main.py
   login: admin
 
+- url: /stats.*
+  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
+  login: admin
+
 - url: /.*
   script: main.py
 
+error_handlers:
+- error_code: over_quota
+  file: static/over_quota.html
+
+
 builtins:
-- datastore_admin: on
 - remote_api: on
