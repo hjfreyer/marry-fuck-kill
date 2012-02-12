@@ -33,7 +33,7 @@ handlers:
 
 error_handlers:
 - error_code: over_quota
-  file: static/over_quota.html
+  file: over_quota.html
 
 
 builtins:
