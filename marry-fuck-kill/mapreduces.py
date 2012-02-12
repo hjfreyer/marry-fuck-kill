@@ -18,7 +18,11 @@
 import random
 import logging
 
+import core
+import models
 from mapreduce import operation as op
+
+from google.appengine.ext import db
 
 def RecreateMapper(entity):
   """This sets all the default values on an entity's fields.
@@ -60,3 +64,42 @@ def SetAssignmentTriple(assignment):
   assignment.triple = triple
 
   yield op.db.Put(assignment)
+
+
+def CalculateVoteCounts(triple):
+  """Calculates vote counts and puts them directly in Triples.
+
+  We used to always calculate them on the fly from Assignment counts, which is
+  expensive.
+  """
+  votes = []
+  for entity in [triple.one, triple.two, triple.three]:
+    votes.append([entity.assignment_reference_marry_set.count(),
+                  entity.assignment_reference_fuck_set.count(),
+                  entity.assignment_reference_kill_set.count()])
+  assert(len(votes) == 3)
+  assert(len(votes[0]) == 3)
+  assert(len(votes[1]) == 3)
+  assert(len(votes[2]) == 3)
+  logging.info('Calculated vote counts for Triple %s (%s) = %s', triple, triple.key(), votes)
+
+  # This is the race -- someone else could have voted in the meantime.
+
+  db.run_in_transaction(core._UpdateTripleVoteCounts, triple.key(), votes)
+
+def ClearVoteCounts(triple):
+  """Clears all calculated vote counts. For debugging."""
+  logging.info('Clearing vote counts for Triple %s (%s)', triple, triple.key())
+
+  def _ClearVotes(triple_key):
+    triple = models.Triple.get(triple_key)
+
+    (triple.votes_one_m, triple.votes_one_f, triple.votes_one_k,
+        triple.votes_two_m, triple.votes_two_f, triple.votes_two_k,
+        triple.votes_three_m, triple.votes_three_f, triple.votes_three_k) =  (
+            None, None, None, None, None, None, None, None, None)
+    triple.has_cached_votes = False
+
+    triple.put()
+
+  db.run_in_transaction(_ClearVotes, triple.key())

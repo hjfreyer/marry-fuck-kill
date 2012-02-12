@@ -18,3 +18,17 @@ mapreduce:
     handler: mapreduces.SetAssignmentTriple
     params:
     - name: entity_kind
+- name: CalculateVoteCounts
+  mapper:
+    input_reader: mapreduce.input_readers.DatastoreInputReader
+    handler: mapreduces.CalculateVoteCounts
+    params:
+    - name: entity_kind
+      default: models.Triple
+- name: ClearVoteCounts
+  mapper:
+    input_reader: mapreduce.input_readers.DatastoreInputReader
+    handler: mapreduces.ClearVoteCounts
+    params:
+    - name: entity_kind
+      default: models.Triple

@@ -62,6 +62,18 @@ class Triple(db.Model):
   three = db.ReferenceProperty(Entity,
       collection_name="triple_reference_three_set")
 
+  # De-normalized vote counts to save on expensive count()s.
+  has_cached_votes = db.BooleanProperty(default=False)
+  votes_one_m = db.IntegerProperty(default=None)
+  votes_one_f = db.IntegerProperty(default=None)
+  votes_one_k = db.IntegerProperty(default=None)
+  votes_two_m = db.IntegerProperty(default=None)
+  votes_two_f = db.IntegerProperty(default=None)
+  votes_two_k = db.IntegerProperty(default=None)
+  votes_three_m = db.IntegerProperty(default=None)
+  votes_three_f = db.IntegerProperty(default=None)
+  votes_three_k = db.IntegerProperty(default=None)
+
   reviewed = db.BooleanProperty(default=False)
 
   CONTEXT_COOKIE_NAME = 'mfkcontext'

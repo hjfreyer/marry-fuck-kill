@@ -28,6 +28,8 @@ import models
 GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
 SEARCH_REFERER = 'http://marry-fuck-kill.appspot.com'
 
+# Whether to display the new vote counts (cached in Triples).
+USE_CACHED_VOTE_COUNTS = True
 
 class EntityValidationError(Exception): pass
 
@@ -43,9 +45,7 @@ def GetStatsUrlsForTriple(triple, w=160, h=85):
   Returns:
     [str, str, str]: URLs for the Triple's three Entities.
   """
-  counts = [GetEntityVoteCounts(triple.one),
-            GetEntityVoteCounts(triple.two),
-            GetEntityVoteCounts(triple.three)]
+  counts = GetTripleVoteCounts(triple)
 
   urls = []
   overall_max = max([max(c) for c in counts])
@@ -66,22 +66,89 @@ def GetStatsUrlsForTriple(triple, w=160, h=85):
                               h=h)))
   return urls
 
-
-def GetEntityVoteCounts(entity):
-  """Returns the marry, fuck, and kill vote counts for an entity.
-
-  Args:
-    entity: (Entity) the entity to examine
-    w: (int) image width
-    h: (int) image height
+def GetTripleVoteCounts(triple):
+  """Calculates vote count for the given triple.
 
   Returns:
-    [int, int, int]: marry, fuck, and kill vote counts
+    ([[int]]) Vote counts. This is a nested list (first level is votes for
+        entity one, two, three; second level is votes for m, f, k).
   """
-  m = entity.assignment_reference_marry_set.count()
-  f = entity.assignment_reference_fuck_set.count()
-  k = entity.assignment_reference_kill_set.count()
-  return [m, f, k]
+  def _CalculateEntityVoteCounts(entity):
+    m = entity.assignment_reference_marry_set.count()
+    f = entity.assignment_reference_fuck_set.count()
+    k = entity.assignment_reference_kill_set.count()
+    return [m, f, k]
+
+  # For backwards compatibility with Triples that don't have embedded vote
+  # counts.
+  if not USE_CACHED_VOTE_COUNTS or not triple.has_cached_votes:
+    logging.info('Updating legacy Triple without vote counts: %s',
+                 triple.key())
+    votes = [_CalculateEntityVoteCounts(triple.one),
+             _CalculateEntityVoteCounts(triple.two),
+             _CalculateEntityVoteCounts(triple.three)]
+    # Race condition here: We're done calculating the votes, and we're about to
+    # update the Entity. We might be off by one if someone else votes while
+    # we're here. We have MapReduces to fix this up, so we don't care too much.
+    db.run_in_transaction(_UpdateTripleVoteCounts, triple.key(), votes)
+    return votes
+  else:
+    logging.info('Got cached votes for Triple %s', triple.key())
+    return [[triple.votes_one_m, triple.votes_one_f, triple.votes_one_k],
+            [triple.votes_two_m, triple.votes_two_f, triple.votes_two_k],
+            [triple.votes_three_m, triple.votes_three_f, triple.votes_three_k]]
+
+
+def _AddTripleVoteCounts(triple_key, votes):
+  """Adds votes to a triple's vote count.
+
+  This should be run in a transaction.
+
+  Args:
+    triple_key: (db.Key) the triple to update
+    votes: ([str]) a 3-list of 'm', 'f', and 'k', corresponding to the votes
+        for the 3 items in the triple, in order.
+  """
+  triple = models.Triple.get(triple_key)
+  if triple.has_cached_votes:
+    triple.votes_one_m += 1 if votes[0] == 'm' else 0
+    triple.votes_one_f += 1 if votes[0] == 'f' else 0
+    triple.votes_one_k += 1 if votes[0] == 'k' else 0
+    triple.votes_two_m += 1 if votes[1] == 'm' else 0
+    triple.votes_two_f += 1 if votes[1] == 'f' else 0
+    triple.votes_two_k += 1 if votes[1] == 'k' else 0
+    triple.votes_three_m += 1 if votes[2] == 'm' else 0
+    triple.votes_three_f += 1 if votes[2] == 'f' else 0
+    triple.votes_three_k += 1 if votes[2] == 'k' else 0
+    triple.put()
+  else:
+    logging.warning('_AddTripleVoteCounts: Legacy Triple without vote counts:'
+                    '%s', triple_key)
+
+
+def _UpdateTripleVoteCounts(triple_key, new_counts):
+  """Updates vote counts on the given triple.
+
+  Args:
+    triple: (Triple) triple to update
+    new_counts: ([[int]]) These values are the new values for votes_one_m, ...,
+        votes_three_k. See core.GetTripleVoteCounts.
+  """
+  triple = models.Triple.get(triple_key)
+
+  assert(len(new_counts) == 3)
+  votes_one, votes_two, votes_three = new_counts
+  assert(len(votes_one) == 3)
+  assert(len(votes_two) == 3)
+  assert(len(votes_three) == 3)
+
+  triple.votes_one_m, triple.votes_one_f, triple.votes_one_k = votes_one
+  triple.votes_two_m, triple.votes_two_f, triple.votes_two_k = votes_two
+  triple.votes_three_m, triple.votes_three_f, triple.votes_three_k = (
+      votes_three)
+  triple.has_cached_votes = True
+
+  triple.put()
 
 
 def MakeEntity(name, query, user_ip, original_url):
@@ -184,6 +251,8 @@ def MakeAssignment(triple_id, v1, v2, v3, user, user_ip):
   if triple is None:
     logging.error('make_assignment: No triple with key %s', triple_id)
     return None
+
+  db.run_in_transaction(_AddTripleVoteCounts, triple.key(), values)
 
   # We get an entity->action map from the client, but we need to reverse
   # it to action->entity to update the DB.
