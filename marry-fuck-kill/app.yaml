@@ -23,9 +23,10 @@ handlers:
   script: mapreduce/main.py
   login: admin
 
-- url: /stats.*
-  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
-  login: admin
+# Uncomment this to view stats. Also uncomment config in appengine_config.py.
+#- url: /stats.*
+#  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
+#  login: admin
 
 - url: /.*
   script: main.py
