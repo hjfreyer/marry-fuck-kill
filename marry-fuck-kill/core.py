@@ -225,7 +225,17 @@ def MakeTriple(entities, creator, creator_ip):
   triple = models.Triple(one=one, two=two, three=three,
                          creator=creator,
                          creatorip=creator_ip,
-                         rand=random.random())
+                         rand=random.random(),
+                         has_cached_votes=True,
+                         votes_one_m=0,
+                         votes_one_f=0,
+                         votes_one_k=0,
+                         votes_two_m=0,
+                         votes_two_f=0,
+                         votes_two_k=0,
+                         votes_three_m=0,
+                         votes_three_f=0,
+                         votes_three_k=0)
   triple.put()
   return triple
 
