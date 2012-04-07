@@ -1,0 +1,21 @@
+{{define "tripleList"}}
+<html>
+  <body>
+    {{range .}}
+    <div style="margin-bottom: 20px">
+      {{template "triple" .}}
+    </div>
+    {{end}}
+  </body>
+</html>
+{{end}}
+
+{{define "triple"}}
+{{template "entity" .A}}
+{{template "entity" .B}}
+{{template "entity" .C}}
+{{end}}
+
+{{define "entity"}}
+<div>{{.Name}}: {{.MarryCount}} {{.FuckCount}} {{.KillCount}}</div>
+{{end}}

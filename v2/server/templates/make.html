@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  {{template "header" "Make Your Own"}}
+  <body>
+    <form action="/make.do" method="post">
+      <textarea name="data"></textarea>
+      <!-- <input name="name_b"> -->
+      <!-- <input name="name_c"> -->
+      <button>Submit</button>
+    </form>
+
+    <div id="page">
+      <table class="tripletable">
+        <tr class="title-row">
+          <td><div id="name_1"></div></td>
+          <td><div id="name_2"></div></td>
+          <td><div id="name_3"></div></td>
+        </tr>
+        <tr class="image-row">
+          <td>
+            <div id="image_1"></div>
+          </td>
+          <td>
+            <div id="image_2"></div>
+          </td>
+          <td>
+            <div id="image_3"></div>
+          </td>
+        </tr>
+        <tr class="edit-row">
+          <td>
+            <div id="edit_1"></div>
+          </td>
+          <td>
+            <div id="edit_2"></div>
+          </td>
+          <td>
+            <div id="edit_3"></div>
+          </td>
+        </tr>
+      </table>
+      <div class="actionbar" id="createButton"></div>
+      <div id="outputForm"></div>
+      <div class="topText">
+        Make your own MFK by picking three things with the "Edit"
+        buttons above. Other users will vote on which to marry, fuck,
+        or kill.
+
+      </div>
+      <!-- nav.html -->
+      <div class="nav">
+
+        <span class="nav-inactive"><a href="/">Vote</a></span> |
+
+
+        <span class="nav-active">Make Your Own</span> |
+
+
+        <span class="nav-inactive"><a href="/about">What is MFK?</a></span> |
+
+
+
+        <span class="nav-inactive">
+          <a href="/mymfks">My MFKs</a>
+          (<a href="http://www.marryboffkill.net/_ah/logout?continue=https://www.google.com/accounts/Logout%3Fcontinue%3Dhttps://appengine.google.com/_ah/logout%253Fcontinue%253Dhttp://www.marryboffkill.net/make%26service%3Dah">Log out</a>)
+        </span>
+
+
+      </div>
+      <!-- end nav.html -->
+
+    </div>
+  </body>
+</html>
