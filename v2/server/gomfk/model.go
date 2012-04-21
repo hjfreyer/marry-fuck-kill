@@ -7,26 +7,29 @@ import (
 
 type VoteCount []int32
 
+type EntityImage struct {
+	SourceUrl string
+	ContentType string
+	Data []byte
+}
+
 type Triple struct {
 	NameA           string
-	ImageIdA        string
-	ImageSourceUrlA string
+	ImageIdA        int64
 	VotesA          VoteCount
 
 	NameB           string
-	ImageIdB        string
-	ImageSourceUrlB string
+	ImageIdB        int64
 	VotesB          VoteCount
 
 	NameC           string
-	ImageIdC        string
-	ImageSourceUrlC string
+	ImageIdC        int64
 	VotesC          VoteCount
 
 	Creator      UserId
 	CreationTime time.Time
-	Ordering     int32
 
+	Ordering     int32
 	Disabled bool
 }
 
@@ -40,10 +43,21 @@ func (t *Triple) Init(r *rand.Rand) {
 	t.CreationTime = time.Now()
 }
 
+func (t *Triple) AddVote(v Vote) {
+	t.VotesA[v.Vote[0]]++
+	t.VotesB[v.Vote[1]]++
+	t.VotesC[v.Vote[2]]++
+}
+
+func (t *Triple) SubtractVote(v Vote) {
+	t.VotesA[v.Vote[0]]--
+	t.VotesB[v.Vote[1]]--
+	t.VotesC[v.Vote[2]]--
+}
+
 type Entity struct {
 	Name           string
-	ImageId        string
-	ImageSourceUrl string
+	ImageId        int64
 
 	MarryCount int32
 	FuckCount  int32
@@ -53,7 +67,6 @@ type Entity struct {
 func (t *Triple) A() (e Entity) {
 	e.Name = t.NameA
 	e.ImageId = t.ImageIdA
-	e.ImageSourceUrl = t.ImageSourceUrlA
 	e.MarryCount = t.VotesA[0]
 	e.FuckCount = t.VotesA[1]
 	e.KillCount = t.VotesA[2]
@@ -63,7 +76,6 @@ func (t *Triple) A() (e Entity) {
 func (t *Triple) B() (e Entity) {
 	e.Name = t.NameB
 	e.ImageId = t.ImageIdB
-	e.ImageSourceUrl = t.ImageSourceUrlB
 	e.MarryCount = t.VotesB[0]
 	e.FuckCount = t.VotesB[1]
 	e.KillCount = t.VotesB[2]
@@ -73,7 +85,6 @@ func (t *Triple) B() (e Entity) {
 func (t *Triple) C() (e Entity) {
 	e.Name = t.NameC
 	e.ImageId = t.ImageIdC
-	e.ImageSourceUrl = t.ImageSourceUrlC
 	e.MarryCount = t.VotesC[0]
 	e.FuckCount = t.VotesC[1]
 	e.KillCount = t.VotesC[2]
@@ -81,11 +92,23 @@ func (t *Triple) C() (e Entity) {
 }
 
 const (
-	MARRY = 1
-	FUCK  = 2
-	KILL  = 3
+	MARRY = 0
+	FUCK  = 1
+	KILL  = 2
 )
 
 type Vote struct {
 	Vote []int
+}
+
+func VoteFromChar(v byte) int {
+	switch v {
+	case 'm':
+		return MARRY
+	case 'f':
+		return FUCK
+	case 'k':
+		return KILL
+	}
+	panic("Invalid vote string")
 }
