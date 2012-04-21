@@ -27,14 +27,6 @@ var ApiHandler = json_api.NewApiHandler(map[string]json_api.ApiMethod{
 	"make" : json_api.JsonMethod(MakeMethod{}),
 })
 
-type imageMessage struct {
-	Url string `json:"url"`
-	ContentType string `json:"contentType"`
-	SourceUrl string `json:"sourceUrl"`
-	Salt int64 `json:"salt"`
-	Hash int64 `json:"hash"`
-}
-
 type makeRequest struct {
 	A makeRequest_Entity
 	B makeRequest_Entity
@@ -43,7 +35,7 @@ type makeRequest struct {
 
 type makeRequest_Entity struct {
 	Name string
-	Image imageMessage
+	Image ImageMessage
 }
 
 type makeResponse struct {
@@ -55,34 +47,40 @@ type MakeMethod struct{}
 func (m MakeMethod) NewRequest() interface{} { return &makeRequest{} }
 func (m MakeMethod) NewResponse() interface{} { return &makeResponse{} }
 func (m MakeMethod) Call(httpRequest *http.Request,
-	iRequest, iResponse interface{}) (e json_api.ApiError) {
+	iRequest, iResponse interface{}) *json_api.ApiError {
 	cxt := appengine.NewContext(httpRequest)
 	request, response := iRequest.(*makeRequest), iResponse.(*makeResponse)
 
 	if request.A.Name == "" || request.B.Name == "" || request.C.Name == "" {
-		e = json_api.Error(400, "Field missing")
-		return
+		return json_api.Error(400, "Field missing")
 	}
 
 	triple := Triple{}
 	triple.Init(NewRandom())
 
 	triple.NameA = request.A.Name
+	var err error
+	triple.ImageIdA, err = StoreImage(request.A.Image)
+	if err != nil { return json_api.Error500(err) }
+
 	triple.NameB = request.B.Name
+	triple.ImageIdA, err = StoreImage(request.A.Image)
+	if err != nil { return json_api.Error500(err) }
+
 	triple.NameC = request.C.Name
+	triple.ImageIdA, err = StoreImage(request.A.Image)
+	if err != nil { return json_api.Error500(err) }
 
 	triple.Creator = UserIdFromContext(httpRequest)
 
 	key := datastore.NewIncompleteKey(cxt, "Triple", nil)
-	key, err := datastore.Put(cxt, key, &triple)
-	if err != nil {
-		e = json_api.Error(500, err.Error())
-		return
-	}
+	key, err = datastore.Put(cxt, key, &triple)
+	if err != nil { return json_api.Error500(err) }
 
 	response.Id = key.IntID()
-	return
+	return nil
 }
+
 
 type voteRequest struct {
 	Triple_ID int64

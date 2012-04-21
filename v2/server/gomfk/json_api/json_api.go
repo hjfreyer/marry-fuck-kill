@@ -18,8 +18,12 @@ type ApiError struct {
 	message string
 }
 
-func Error(errorCode int, msg string) ApiError {
-	return ApiError{errorCode, msg}
+func Error(errorCode int, msg string) *ApiError {
+	return &ApiError{errorCode, msg}
+}
+
+func Error500(err error) *ApiError {
+	return &ApiError{500, err.Error()}
 }
 
 type ApiMethod interface {
@@ -27,7 +31,7 @@ type ApiMethod interface {
 }
 
 type JsonApiMethod interface {
-	Call(httpRequest *http.Request, request, response interface{}) ApiError
+	Call(httpRequest *http.Request, request, response interface{}) *ApiError
 	NewRequest() interface{}
 	NewResponse() interface{}
 }
@@ -50,7 +54,7 @@ func (j jsonAdapter) Call(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := j.m.Call(r, requestMsg, responseMsg); err.errorCode != 0 {
+	if err := j.m.Call(r, requestMsg, responseMsg); err != nil {
 		cxt.Errorf("Error %d while calling JSON method: %s",
 			err.errorCode, err.message)
 		http.Error(w, err.message, err.errorCode)
