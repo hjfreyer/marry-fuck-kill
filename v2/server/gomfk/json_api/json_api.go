@@ -1,7 +1,6 @@
 package json_api
 
 import (
-_	"strings"
 	"appengine"
 	_ "appengine/datastore"
 	_ "appengine/user"
@@ -9,13 +8,14 @@ _	"strings"
 	"fmt"
 	"net/http"
 	_ "net/url"
+	_ "strings"
 )
 
 const RETRY_COUNT = 3
 
 type ApiError struct {
 	errorCode int
-	message string
+	message   string
 }
 
 func Error(errorCode int, msg string) *ApiError {
@@ -62,7 +62,9 @@ func (j jsonAdapter) Call(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response, err := json.Marshal(responseMsg)
-	if err != nil { panic(err) }
+	if err != nil {
+		panic(err)
+	}
 
 	w.Write(response)
 }
@@ -83,7 +85,6 @@ func NewApiHandler(methods map[string]ApiMethod) func(http.ResponseWriter,
 			http.Error(w, fmt.Sprintf("Must specify the 'method' parameter"), 400)
 			return
 		}
-
 
 		method, ok := methods[methodName]
 		if !ok {

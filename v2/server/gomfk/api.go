@@ -1,22 +1,22 @@
 package gomfk
 
 import (
-_	"strings"
 	"appengine"
 	"appengine/datastore"
 	_ "appengine/user"
 	"encoding/json"
-_	"fmt"
+	_ "fmt"
+	"gomfk/json_api"
 	"net/http"
 	_ "net/url"
-	"gomfk/json_api"
+	_ "strings"
 )
 
 const RETRY_COUNT = 3
 
 type apiError struct {
 	errorCode int
-	errorStr string
+	errorStr  string
 }
 
 func (a *apiError) Error() string {
@@ -24,7 +24,7 @@ func (a *apiError) Error() string {
 }
 
 var ApiHandler = json_api.NewApiHandler(map[string]json_api.ApiMethod{
-	"make" : json_api.JsonMethod(MakeMethod{}),
+	"make": json_api.JsonMethod(MakeMethod{}),
 })
 
 type makeRequest struct {
@@ -34,7 +34,7 @@ type makeRequest struct {
 }
 
 type makeRequest_Entity struct {
-	Name string
+	Name  string
 	Image ImageMessage
 }
 
@@ -44,7 +44,7 @@ type makeResponse struct {
 
 type MakeMethod struct{}
 
-func (m MakeMethod) NewRequest() interface{} { return &makeRequest{} }
+func (m MakeMethod) NewRequest() interface{}  { return &makeRequest{} }
 func (m MakeMethod) NewResponse() interface{} { return &makeResponse{} }
 func (m MakeMethod) Call(httpRequest *http.Request,
 	iRequest, iResponse interface{}) *json_api.ApiError {
@@ -61,29 +61,36 @@ func (m MakeMethod) Call(httpRequest *http.Request,
 	triple.NameA = request.A.Name
 	var err error
 	triple.ImageIdA, err = StoreImage(request.A.Image)
-	if err != nil { return json_api.Error500(err) }
+	if err != nil {
+		return json_api.Error500(err)
+	}
 
 	triple.NameB = request.B.Name
 	triple.ImageIdA, err = StoreImage(request.A.Image)
-	if err != nil { return json_api.Error500(err) }
+	if err != nil {
+		return json_api.Error500(err)
+	}
 
 	triple.NameC = request.C.Name
 	triple.ImageIdA, err = StoreImage(request.A.Image)
-	if err != nil { return json_api.Error500(err) }
+	if err != nil {
+		return json_api.Error500(err)
+	}
 
 	triple.Creator = UserIdFromContext(httpRequest)
 
 	key := datastore.NewIncompleteKey(cxt, "Triple", nil)
 	key, err = datastore.Put(cxt, key, &triple)
-	if err != nil { return json_api.Error500(err) }
+	if err != nil {
+		return json_api.Error500(err)
+	}
 
 	response.Id = key.IntID()
 	return nil
 }
 
-
 type voteRequest struct {
-	Triple_ID int64
+	Triple_ID              int64
 	Vote_A, Vote_B, Vote_C string
 }
 
@@ -123,7 +130,6 @@ func VoteApiHandler(w http.ResponseWriter, r *http.Request) {
 
 	tripleKey := datastore.NewKey(cxt, "Triple", "", req.Triple_ID, nil)
 	voteKey := datastore.NewKey(cxt, "Vote", string(user), 0, tripleKey)
-
 
 	for tryTime := 0; tryTime < RETRY_COUNT; tryTime++ {
 		triple := new(Triple)

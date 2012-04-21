@@ -1,16 +1,16 @@
 package gomfk
 
 import (
-	"html/template"
 	"appengine"
 	"appengine/datastore"
+	_ "appengine/urlfetch"
 	_ "appengine/user"
-	_"encoding/json"
-	_"fmt"
+	_ "encoding/json"
+	_ "fmt"
+	"html/template"
+	_ "io/ioutil"
 	"net/http"
 	_ "net/url"
-	_"io/ioutil"
-  _"appengine/urlfetch"
 )
 
 func Templates() *template.Template {
@@ -53,21 +53,20 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 	// fetcher := urlfetch.Client(cxt)
 
-  // response, err := fetcher.Get("https://www.googleapis.com/customsearch/v1?q=fox&cx=017343173679326196998%3Aomutomvh_wi&safe=medium&searchType=image&fields=items(image(thumbnailHeight%2CthumbnailLink%2CthumbnailWidth))&pp=1&key=AIzaSyDbjy0CKTMV5DoJR07ZYF5w-KL7Ey5lyGY")
+	// response, err := fetcher.Get("https://www.googleapis.com/customsearch/v1?q=fox&cx=017343173679326196998%3Aomutomvh_wi&safe=medium&searchType=image&fields=items(image(thumbnailHeight%2CthumbnailLink%2CthumbnailWidth))&pp=1&key=AIzaSyDbjy0CKTMV5DoJR07ZYF5w-KL7Ey5lyGY")
 
 	// if err != nil {
-  //   cxt.Infof("%s", err)
+	//   cxt.Infof("%s", err)
 	// 	return
 	// } else {
-  //   defer response.Body.Close()
-  //   contents, err := ioutil.ReadAll(response.Body)
-  //   if err != nil {
-  //     cxt.Infof("%s", err)
+	//   defer response.Body.Close()
+	//   contents, err := ioutil.ReadAll(response.Body)
+	//   if err != nil {
+	//     cxt.Infof("%s", err)
 	// 		return
-  //   }
-  //   cxt.Infof("%s\n", string(contents))
-  // }
-
+	//   }
+	//   cxt.Infof("%s\n", string(contents))
+	// }
 
 	user := UserIdFromContext(r)
 	cxt.Infof("User: %v", user)

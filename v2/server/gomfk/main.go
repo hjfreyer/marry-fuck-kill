@@ -1,8 +1,8 @@
 package gomfk
 
 import (
-	_"appengine"
-	_"appengine/datastore"
+	_ "appengine"
+	_ "appengine/datastore"
 	_ "appengine/user"
 	cryptorand "crypto/rand"
 	"encoding/binary"

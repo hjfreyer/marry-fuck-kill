@@ -8,28 +8,28 @@ import (
 type VoteCount []int32
 
 type EntityImage struct {
-	SourceUrl string
+	SourceUrl   string
 	ContentType string
-	Data []byte
+	Data        []byte
 }
 
 type Triple struct {
-	NameA           string
-	ImageIdA        int64
-	VotesA          VoteCount
+	NameA    string
+	ImageIdA int64
+	VotesA   VoteCount
 
-	NameB           string
-	ImageIdB        int64
-	VotesB          VoteCount
+	NameB    string
+	ImageIdB int64
+	VotesB   VoteCount
 
-	NameC           string
-	ImageIdC        int64
-	VotesC          VoteCount
+	NameC    string
+	ImageIdC int64
+	VotesC   VoteCount
 
 	Creator      UserId
 	CreationTime time.Time
 
-	Ordering     int32
+	Ordering int32
 	Disabled bool
 }
 
@@ -56,8 +56,8 @@ func (t *Triple) SubtractVote(v Vote) {
 }
 
 type Entity struct {
-	Name           string
-	ImageId        int64
+	Name    string
+	ImageId int64
 
 	MarryCount int32
 	FuckCount  int32
