@@ -28,5 +28,6 @@ func init() {
 	http.HandleFunc("/api/v1", ApiHandler)
 	http.HandleFunc("/vote", VoteHandler)
 	http.HandleFunc("/vote.do", VoteApiHandler)
+	http.HandleFunc("/i/", ImageHandler)
 	http.HandleFunc("/", ListHandler)
 }

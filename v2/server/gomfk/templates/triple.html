@@ -1,5 +1,8 @@
 {{define "tripleList"}}
 <html>
+  <head>
+    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+  </head>
   <body>
     {{range .}}
     <div style="margin-bottom: 20px">
@@ -11,11 +14,30 @@
 {{end}}
 
 {{define "triple"}}
-{{template "entity" .A}}
-{{template "entity" .B}}
-{{template "entity" .C}}
+<div class="triple">
+  <div class="entity a">
+    {{template "entity" .A}}
+  </div>
+  <div class="entity b">
+    {{template "entity" .B}}
+  </div>
+  <div class="entity c">
+    {{template "entity" .C}}
+  </div>
+</div>
 {{end}}
 
 {{define "entity"}}
-<div>{{.Name}}: {{.MarryCount}} {{.FuckCount}} {{.KillCount}}</div>
+<div class="name">{{.Name}}</div>
+<div class="image">
+  <div class="centerbox">
+    <img src="/i/{{.ImageId}}">
+  </div>
+</div>
+<div class="vote-button marry">Marry</div>
+<div class="vote-button fuck">Fuck</div>
+<div class="vote-button kill">Kill</div>
+<div>
+{{.MarryCount}} {{.FuckCount}} {{.KillCount}}
+</div>
 {{end}}

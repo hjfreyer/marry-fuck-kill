@@ -1,6 +1,9 @@
 package gomfk
 
 import (
+
+"strings"
+"strconv"
 	"appengine"
 	"appengine/datastore"
 	_ "appengine/urlfetch"
@@ -42,6 +45,29 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	req.URL.RawQuery = args.Encode()
 	r, _ := http.NewRequest(req.Method, req.URL.String(), req.Body)
 	return t.RoundTripper.RoundTrip(r)
+}
+
+func ImageHandler(w http.ResponseWriter, r *http.Request) {
+	cxt := appengine.NewContext(r)
+
+	imageId, err := strconv.ParseInt(strings.Replace(r.URL.Path, "/i/", "", 1), 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	cxt.Infof("Looking up image: %d", imageId)
+
+	key := datastore.NewKey(cxt, "EntityImage", "", imageId, nil)
+
+	var image EntityImage
+	if err := datastore.Get(cxt, key, &image); err != nil {
+		// TODO(hjfreyer): standardize
+		http.Error(w, "Image not found", 404)
+		return
+	}
+
+	w.Header().Set("content-type", image.ContentType)
+	w.Write(image.Data)
 }
 
 func ListHandler(w http.ResponseWriter, r *http.Request) {

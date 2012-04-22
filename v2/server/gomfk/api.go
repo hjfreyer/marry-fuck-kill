@@ -60,19 +60,19 @@ func (m MakeMethod) Call(httpRequest *http.Request,
 
 	triple.NameA = request.A.Name
 	var err error
-	triple.ImageIdA, err = StoreImage(request.A.Image)
+	triple.ImageIdA, err = StoreImage(cxt, request.A.Image)
 	if err != nil {
 		return json_api.Error500(err)
 	}
 
 	triple.NameB = request.B.Name
-	triple.ImageIdA, err = StoreImage(request.A.Image)
+	triple.ImageIdB, err = StoreImage(cxt, request.B.Image)
 	if err != nil {
 		return json_api.Error500(err)
 	}
 
 	triple.NameC = request.C.Name
-	triple.ImageIdA, err = StoreImage(request.A.Image)
+	triple.ImageIdC, err = StoreImage(cxt, request.C.Image)
 	if err != nil {
 		return json_api.Error500(err)
 	}
