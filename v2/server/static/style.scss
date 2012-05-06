@@ -1,117 +1,150 @@
+
+$buttonMargin: 4px;
+$buttonHeight: 30px;
+
 div {
-  border: 1px solid black;
-  margin: -1px; }
+    border: 1px solid black;
+    margin: -1px;
+}
 
 .entities {
-  width: 640px;
-  height: 344px;
-  position: relative;
-  margin: auto; }
+    width: 640px;
+    height: 344px;
+    position: relative;
+    margin: auto;
+}
 
 .entity {
-  position: absolute;
-  width: 210px;
-  top: 0; }
+    position: absolute;
+    width: 210px;
+    top: 0;
+}
 
 .entity .name {
-  position: absolute;
-  width: 100%;
-  top: 0;
-  left: 0; }
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+}
 
 .entity .image {
-  margin-top: 30px;
-  height: 180px; }
+    margin-top: 30px;
+    height: 180px;
+}
 
 .entity .image .centerbox {
-  display: table-cell;
-  height: 180px;
-  width: 210px;
-  vertical-align: middle;
-  text-align: center; }
+    display: table-cell;
+    height: 180px;
+    width: 210px;
+    vertical-align: middle;
+    text-align: center;
+}
 
 .entity0 {
-  left: 0; }
+    left: 0;
+}
 
 .entity1 {
-  left: 215px; }
+    left: 215px;
+}
 
 .entity2 {
-  right: 0px; }
+    right: 0px;
+}
 
 .button-area {
-  height: 132px;
-  position: relative; }
+    height: 3 * $buttonMargin + 4 * $buttonHeight;
+    position: relative;
+}
 
 .vote-button {
-  position: absolute;
-  height: 30px;
-  width: 202px;
-  left: 4px;
-  text-align: center;
-  z-index: 1;
-  font-size: 12pt;
-  -webkit-transition: 150ms; }
+    position: absolute;
+    height: $buttonHeight;
+    width: 202px;
+    left: $buttonMargin;
+    text-align: center;
+    z-index: 1;
+    font-size: 12pt;
+
+    -webkit-transition: 150ms;
+}
 
 .chart {
-  position: absolute;
-  bottom: 4px;
-  left: 4px;
-  -webkit-transition: opacity 150ms; }
+    position: absolute;
+    bottom: $buttonMargin;
+    left: $buttonMargin;
+
+    -webkit-transition: opacity 150ms;
+}
 
 .vote-button.marry {
-  top: 17px; }
+    top: ($buttonMargin + $buttonHeight) / 2;
+}
 
 .vote-button.fuck {
-  top: 51px; }
+    top: ($buttonMargin + $buttonHeight) * 3 / 2
+}
 
 .vote-button.kill {
-  top: 85px; }
+    top: ($buttonMargin + $buttonHeight) * 5 / 2
+}
 
 .chart {
-  opacity: 0;
-  border: none;
-  margin: 0; }
+    opacity: 0;
+    border: none;
+    margin: 0;
+}
 
 .triple.voted .vote-button {
-  opacity: 0; }
+    opacity: 0;
+}
 
 .triple.voted.smarry0 .entity0 .vote-button.marry,
 .triple.voted.smarry1 .entity1 .vote-button.marry,
 .triple.voted.smarry2 .entity2 .vote-button.marry,
+
 .triple.voted.sfuck0 .entity0 .vote-button.fuck,
 .triple.voted.sfuck1 .entity1 .vote-button.fuck,
 .triple.voted.sfuck2 .entity2 .vote-button.fuck,
+
 .triple.voted.skill0 .entity0 .vote-button.kill,
 .triple.voted.skill1 .entity1 .vote-button.kill,
 .triple.voted.skill2 .entity2 .vote-button.kill {
-  top: 4px;
-  opacity: 1;
-  background: white;
-  border: 0; }
+    top: $buttonMargin;
+    opacity: 1;
+    background: white;
+    border: 0;
+}
 
 .triple.smarry0 .entity0 .vote-button.marry,
 .triple.smarry1 .entity1 .vote-button.marry,
 .triple.smarry2 .entity2 .vote-button.marry,
+
 .triple.sfuck0 .entity0 .vote-button.fuck,
 .triple.sfuck1 .entity1 .vote-button.fuck,
 .triple.sfuck2 .entity2 .vote-button.fuck,
+
 .triple.skill0 .entity0 .vote-button.kill,
 .triple.skill1 .entity1 .vote-button.kill,
 .triple.skill2 .entity2 .vote-button.kill {
-  font-weight: bold;
-  font-size: 13pt; }
+    font-weight: bold;
+    font-size: 13pt;
+}
 
 .triple.voted.smarry0 .entity0 .chart.marry,
 .triple.voted.smarry1 .entity1 .chart.marry,
 .triple.voted.smarry2 .entity2 .chart.marry,
+
 .triple.voted.sfuck0 .entity0 .chart.fuck,
 .triple.voted.sfuck1 .entity1 .chart.fuck,
 .triple.voted.sfuck2 .entity2 .chart.fuck,
+
 .triple.voted.skill0 .entity0 .chart.kill,
 .triple.voted.skill1 .entity1 .chart.kill,
 .triple.voted.skill2 .entity2 .chart.kill {
-  opacity: 1; }
+    opacity: 1;
+}
 
 .triple.voted .vote-button.unselected {
-  opacity: 0; }
+    opacity: 0;
+}

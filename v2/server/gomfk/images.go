@@ -3,7 +3,7 @@ package gomfk
 import (
 	"appengine"
 	_ "appengine"
-	"appengine/datastore"
+	_"appengine/datastore"
 	_ "appengine/datastore"
 	 "appengine/urlfetch"
 	_ "appengine/user"
@@ -30,14 +30,21 @@ type ImageMessage struct {
 	Hash        int64  `json:"hash"`
 }
 
-func StoreImage(cxt appengine.Context, image ImageMessage) (int64, error) {
+type FetchedImage struct {
+	SourceUrl   string
+	ContentType string
+	Data        []byte
+}
+
+func FetchImage(cxt appengine.Context, message ImageMessage) (
+	*FetchedImage, error) {
 	// TODO(hjfreyer): Verify image.
 	fetcher := urlfetch.Client(cxt)
 
-	cxt.Infof("Attempting to fetch url: %s", image.Url)
-	response, err := fetcher.Get(image.Url)
+	cxt.Infof("Attempting to fetch url: %s", message.Url)
+	response, err := fetcher.Get(message.Url)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	if response.StatusCode != 200 {
@@ -50,22 +57,15 @@ func StoreImage(cxt appengine.Context, image ImageMessage) (int64, error) {
 	defer response.Body.Close()
 	contents, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	// TODO(hjfreyer): Check that the data isn't too large
-	entityImage := EntityImage{
-	SourceUrl : image.SourceUrl,
+
+	return &FetchedImage{
+	SourceUrl : message.SourceUrl,
 	ContentType : contentType,
 	Data : contents,
-	}
-
-	key := datastore.NewIncompleteKey(cxt, "EntityImage", nil)
-	key, err = datastore.Put(cxt, key, &entityImage)
-	if err != nil {
-		return 0, err
-	}
-
-	// cxt.Infof("%s\n", string(contents))
-	return key.IntID(), nil
+	}, nil
 }
+

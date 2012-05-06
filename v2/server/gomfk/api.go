@@ -2,9 +2,9 @@ package gomfk
 
 import (
 	"appengine"
-	"appengine/datastore"
+	_"appengine/datastore"
 	_ "appengine/user"
-	"encoding/json"
+	_"encoding/json"
 	_ "fmt"
 	"gomfk/json_api"
 	"net/http"
@@ -25,6 +25,7 @@ func (a *apiError) Error() string {
 
 var ApiHandler = json_api.NewApiHandler(map[string]json_api.ApiMethod{
 	"make": json_api.JsonMethod(MakeMethod{}),
+	"vote": json_api.JsonMethod(VoteMethod{}),
 })
 
 type makeRequest struct {
@@ -43,7 +44,6 @@ type makeResponse struct {
 }
 
 type MakeMethod struct{}
-
 func (m MakeMethod) NewRequest() interface{}  { return &makeRequest{} }
 func (m MakeMethod) NewResponse() interface{} { return &makeResponse{} }
 func (m MakeMethod) Call(httpRequest *http.Request,
@@ -55,117 +55,74 @@ func (m MakeMethod) Call(httpRequest *http.Request,
 		return json_api.Error(400, "Field missing")
 	}
 
-	triple := Triple{}
-	triple.Init(NewRandom())
-
-	triple.NameA = request.A.Name
-	var err error
-	triple.ImageIdA, err = StoreImage(cxt, request.A.Image)
+	imageA, err := FetchImage(cxt, request.A.Image)
+	if err != nil {
+		return json_api.Error500(err)
+	}
+	imageB, err := FetchImage(cxt, request.B.Image)
+	if err != nil {
+		return json_api.Error500(err)
+	}
+	imageC, err := FetchImage(cxt, request.C.Image)
 	if err != nil {
 		return json_api.Error500(err)
 	}
 
-	triple.NameB = request.B.Name
-	triple.ImageIdB, err = StoreImage(cxt, request.B.Image)
+	triple := TripleCreation{
+	A: EntityCreation {
+		Name: request.A.Name,
+		Image: imageA,
+		},
+	B: EntityCreation {
+		Name: request.B.Name,
+		Image: imageB,
+		},
+ 	C: EntityCreation {
+		Name: request.C.Name,
+		Image: imageC,
+		},
+	Creator: UserIdFromContext(httpRequest),
+	}
+
+ 	db := NewAppengineDataAccessor(cxt)
+	tripleId, err := db.MakeTriple(triple)
 	if err != nil {
 		return json_api.Error500(err)
 	}
 
-	triple.NameC = request.C.Name
-	triple.ImageIdC, err = StoreImage(cxt, request.C.Image)
-	if err != nil {
-		return json_api.Error500(err)
-	}
-
-	triple.Creator = UserIdFromContext(httpRequest)
-
-	key := datastore.NewIncompleteKey(cxt, "Triple", nil)
-	key, err = datastore.Put(cxt, key, &triple)
-	if err != nil {
-		return json_api.Error500(err)
-	}
-
-	response.Id = key.IntID()
+	response.Id = int64(tripleId)
 	return nil
 }
 
 type voteRequest struct {
-	Triple_ID              int64
-	Vote_A, Vote_B, Vote_C string
+	TripleId              int64  `json:"triple_id"`
+	Vote string `json:"vote"`
 }
 
-func VoteApiHandler(w http.ResponseWriter, r *http.Request) {
-	cxt := appengine.NewContext(r)
+type voteResponse struct {}
 
-	var req voteRequest
-	req.Triple_ID = -1
-	if err := json.Unmarshal([]byte(r.FormValue("data")), &req); err != nil {
-		http.Error(w, err.Error(), 400)
-		return
+type VoteMethod struct{}
+func (m VoteMethod) NewRequest() interface{}  { return &voteRequest{} }
+func (m VoteMethod) NewResponse() interface{} { return &voteResponse{} }
+func (m VoteMethod) Call(httpRequest *http.Request,
+	iRequest, iResponse interface{}) *json_api.ApiError {
+	request := iRequest.(*voteRequest)
+
+	vote := Vote(request.Vote)
+
+	if !vote.IsValid() {
+		return json_api.Error(400, "Invalid vote " + string(vote))
 	}
 
-	if req.Triple_ID == -1 {
-		http.Error(w, "Must specify triple_id", 400)
-		return
+	cxt := appengine.NewContext(httpRequest)
+	user := UserIdFromContext(httpRequest)
+
+ 	db := NewAppengineDataAccessor(cxt)
+	err := db.UpdateVote(TripleId(request.TripleId), user, vote)
+
+	if err != nil {
+		return json_api.Error500(err)
 	}
 
-	voteSet := make(map[byte]bool)
-	voteSet[req.Vote_A[0]] = true
-	voteSet[req.Vote_B[0]] = true
-	voteSet[req.Vote_C[0]] = true
-
-	if !voteSet['m'] || !voteSet['f'] || !voteSet['k'] {
-		http.Error(w, "Votes must be m, f, and k", 400)
-		return
-	}
-
-	newVote := Vote{[]int{
-		VoteFromChar(req.Vote_A[0]),
-		VoteFromChar(req.Vote_B[0]),
-		VoteFromChar(req.Vote_C[0]),
-	}}
-
-	user := UserIdFromContext(r)
-	cxt.Infof("User: %v", user)
-
-	tripleKey := datastore.NewKey(cxt, "Triple", "", req.Triple_ID, nil)
-	voteKey := datastore.NewKey(cxt, "Vote", string(user), 0, tripleKey)
-
-	for tryTime := 0; tryTime < RETRY_COUNT; tryTime++ {
-		triple := new(Triple)
-		oldVote := new(Vote)
-		err := datastore.RunInTransaction(cxt, func(c appengine.Context) error {
-			if err := datastore.Get(cxt, tripleKey, triple); err != nil {
-				return err
-			}
-
-			err := datastore.Get(cxt, voteKey, oldVote)
-			if err != nil && err != datastore.ErrNoSuchEntity {
-				return err
-			}
-			if err != datastore.ErrNoSuchEntity {
-				triple.SubtractVote(*oldVote)
-			}
-
-			triple.AddVote(newVote)
-
-			if _, err := datastore.PutMulti(cxt, []*datastore.Key{tripleKey, voteKey},
-				[]interface{}{triple, &newVote}); err != nil {
-				return err
-			}
-
-			return nil
-		}, nil)
-
-		if err == nil {
-			cxt.Infof("Transaction succeeded")
-			return
-		} else if err == datastore.ErrNoSuchEntity {
-			http.Error(w, "No such entity.", 404)
-			return
-		} else {
-			cxt.Errorf("Transaction failed: %v", err)
-		}
-	}
-	http.Error(w, "Failed to record vote.", 500)
+	return nil
 }
