@@ -36,13 +36,13 @@ type FetchedImage struct {
 	Data        []byte
 }
 
-func FetchImage(cxt appengine.Context, message ImageMessage) (
+func FetchImage(cxt appengine.Context, url string) (
 	*FetchedImage, error) {
 	// TODO(hjfreyer): Verify image.
 	fetcher := urlfetch.Client(cxt)
 
-	cxt.Infof("Attempting to fetch url: %s", message.Url)
-	response, err := fetcher.Get(message.Url)
+	cxt.Infof("Attempting to fetch url: %s", url)
+	response, err := fetcher.Get(url)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +63,6 @@ func FetchImage(cxt appengine.Context, message ImageMessage) (
 	// TODO(hjfreyer): Check that the data isn't too large
 
 	return &FetchedImage{
-	SourceUrl : message.SourceUrl,
 	ContentType : contentType,
 	Data : contents,
 	}, nil

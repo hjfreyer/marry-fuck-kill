@@ -110,8 +110,13 @@ func (db appEngineDataAccessor) GetTriples(userId UserId, tripleIds []TripleId) 
 		triplesAndVotes = append(triplesAndVotes, &dbTriple{}, &dbVote{})
 	}
 
-	errs := datastore.GetMulti(db.cxt, keys, triplesAndVotes).(
-		appengine.MultiError)
+	err := datastore.GetMulti(db.cxt, keys, triplesAndVotes)
+	var errs appengine.MultiError
+	if err != nil {
+		errs = err.(appengine.MultiError)
+	} else {
+		errs = appengine.MultiError(make([]error, len(keys)))
+	}
 
 	triples := make([]Triple, len(tripleIds))
 	for i, _ := range triples {

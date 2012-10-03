@@ -13,6 +13,10 @@ import (
 
 const RETRY_COUNT = 3
 
+type Handler interface {
+	Handle(r *http.Request) (int, error)
+}
+
 type ApiError struct {
 	errorCode int
 	message   string

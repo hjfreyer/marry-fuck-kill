@@ -1,9 +1,7 @@
 {{define "tripleList"}}
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="/static/style.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    <script src="/static/script.js"></script>
+    {{template "head" ""}}
   </head>
   <body>
     {{range .}}
@@ -11,12 +9,13 @@
       {{template "triple" .}}
     </div>
     {{end}}
+    {{template "foot"}}
   </body>
 </html>
 {{end}}
 
 {{define "triple"}}
-<div class="triple {{if .UserVoted}}voted s{{.Vote 0}}0 s{{.Vote 1}}1 s{{.Vote 2}}2 {{else}}unvoted{{end}}">
+<div class="triple {{if .UserVoted}}voted s{{.Vote 0}}0 s{{.Vote 1}}1 s{{.Vote 2}}2 {{else}}unvoted{{end}}" triple_id={{.Id}}>
   <div class="entities">
     {{range $idx, $entity := .Entities}}
     <div class="entity entity{{$idx}}">
@@ -38,6 +37,7 @@
   {{end}}
   </div>
   <button class="vote">Vote</button>
+  <button class="disabledVote" disabled="disabled">Vote</button>
   <button class="edit">Edit</button>
 </div>
 {{end}}

@@ -24,9 +24,10 @@ func NewRandom() *rand.Rand {
 }
 
 func init() {
-	http.HandleFunc("/make", MakeHandler)
-	http.HandleFunc("/api/v1", ApiHandler)
-	http.HandleFunc("/vote", VoteHandler)
+	http.HandleFunc("/make", WrapHandler(MakeHandler))
+	http.HandleFunc("/api/v1/imagesearch", WrapHandler(ApiImageSearchHandler))
+	http.HandleFunc("/api/v1/make", WrapHandler(ApiMakeHandler))
+	http.HandleFunc("/api/v1/vote", WrapHandler(ApiVoteHandler))
 	http.HandleFunc("/i/", ImageHandler)
 	http.HandleFunc("/", ListHandler)
 }

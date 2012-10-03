@@ -2,11 +2,6 @@
 $buttonMargin: 4px;
 $buttonHeight: 30px;
 
-div {
-    border: 1px solid black;
-    margin: -1px;
-}
-
 .entities {
     width: 640px;
     height: 344px;
@@ -145,6 +140,177 @@ div {
     opacity: 1;
 }
 
+
+button.vote {
+    display: none;
+}
+
+.triple.unvoted.smarry0.sfuck1.skill2,
+.triple.unvoted.smarry0.sfuck2.skill1,
+
+.triple.unvoted.smarry1.sfuck0.skill2,
+.triple.unvoted.smarry1.sfuck2.skill0,
+
+.triple.unvoted.smarry2.sfuck0.skill1,
+.triple.unvoted.smarry2.sfuck1.skill0 {
+    button.vote {
+        display: inline-block;
+    }
+    button.disabledVote {
+        display: none;
+    }
+}
+
+.triple.voted.smarry1 .entity1 .chart.marry,
+.triple.voted.smarry2 .entity2 .chart.marry,
+
+.triple.voted.sfuck0 .entity0 .chart.fuck,
+.triple.voted.sfuck1 .entity1 .chart.fuck,
+.triple.voted.sfuck2 .entity2 .chart.fuck,
+
+.triple.voted.skill0 .entity0 .chart.kill,
+.triple.voted.skill1 .entity1 .chart.kill,
+.triple.voted.skill2 .entity2 .chart.kill {
+    opacity: 1;
+}
+
 .triple.voted .vote-button.unselected {
     opacity: 0;
+}
+
+$resultSize: 155px;
+$resultBorder: 2px;
+
+.results {
+    position: relative;
+    height: $resultSize * 2;
+    width: $resultSize * 5;
+}
+
+.result {
+    position: absolute;
+    margin: $resultBorder;
+}
+
+.result.empty {
+    display: none;
+}
+
+.result .centerbox {
+    width: ($resultSize - $resultBorder);
+    height: ($resultSize - $resultBorder);
+
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+    overflow: hidden;
+}
+
+.result .centerbox:hover {
+    margin: 0;
+    border: $resultBorder solid grey;
+}
+
+.result.selected .centerbox {
+    margin: 0;
+    border: $resultBorder solid #91B;
+}
+
+.result1 {
+    left: 1 * $resultSize;
+}
+
+.result2 {
+    left: 2 * $resultSize;
+}
+
+.result3 {
+    left: 3 * $resultSize;
+}
+
+.result4 {
+    left: 4 * $resultSize;
+}
+
+.result5 {
+    left: 0 * $resultSize;
+    top: $resultSize;
+}
+
+.result6 {
+    left: 1 * $resultSize;
+    top: $resultSize;
+}
+
+.result7 {
+    left: 2 * $resultSize;
+    top: $resultSize;
+}
+
+.result8 {
+    left: 3 * $resultSize;
+    top: $resultSize;
+}
+
+.result9 {
+    left: 4 * $resultSize;
+    top: $resultSize;
+}
+
+.modal-dialog {
+  background: #c1d9ff;
+  border: 1px solid #3a5774;
+  color: #000;
+  padding: 4px;
+  position: absolute;
+}
+
+.modal-dialog a,
+.modal-dialog a:link,
+.modal-dialog a:visited  {
+  color: #06c;
+  cursor: pointer;
+}
+
+.modal-dialog-bg {
+  background: #666;
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+
+.modal-dialog-title {
+  background: #e0edfe;
+  color: #000;
+  cursor: pointer;
+  font-size: 120%;
+  font-weight: bold;
+
+  /* Add padding on the right to ensure the close button has room. */
+  padding: 8px 31px 8px 8px;
+
+  position: relative;
+  _zoom: 1; /* Ensures proper width in IE6 RTL. */
+}
+
+.modal-dialog-title-close {
+  /* Client apps may override the URL at which they serve the sprite. */
+  background: #e0edfe url(//ssl.gstatic.com/editor/editortoolbar.png) no-repeat -528px 0;
+  cursor: default;
+  height: 15px;
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  width: 15px;
+  vertical-align: middle;
+}
+
+.modal-dialog-buttons,
+.modal-dialog-content {
+  background-color: #fff;
+  padding: 8px;
+}
+
+.goog-buttonset-default {
+  font-weight: bold;
 }

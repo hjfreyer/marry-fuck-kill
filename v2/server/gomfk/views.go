@@ -174,21 +174,17 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	buffer.WriteTo(w)
 }
 
-func MakeHandler(w http.ResponseWriter, r *http.Request) {
+func MakeHandler(c *Context) {
 	t := Templates()
 
-	t.ExecuteTemplate(w, "make", nil)
+	t.ExecuteTemplate(c.w, "make", nil)
 }
 
-func VoteHandler(w http.ResponseWriter, r *http.Request) {
-	t := Templates()
+// func VoteHandler(w http.ResponseWriter, r *http.Request) {
+// 	t := Templates()
 
-	t.ExecuteTemplate(w, "vote", nil)
-}
-
-	// fetcher := urlfetch.Client(cxt)
-
-	// response, err := fetcher.Get("https://www.googleapis.com/customsearch/v1?q=fox&cx=017343173679326196998%3Aomutomvh_wi&safe=medium&searchType=image&fields=items(image(thumbnailHeight%2CthumbnailLink%2CthumbnailWidth))&pp=1&key=AIzaSyDbjy0CKTMV5DoJR07ZYF5w-KL7Ey5lyGY")
+// 	t.ExecuteTemplate(w, "vote", nil)
+// }
 
 	// if err != nil {
 	//   cxt.Infof("%s", err)
@@ -202,3 +198,5 @@ func VoteHandler(w http.ResponseWriter, r *http.Request) {
 	//   }
 	//   cxt.Infof("%s\n", string(contents))
 	// }
+// plate
+
