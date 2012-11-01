@@ -1,260 +1,191 @@
 
+@import "maker";
+
 $buttonMargin: 4px;
 $buttonHeight: 30px;
 
-.entities {
-    width: 640px;
-    height: 344px;
-    position: relative;
-    margin: auto;
+div {
+  /* border: 1px solid black; */
+  /* margin: -1px; */
+  background: rgba(0, 0, 0, 0.1);
 }
 
-.entity {
-    position: absolute;
-    width: 210px;
-    top: 0;
-}
+.tripletable {
+  .entities {
+	width: 640px;
+	height: 344px;
+	position: relative;
+	margin: auto;
+  }
 
-.entity .name {
-    position: absolute;
-    width: 100%;
-    top: 0;
-    left: 0;
-}
+  .entity {
+	position: absolute;
+	width: 210px;
+	top: 0;
+  }
 
-.entity .image {
-    margin-top: 30px;
-    height: 180px;
-}
+  .entity .name {
+	position: absolute;
+	width: 100%;
+	top: 0;
+	left: 0;
+  }
 
-.entity .image .centerbox {
-    display: table-cell;
-    height: 180px;
-    width: 210px;
-    vertical-align: middle;
-    text-align: center;
-}
+  .entity .image {
+	margin-top: 30px;
+	height: 180px;
+  }
 
-.entity0 {
-    left: 0;
-}
+  .entity .image .centerbox {
+	display: table-cell;
+	height: 180px;
+	width: 210px;
+	vertical-align: middle;
+	text-align: center;
+  }
 
-.entity1 {
-    left: 215px;
-}
+  .entity0 {
+	left: 0;
+  }
 
-.entity2 {
-    right: 0px;
-}
+  .entity1 {
+	left: 215px;
+  }
 
-.button-area {
-    height: 3 * $buttonMargin + 4 * $buttonHeight;
-    position: relative;
-}
+  .entity2 {
+	right: 0px;
+  }
 
-.vote-button {
-    position: absolute;
-    height: $buttonHeight;
-    width: 202px;
-    left: $buttonMargin;
-    text-align: center;
-    z-index: 1;
-    font-size: 12pt;
+  .button-area {
+	height: 3 * $buttonMargin + 4 * $buttonHeight;
+	position: relative;
+  }
 
-    -webkit-transition: 150ms;
-}
+  .vote-button {
+	position: absolute;
+	height: $buttonHeight;
+	width: 202px;
+	left: $buttonMargin;
+	text-align: center;
+	z-index: 1;
+	font-size: 12pt;
 
-.chart {
-    position: absolute;
-    bottom: $buttonMargin;
-    left: $buttonMargin;
+	-webkit-transition: 150ms;
+  }
 
-    -webkit-transition: opacity 150ms;
-}
+  .chart {
+	position: absolute;
+	bottom: $buttonMargin;
+	left: $buttonMargin;
 
-.vote-button.marry {
-    top: ($buttonMargin + $buttonHeight) / 2;
-}
+	-webkit-transition: opacity 150ms;
+  }
 
-.vote-button.fuck {
-    top: ($buttonMargin + $buttonHeight) * 3 / 2
-}
+  .vote-button.marry {
+	top: ($buttonMargin + $buttonHeight) / 2;
+  }
 
-.vote-button.kill {
-    top: ($buttonMargin + $buttonHeight) * 5 / 2
-}
+  .vote-button.fuck {
+	top: ($buttonMargin + $buttonHeight) * 3 / 2
+  }
 
-.chart {
-    opacity: 0;
-    border: none;
-    margin: 0;
-}
+  .vote-button.kill {
+	top: ($buttonMargin + $buttonHeight) * 5 / 2
+  }
 
-.triple.voted .vote-button {
-    opacity: 0;
-}
+  .chart {
+	opacity: 0;
+	border: none;
+	margin: 0;
+  }
 
-.triple.voted.smarry0 .entity0 .vote-button.marry,
-.triple.voted.smarry1 .entity1 .vote-button.marry,
-.triple.voted.smarry2 .entity2 .vote-button.marry,
+  .triple.voted .vote-button {
+	opacity: 0;
+  }
 
-.triple.voted.sfuck0 .entity0 .vote-button.fuck,
-.triple.voted.sfuck1 .entity1 .vote-button.fuck,
-.triple.voted.sfuck2 .entity2 .vote-button.fuck,
+  .triple.voted.smarry0 .entity0 .vote-button.marry,
+  .triple.voted.smarry1 .entity1 .vote-button.marry,
+  .triple.voted.smarry2 .entity2 .vote-button.marry,
 
-.triple.voted.skill0 .entity0 .vote-button.kill,
-.triple.voted.skill1 .entity1 .vote-button.kill,
-.triple.voted.skill2 .entity2 .vote-button.kill {
-    top: $buttonMargin;
-    opacity: 1;
-    background: white;
-    border: 0;
-}
+  .triple.voted.sfuck0 .entity0 .vote-button.fuck,
+  .triple.voted.sfuck1 .entity1 .vote-button.fuck,
+  .triple.voted.sfuck2 .entity2 .vote-button.fuck,
 
-.triple.smarry0 .entity0 .vote-button.marry,
-.triple.smarry1 .entity1 .vote-button.marry,
-.triple.smarry2 .entity2 .vote-button.marry,
+  .triple.voted.skill0 .entity0 .vote-button.kill,
+  .triple.voted.skill1 .entity1 .vote-button.kill,
+  .triple.voted.skill2 .entity2 .vote-button.kill {
+	top: $buttonMargin;
+	opacity: 1;
+	background: white;
+	border: 0;
+  }
 
-.triple.sfuck0 .entity0 .vote-button.fuck,
-.triple.sfuck1 .entity1 .vote-button.fuck,
-.triple.sfuck2 .entity2 .vote-button.fuck,
+  .triple.smarry0 .entity0 .vote-button.marry,
+  .triple.smarry1 .entity1 .vote-button.marry,
+  .triple.smarry2 .entity2 .vote-button.marry,
 
-.triple.skill0 .entity0 .vote-button.kill,
-.triple.skill1 .entity1 .vote-button.kill,
-.triple.skill2 .entity2 .vote-button.kill {
-    font-weight: bold;
-    font-size: 13pt;
-}
+  .triple.sfuck0 .entity0 .vote-button.fuck,
+  .triple.sfuck1 .entity1 .vote-button.fuck,
+  .triple.sfuck2 .entity2 .vote-button.fuck,
 
-.triple.voted.smarry0 .entity0 .chart.marry,
-.triple.voted.smarry1 .entity1 .chart.marry,
-.triple.voted.smarry2 .entity2 .chart.marry,
+  .triple.skill0 .entity0 .vote-button.kill,
+  .triple.skill1 .entity1 .vote-button.kill,
+  .triple.skill2 .entity2 .vote-button.kill {
+	font-weight: bold;
+	font-size: 13pt;
+  }
 
-.triple.voted.sfuck0 .entity0 .chart.fuck,
-.triple.voted.sfuck1 .entity1 .chart.fuck,
-.triple.voted.sfuck2 .entity2 .chart.fuck,
+  .triple.voted.smarry0 .entity0 .chart.marry,
+  .triple.voted.smarry1 .entity1 .chart.marry,
+  .triple.voted.smarry2 .entity2 .chart.marry,
 
-.triple.voted.skill0 .entity0 .chart.kill,
-.triple.voted.skill1 .entity1 .chart.kill,
-.triple.voted.skill2 .entity2 .chart.kill {
-    opacity: 1;
-}
+  .triple.voted.sfuck0 .entity0 .chart.fuck,
+  .triple.voted.sfuck1 .entity1 .chart.fuck,
+  .triple.voted.sfuck2 .entity2 .chart.fuck,
+
+  .triple.voted.skill0 .entity0 .chart.kill,
+  .triple.voted.skill1 .entity1 .chart.kill,
+  .triple.voted.skill2 .entity2 .chart.kill {
+	opacity: 1;
+  }
 
 
-button.vote {
-    display: none;
-}
+  button.vote {
+	display: none;
+  }
 
-.triple.unvoted.smarry0.sfuck1.skill2,
-.triple.unvoted.smarry0.sfuck2.skill1,
+  .triple.unvoted.smarry0.sfuck1.skill2,
+  .triple.unvoted.smarry0.sfuck2.skill1,
 
-.triple.unvoted.smarry1.sfuck0.skill2,
-.triple.unvoted.smarry1.sfuck2.skill0,
+  .triple.unvoted.smarry1.sfuck0.skill2,
+  .triple.unvoted.smarry1.sfuck2.skill0,
 
-.triple.unvoted.smarry2.sfuck0.skill1,
-.triple.unvoted.smarry2.sfuck1.skill0 {
-    button.vote {
-        display: inline-block;
-    }
-    button.disabledVote {
-        display: none;
-    }
-}
+  .triple.unvoted.smarry2.sfuck0.skill1,
+  .triple.unvoted.smarry2.sfuck1.skill0 {
+	button.vote {
+	  display: inline-block;
+	}
+	button.disabledVote {
+	  display: none;
+	}
+  }
 
-.triple.voted.smarry1 .entity1 .chart.marry,
-.triple.voted.smarry2 .entity2 .chart.marry,
+  .triple.voted.smarry1 .entity1 .chart.marry,
+  .triple.voted.smarry2 .entity2 .chart.marry,
 
-.triple.voted.sfuck0 .entity0 .chart.fuck,
-.triple.voted.sfuck1 .entity1 .chart.fuck,
-.triple.voted.sfuck2 .entity2 .chart.fuck,
+  .triple.voted.sfuck0 .entity0 .chart.fuck,
+  .triple.voted.sfuck1 .entity1 .chart.fuck,
+  .triple.voted.sfuck2 .entity2 .chart.fuck,
 
-.triple.voted.skill0 .entity0 .chart.kill,
-.triple.voted.skill1 .entity1 .chart.kill,
-.triple.voted.skill2 .entity2 .chart.kill {
-    opacity: 1;
-}
+  .triple.voted.skill0 .entity0 .chart.kill,
+  .triple.voted.skill1 .entity1 .chart.kill,
+  .triple.voted.skill2 .entity2 .chart.kill {
+	opacity: 1;
+  }
 
-.triple.voted .vote-button.unselected {
-    opacity: 0;
-}
-
-$resultSize: 155px;
-$resultBorder: 2px;
-
-.results {
-    position: relative;
-    height: $resultSize * 2;
-    width: $resultSize * 5;
-}
-
-.result {
-    position: absolute;
-    margin: $resultBorder;
-}
-
-.result.empty {
-    display: none;
-}
-
-.result .centerbox {
-    width: ($resultSize - $resultBorder);
-    height: ($resultSize - $resultBorder);
-
-    display: table-cell;
-    text-align: center;
-    vertical-align: middle;
-    overflow: hidden;
-}
-
-.result .centerbox:hover {
-    margin: 0;
-    border: $resultBorder solid grey;
-}
-
-.result.selected .centerbox {
-    margin: 0;
-    border: $resultBorder solid #91B;
-}
-
-.result1 {
-    left: 1 * $resultSize;
-}
-
-.result2 {
-    left: 2 * $resultSize;
-}
-
-.result3 {
-    left: 3 * $resultSize;
-}
-
-.result4 {
-    left: 4 * $resultSize;
-}
-
-.result5 {
-    left: 0 * $resultSize;
-    top: $resultSize;
-}
-
-.result6 {
-    left: 1 * $resultSize;
-    top: $resultSize;
-}
-
-.result7 {
-    left: 2 * $resultSize;
-    top: $resultSize;
-}
-
-.result8 {
-    left: 3 * $resultSize;
-    top: $resultSize;
-}
-
-.result9 {
-    left: 4 * $resultSize;
-    top: $resultSize;
+  .triple.voted .vote-button.unselected {
+	opacity: 0;
+  }
 }
 
 .modal-dialog {

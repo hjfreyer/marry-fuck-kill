@@ -1,0 +1,129 @@
+
+@mixin fill-space {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+@mixin image-div {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+#maker {
+  $margin: 10px;
+
+  $previewWidth: 200px;
+
+  $searchBarHeight: 0px;
+
+  $resultSize: 135px;
+  $resultBorder: 2px;
+  $numResultRows: 2;
+  $numResultCols: 5;
+
+  .entity {
+    margin: 30px auto;
+    position: relative;
+
+    border: 1px solid grey;
+
+    width: 4 * $margin + $previewWidth + $resultSize * $numResultCols;
+    height: $searchBarHeight + $numResultRows * $resultSize;
+
+    .preview {
+      width: $previewWidth + 2 * $margin;
+
+      @include fill-space;
+
+      border-right: 1px solid grey;
+
+      .name {
+        position: absolute;
+        left: $margin;
+        right: $margin;
+
+        font-size: 16pt;
+        text-align: center;
+      }
+
+      .image {
+        @include fill-space;
+        @include image-div;
+      }
+    }
+
+    .imagesearch {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: $previewWidth + 2 * $margin;
+      right: 0;
+
+      .searchbar {
+        position: absolute;
+        top: 0;
+        left: $margin;
+        right: $margin;
+
+
+        overflow: hidden;
+
+
+
+        height: $searchBarHeight;
+      }
+
+      .result-area {
+        position: absolute;
+        top: $searchBarHeight;
+        left: $margin;
+        right: $margin;
+
+        height: 2 * $resultSize;
+
+	    .result {
+	      position: absolute;
+          width: $resultSize;
+          height: $resultSize;
+
+          cursor: pointer;
+
+          @include image-div;
+
+          .result-border {
+            @include fill-space;
+
+            &:hover {
+              border: 5px solid black;
+            }
+          }
+	    }
+
+	    .result.empty {
+	      display: none;
+	    }
+
+        @mixin result($num) {
+          .result#{$num} {
+            left: ($num % $numResultCols) * $resultSize;
+            top: floor($num / $numResultCols) * $resultSize;
+          }
+        }
+
+        @include result(0);
+        @include result(1);
+        @include result(2);
+        @include result(3);
+        @include result(4);
+        @include result(5);
+        @include result(6);
+        @include result(7);
+        @include result(8);
+        @include result(9);
+      }
+    }
+  }
+}

@@ -167,7 +167,8 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 
 	templates := Templates()
 	var buffer bytes.Buffer
-	if err := templates.ExecuteTemplate(&buffer, "tripleList", tripleViews); err != nil {
+	if err := templates.ExecuteTemplate(&buffer,
+		"tripleList", tripleViews); err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
@@ -175,9 +176,17 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func MakeHandler(c *Context) {
+	var makerStructure struct{
+		Entities [3]struct{
+			ResultBoxes [10]struct{}
+		}
+	}
+
 	t := Templates()
 
-	t.ExecuteTemplate(c.w, "make", nil)
+	if err := t.ExecuteTemplate(c.w, "make", makerStructure); err != nil {
+		panic(err)
+	}
 }
 
 // func VoteHandler(w http.ResponseWriter, r *http.Request) {

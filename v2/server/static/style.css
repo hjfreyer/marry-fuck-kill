@@ -1,45 +1,136 @@
-.entities {
+#maker .entity {
+  margin: 30px auto;
+  position: relative;
+  border: 1px solid grey;
+  width: 915px;
+  height: 270px; }
+  #maker .entity .preview {
+    width: 220px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-right: 1px solid grey; }
+    #maker .entity .preview .name {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      font-size: 16pt;
+      text-align: center; }
+    #maker .entity .preview .image {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-repeat: no-repeat;
+      background-position: center; }
+  #maker .entity .imagesearch {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 220px;
+    right: 0; }
+    #maker .entity .imagesearch .searchbar {
+      position: absolute;
+      top: 0;
+      left: 10px;
+      right: 10px;
+      overflow: hidden;
+      height: 0px; }
+    #maker .entity .imagesearch .result-area {
+      position: absolute;
+      top: 0px;
+      left: 10px;
+      right: 10px;
+      height: 270px; }
+      #maker .entity .imagesearch .result-area .result {
+        position: absolute;
+        width: 135px;
+        height: 135px;
+        cursor: pointer;
+        background-repeat: no-repeat;
+        background-position: center; }
+        #maker .entity .imagesearch .result-area .result .result-border {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0; }
+          #maker .entity .imagesearch .result-area .result .result-border:hover {
+            border: 5px solid black; }
+      #maker .entity .imagesearch .result-area .result.empty {
+        display: none; }
+      #maker .entity .imagesearch .result-area .result0 {
+        left: 0px;
+        top: 0px; }
+      #maker .entity .imagesearch .result-area .result1 {
+        left: 135px;
+        top: 0px; }
+      #maker .entity .imagesearch .result-area .result2 {
+        left: 270px;
+        top: 0px; }
+      #maker .entity .imagesearch .result-area .result3 {
+        left: 405px;
+        top: 0px; }
+      #maker .entity .imagesearch .result-area .result4 {
+        left: 540px;
+        top: 0px; }
+      #maker .entity .imagesearch .result-area .result5 {
+        left: 0px;
+        top: 135px; }
+      #maker .entity .imagesearch .result-area .result6 {
+        left: 135px;
+        top: 135px; }
+      #maker .entity .imagesearch .result-area .result7 {
+        left: 270px;
+        top: 135px; }
+      #maker .entity .imagesearch .result-area .result8 {
+        left: 405px;
+        top: 135px; }
+      #maker .entity .imagesearch .result-area .result9 {
+        left: 540px;
+        top: 135px; }
+
+div {
+  /* border: 1px solid black; */
+  /* margin: -1px; */
+  background: rgba(0, 0, 0, 0.1); }
+
+.tripletable .entities {
   width: 640px;
   height: 344px;
   position: relative;
   margin: auto; }
-
-.entity {
+.tripletable .entity {
   position: absolute;
   width: 210px;
   top: 0; }
-
-.entity .name {
+.tripletable .entity .name {
   position: absolute;
   width: 100%;
   top: 0;
   left: 0; }
-
-.entity .image {
+.tripletable .entity .image {
   margin-top: 30px;
   height: 180px; }
-
-.entity .image .centerbox {
+.tripletable .entity .image .centerbox {
   display: table-cell;
   height: 180px;
   width: 210px;
   vertical-align: middle;
   text-align: center; }
-
-.entity0 {
+.tripletable .entity0 {
   left: 0; }
-
-.entity1 {
+.tripletable .entity1 {
   left: 215px; }
-
-.entity2 {
+.tripletable .entity2 {
   right: 0px; }
-
-.button-area {
+.tripletable .button-area {
   height: 132px;
   position: relative; }
-
-.vote-button {
+.tripletable .vote-button {
   position: absolute;
   height: 30px;
   width: 202px;
@@ -48,157 +139,84 @@
   z-index: 1;
   font-size: 12pt;
   -webkit-transition: 150ms; }
-
-.chart {
+.tripletable .chart {
   position: absolute;
   bottom: 4px;
   left: 4px;
   -webkit-transition: opacity 150ms; }
-
-.vote-button.marry {
+.tripletable .vote-button.marry {
   top: 17px; }
-
-.vote-button.fuck {
+.tripletable .vote-button.fuck {
   top: 51px; }
-
-.vote-button.kill {
+.tripletable .vote-button.kill {
   top: 85px; }
-
-.chart {
+.tripletable .chart {
   opacity: 0;
   border: none;
   margin: 0; }
-
-.triple.voted .vote-button {
+.tripletable .triple.voted .vote-button {
   opacity: 0; }
-
-.triple.voted.smarry0 .entity0 .vote-button.marry,
-.triple.voted.smarry1 .entity1 .vote-button.marry,
-.triple.voted.smarry2 .entity2 .vote-button.marry,
-.triple.voted.sfuck0 .entity0 .vote-button.fuck,
-.triple.voted.sfuck1 .entity1 .vote-button.fuck,
-.triple.voted.sfuck2 .entity2 .vote-button.fuck,
-.triple.voted.skill0 .entity0 .vote-button.kill,
-.triple.voted.skill1 .entity1 .vote-button.kill,
-.triple.voted.skill2 .entity2 .vote-button.kill {
+.tripletable .triple.voted.smarry0 .entity0 .vote-button.marry,
+.tripletable .triple.voted.smarry1 .entity1 .vote-button.marry,
+.tripletable .triple.voted.smarry2 .entity2 .vote-button.marry,
+.tripletable .triple.voted.sfuck0 .entity0 .vote-button.fuck,
+.tripletable .triple.voted.sfuck1 .entity1 .vote-button.fuck,
+.tripletable .triple.voted.sfuck2 .entity2 .vote-button.fuck,
+.tripletable .triple.voted.skill0 .entity0 .vote-button.kill,
+.tripletable .triple.voted.skill1 .entity1 .vote-button.kill,
+.tripletable .triple.voted.skill2 .entity2 .vote-button.kill {
   top: 4px;
   opacity: 1;
   background: white;
   border: 0; }
-
-.triple.smarry0 .entity0 .vote-button.marry,
-.triple.smarry1 .entity1 .vote-button.marry,
-.triple.smarry2 .entity2 .vote-button.marry,
-.triple.sfuck0 .entity0 .vote-button.fuck,
-.triple.sfuck1 .entity1 .vote-button.fuck,
-.triple.sfuck2 .entity2 .vote-button.fuck,
-.triple.skill0 .entity0 .vote-button.kill,
-.triple.skill1 .entity1 .vote-button.kill,
-.triple.skill2 .entity2 .vote-button.kill {
+.tripletable .triple.smarry0 .entity0 .vote-button.marry,
+.tripletable .triple.smarry1 .entity1 .vote-button.marry,
+.tripletable .triple.smarry2 .entity2 .vote-button.marry,
+.tripletable .triple.sfuck0 .entity0 .vote-button.fuck,
+.tripletable .triple.sfuck1 .entity1 .vote-button.fuck,
+.tripletable .triple.sfuck2 .entity2 .vote-button.fuck,
+.tripletable .triple.skill0 .entity0 .vote-button.kill,
+.tripletable .triple.skill1 .entity1 .vote-button.kill,
+.tripletable .triple.skill2 .entity2 .vote-button.kill {
   font-weight: bold;
   font-size: 13pt; }
-
-.triple.voted.smarry0 .entity0 .chart.marry,
-.triple.voted.smarry1 .entity1 .chart.marry,
-.triple.voted.smarry2 .entity2 .chart.marry,
-.triple.voted.sfuck0 .entity0 .chart.fuck,
-.triple.voted.sfuck1 .entity1 .chart.fuck,
-.triple.voted.sfuck2 .entity2 .chart.fuck,
-.triple.voted.skill0 .entity0 .chart.kill,
-.triple.voted.skill1 .entity1 .chart.kill,
-.triple.voted.skill2 .entity2 .chart.kill {
+.tripletable .triple.voted.smarry0 .entity0 .chart.marry,
+.tripletable .triple.voted.smarry1 .entity1 .chart.marry,
+.tripletable .triple.voted.smarry2 .entity2 .chart.marry,
+.tripletable .triple.voted.sfuck0 .entity0 .chart.fuck,
+.tripletable .triple.voted.sfuck1 .entity1 .chart.fuck,
+.tripletable .triple.voted.sfuck2 .entity2 .chart.fuck,
+.tripletable .triple.voted.skill0 .entity0 .chart.kill,
+.tripletable .triple.voted.skill1 .entity1 .chart.kill,
+.tripletable .triple.voted.skill2 .entity2 .chart.kill {
   opacity: 1; }
-
-button.vote {
+.tripletable button.vote {
   display: none; }
-
-.triple.unvoted.smarry0.sfuck1.skill2 button.vote,
-.triple.unvoted.smarry0.sfuck2.skill1 button.vote,
-.triple.unvoted.smarry1.sfuck0.skill2 button.vote,
-.triple.unvoted.smarry1.sfuck2.skill0 button.vote,
-.triple.unvoted.smarry2.sfuck0.skill1 button.vote,
-.triple.unvoted.smarry2.sfuck1.skill0 button.vote {
+.tripletable .triple.unvoted.smarry0.sfuck1.skill2 button.vote,
+.tripletable .triple.unvoted.smarry0.sfuck2.skill1 button.vote,
+.tripletable .triple.unvoted.smarry1.sfuck0.skill2 button.vote,
+.tripletable .triple.unvoted.smarry1.sfuck2.skill0 button.vote,
+.tripletable .triple.unvoted.smarry2.sfuck0.skill1 button.vote,
+.tripletable .triple.unvoted.smarry2.sfuck1.skill0 button.vote {
   display: inline-block; }
-.triple.unvoted.smarry0.sfuck1.skill2 button.disabledVote,
-.triple.unvoted.smarry0.sfuck2.skill1 button.disabledVote,
-.triple.unvoted.smarry1.sfuck0.skill2 button.disabledVote,
-.triple.unvoted.smarry1.sfuck2.skill0 button.disabledVote,
-.triple.unvoted.smarry2.sfuck0.skill1 button.disabledVote,
-.triple.unvoted.smarry2.sfuck1.skill0 button.disabledVote {
+.tripletable .triple.unvoted.smarry0.sfuck1.skill2 button.disabledVote,
+.tripletable .triple.unvoted.smarry0.sfuck2.skill1 button.disabledVote,
+.tripletable .triple.unvoted.smarry1.sfuck0.skill2 button.disabledVote,
+.tripletable .triple.unvoted.smarry1.sfuck2.skill0 button.disabledVote,
+.tripletable .triple.unvoted.smarry2.sfuck0.skill1 button.disabledVote,
+.tripletable .triple.unvoted.smarry2.sfuck1.skill0 button.disabledVote {
   display: none; }
-
-.triple.voted.smarry1 .entity1 .chart.marry,
-.triple.voted.smarry2 .entity2 .chart.marry,
-.triple.voted.sfuck0 .entity0 .chart.fuck,
-.triple.voted.sfuck1 .entity1 .chart.fuck,
-.triple.voted.sfuck2 .entity2 .chart.fuck,
-.triple.voted.skill0 .entity0 .chart.kill,
-.triple.voted.skill1 .entity1 .chart.kill,
-.triple.voted.skill2 .entity2 .chart.kill {
+.tripletable .triple.voted.smarry1 .entity1 .chart.marry,
+.tripletable .triple.voted.smarry2 .entity2 .chart.marry,
+.tripletable .triple.voted.sfuck0 .entity0 .chart.fuck,
+.tripletable .triple.voted.sfuck1 .entity1 .chart.fuck,
+.tripletable .triple.voted.sfuck2 .entity2 .chart.fuck,
+.tripletable .triple.voted.skill0 .entity0 .chart.kill,
+.tripletable .triple.voted.skill1 .entity1 .chart.kill,
+.tripletable .triple.voted.skill2 .entity2 .chart.kill {
   opacity: 1; }
-
-.triple.voted .vote-button.unselected {
+.tripletable .triple.voted .vote-button.unselected {
   opacity: 0; }
-
-.results {
-  position: relative;
-  height: 310px;
-  width: 775px; }
-
-.result {
-  position: absolute;
-  margin: 2px; }
-
-.result.empty {
-  display: none; }
-
-.result .centerbox {
-  width: 153px;
-  height: 153px;
-  display: table-cell;
-  text-align: center;
-  vertical-align: middle;
-  overflow: hidden; }
-
-.result .centerbox:hover {
-  margin: 0;
-  border: 2px solid grey; }
-
-.result.selected .centerbox {
-  margin: 0;
-  border: 2px solid #9911bb; }
-
-.result1 {
-  left: 155px; }
-
-.result2 {
-  left: 310px; }
-
-.result3 {
-  left: 465px; }
-
-.result4 {
-  left: 620px; }
-
-.result5 {
-  left: 0px;
-  top: 155px; }
-
-.result6 {
-  left: 155px;
-  top: 155px; }
-
-.result7 {
-  left: 310px;
-  top: 155px; }
-
-.result8 {
-  left: 465px;
-  top: 155px; }
-
-.result9 {
-  left: 620px;
-  top: 155px; }
 
 .modal-dialog {
   background: #c1d9ff;

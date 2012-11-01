@@ -5,7 +5,31 @@
     {{template "head" "Make Your Own"}}
   </head>
   <body>
-    <div id="maker"></div>
+    <div id="maker">
+	  {{range $entityIndex, $entityStructure := .Entities}}
+      <div id="entity{{$entityIndex}}" class="entity">
+		<div class="preview">
+		  <div class="image"></div>
+		  <textarea label="Name me" class="name" rows="3"></textarea>
+		</div>
+		<div class="imagesearch">
+	      <div class="searchbar">
+	        <form>
+			  <input>
+			  <button>Search</button>
+            </form>
+		  </div>
+		  <div class="result-area">
+			{{range $resultIndex, $ := .ResultBoxes}}
+			<div class="result result{{$resultIndex}}">
+              <div class="result-border"></div>
+			</div>
+			{{end}}
+		  </div>
+		</div>
+      </div>
+ 	  {{end}}
+    </div>
     {{template "foot"}}
   </body>
 </html>

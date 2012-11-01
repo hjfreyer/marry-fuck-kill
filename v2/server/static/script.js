@@ -89,22 +89,158 @@ mfk.Triple.prototype.edit = function() {
   goog.dom.classes.set(this.dom_, 'triple unvoted');
 };
 
-mfk.Maker = function(dom) {
+mfk.Maker = function(dom, imageSearch) {
   this.dom_ = $(dom);
 
-  var imgSearch = new mfk.ImageSearch($('<div/>').appendTo(this.dom_));
+  this.entityMakers_ = [];
 
-  this.imgBox0_ = new mfk.ImageBox($('<div/>').appendTo(this.dom_),
-                                   imgSearch);
-  this.imgBox1_ = new mfk.ImageBox($('<div/>').appendTo(this.dom_),
-                                   imgSearch);
-  this.imgBox2_ = new mfk.ImageBox($('<div/>').appendTo(this.dom_),
-                                   imgSearch);
+  for (var i = 0; i < 3; i++) {
+    this.entityMakers_.push(
+      new mfk.EntityMaker(goog.dom.query('#entity' + i)[0], imageSearch));
+  }
 
-  this.createButton_
+  // var imgSearch = new mfk.ImageSearch($('<div/>').appendTo(this.dom_));
 
-  this.imgBox0_.name_.val('The Father');
+  // this.imgBox0_ = new mfk.ImageBox($('<div/>').appendTo(this.dom_),
+  //                                  imgSearch);
+  // this.imgBox1_ = new mfk.ImageBox($('<div/>').appendTo(this.dom_),
+  //                                  imgSearch);
+  // this.imgBox2_ = new mfk.ImageBox($('<div/>').appendTo(this.dom_),
+  //                                  imgSearch);
+
+  // this.createButton_
+
+  // this.imgBox0_.name_.val('The Father');
 };
+
+mfk.EntityMaker = function(dom, imageSearch) {
+  this.dom_ = dom;
+  this.imageSearch_ = imageSearch;
+
+  this.nameText_ = goog.dom.query('.preview .name', this.dom_)[0];
+  this.nameTextWrap_ = new goog.ui.LabelInput;
+  this.nameTextWrap_.decorate(this.nameText_);
+
+  this.imgPreview_ = goog.dom.query('.preview .image', this.dom_)[0];
+
+  $(this.nameText_).focus(function () {
+    console.log('foo');
+    this.nameTextWrap_.setLabel('');
+  }.bind(this));
+  $(this.nameText_).blur(function () {
+    this.nameTextWrap_.setLabel('Name me');
+  }.bind(this));
+
+  this.nameChangeCount_ = 0;
+  this.lastSearch_ = null;
+  $(this.nameText_).bind('keyup', this.onNameChange.bind(this));
+  $(this.nameText_).change(this.onNameChange.bind(this));
+
+//  this.nameText_.rows = 3;
+//  var foo= new mfk.AutoHeight(this.nameText_);
+
+  this.searchText_ = goog.dom.query('.imagesearch .searchbar input', this.dom_);
+  this.searchButton_ = goog.dom.query('.imagesearch .searchbar button',
+                                      this.dom_);
+  $(dom).find('form').submit(this.search.bind(this));
+
+//  $(this.searchText_).val('skittles');
+  console.log(this);
+  var resultArea = goog.dom.query('.imagesearch .result-area', this.dom_)[0];
+  console.log(resultArea);
+
+  this.resultUrls_ = null;
+  this.resultImgs_ = goog.dom.getChildren(resultArea);
+  for (var i = 0; i < this.resultImgs_.length; i++) {
+    $(this.resultImgs_[i]).click(this.selectImage.bind(this, i));
+  }
+
+//  this.search();
+};
+
+mfk.EntityMaker.prototype.onNameChange = function() {
+  this.nameChangeCount_++;
+  setTimeout(this.checkUnchanged.bind(this, this.nameChangeCount_), 1000);
+};
+
+mfk.EntityMaker.prototype.checkUnchanged = function(changeNum) {
+  if (changeNum == this.nameChangeCount_) {
+    $(this.searchText_).val(this.nameTextWrap_.getValue());
+    this.search();
+  }
+};
+
+mfk.EntityMaker.prototype.search = function() {
+  var trimmed = $.trim($(this.searchText_).val());
+  if (trimmed == this.lastSearch_) {
+    return;
+  }
+
+  this.lastSearch_ = trimmed;
+  $.getJSON('/api/v1/imagesearch',
+            { 'query' : $(this.searchText_).val() },
+            this.processResults.bind(this));
+  console.log('Searching: ' + trimmed);
+};
+
+mfk.EntityMaker.prototype.processResults = function(results) {
+  console.log('Search results');
+  console.log(results);
+
+//  this.deselect();
+  this.results_ = results;
+
+  if (typeof(results.images) == 'undefined') {
+    this.clear();
+    //this.no_results_.toggleClass
+    return;
+  }
+
+  console.log(results);
+
+  this.resultUrls_ = [];
+  for (var i = 0; i < this.resultImgs_.length; i++) {
+    var slot = this.resultImgs_[i];
+    if (i < results.images.length) {
+      var result = results.images[i];
+      this.resultUrls_.push(result.url);
+
+      // goog.style.setTransparentBackgroundImage(slot, result.url);
+      slot.style.backgroundImage= "url('"+ result.url +"')";
+      // slot.find('img').attr('src', result.url);
+      // slot.removeClass('empty');
+    }
+  }
+};
+
+mfk.EntityMaker.prototype.selectImage = function(idx) {
+  console.log(idx);
+  this.selectedImage_ = this.resultUrls_[idx];
+  this.imgPreview_.style.backgroundImage= "url('"+ this.resultUrls_[idx] +"')";
+};
+
+mfk.AutoHeight = function(dom) {
+  this.dom_ = dom;
+  this.text_ = $('<textarea/>').appendTo($(this.dom_));
+  this.sizer_ = $('<div/>').appendTo($(this.dom_));
+
+  this.text_.css('position', 'absolute');
+  this.text_.css('left', 0);
+  this.text_.css('right', 0);
+
+  this.text_.change(this.onChange.bind(this));
+  this.text_.bind('keyup', this.onChange.bind(this));
+};
+
+mfk.AutoHeight.prototype.onChange = function() {
+  var text = this.text_.val();
+  if (text == '') {
+    text = 'A';
+  }
+  console.log(text);
+  this.sizer_.text(text);
+};
+
 
 mfk.ImageBox = function(dom, imgSearch) {
   this.dom_ = dom;
@@ -259,11 +395,11 @@ mfk.ImageSearch.prototype.processResults = function(results) {
 };
 
 function main() {
-  goog.array.forEach(goog.dom.query('.triple'),
-                     function(triple) {
-                       var t = new mfk.Triple(triple);
-                       t.decorate();
-                     });
+ // goog.array.forEach(goog.dom.query('.triple'),
+ //                     function(triple) {
+ //                       var t = new mfk.Triple(triple);
+ //                       t.decorate();
+ //                     });
 
   goog.array.forEach(goog.dom.query('#maker'),
                      function(maker) {
