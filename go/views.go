@@ -88,10 +88,10 @@ func (tv TripleView) ChartUrl(entity int,
 
 func Templates() *template.Template {
 	return template.Must(template.ParseFiles(
-		"gomfk/templates/header.html",
-		"gomfk/templates/make.html",
-		"gomfk/templates/triple.html",
-		"gomfk/templates/vote.html",
+		"templates/header.html",
+		"templates/make.html",
+		"templates/triple.html",
+		"templates/vote.html",
 	))
 }
 

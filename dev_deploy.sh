@@ -16,6 +16,7 @@ mkdir -p $BIN/static
 ln -s $DIR/app.yaml $BIN
 
 ln -s $DIR/go $BIN/gomfk
+ln -s $DIR/templates $BIN/templates
 ln -s $DIR/third_party/closure-library $BIN/static/closure-library
 
 ln -s $DIR/js/script.js $BIN/static/
