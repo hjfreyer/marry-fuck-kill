@@ -4,25 +4,32 @@ trap 'kill $(jobs -pr)' SIGINT SIGTERM EXIT
 
 DEV_APPSERVER="/Users/hjfreyer/tools/google_appengine/dev_appserver.py"
 
-DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BIN="$DIR/bin/dev"
+SRC="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BIN="$SRC/bin/dev"
 TMP=$(mktemp -d -t mfk)
 
 rm -rf $BIN
 
 mkdir -p $BIN
+
+function lns {
+    ln -s $SRC/$1 $BIN/$2
+}
+
+lns app.yaml ''
+lns go gomfk
+lns templates templates
+
+mkdir $BIN/generated_templates
+lns templates/js_include_debug.html generated_templates/js_include.html
+
 mkdir -p $BIN/static
-
-ln -s $DIR/app.yaml $BIN
-
-ln -s $DIR/go $BIN/gomfk
-ln -s $DIR/templates $BIN/templates
-ln -s $DIR/third_party/closure-library $BIN/static/closure-library
-
-ln -s $DIR/js/script.js $BIN/static/
+lns js static/js
+lns third_party/closure-library static/closure-library
+lns assets static/assets
 
 sass \
-    --watch $DIR/stylesheets/:$BIN/static/ \
+    --watch $SRC/stylesheets/:$BIN/static/ \
     --cache-location $TMP > $TMP/sass.log &
 
 $DEV_APPSERVER $BIN

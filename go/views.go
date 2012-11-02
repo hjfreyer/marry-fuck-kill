@@ -92,6 +92,7 @@ func Templates() *template.Template {
 		"templates/make.html",
 		"templates/triple.html",
 		"templates/vote.html",
+		"generated_templates/js_include.html",
 	))
 }
 
