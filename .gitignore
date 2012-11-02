@@ -1,11 +1,2 @@
-*.pyc
-*.class
-*.swp
-*.cache.png
-*.cache.html
-MfkMaker/war/*
-MfkMaker/test-classes/*
-MfkWeb/war/*
-marry-fuck-kill/static/gwt/*
 *~
-v2/bin/*
+bin/*
