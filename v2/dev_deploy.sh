@@ -22,7 +22,6 @@ ln -s $DIR/js/script.js $BIN/static/
 
 sass \
     --watch $DIR/stylesheets/:$BIN/static/ \
-    --cache-location \
-    $TMP/sass > $TMP/sass.log &
+    --cache-location $TMP > $TMP/sass.log &
 
 $DEV_APPSERVER $BIN
