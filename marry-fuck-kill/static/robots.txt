@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /i/
-Disallow: /vote.do
-Disallow: /make.do
