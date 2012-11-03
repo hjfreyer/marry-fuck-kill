@@ -1,4 +1,6 @@
 
+@import "base";
+
 @mixin fill-space {
   position: absolute;
   top: 0;
@@ -31,7 +33,9 @@
     border: 1px solid grey;
 
     width: 4 * $margin + $previewWidth + $resultSize * $numResultCols;
-    height: $searchBarHeight + $numResultRows * $resultSize;
+
+    $entityHeight: $searchBarHeight + $numResultRows * $resultSize;
+    height: $entityHeight;
 
     .preview {
       width: $previewWidth + 2 * $margin;
@@ -76,6 +80,20 @@
         height: $searchBarHeight;
       }
 
+      .throbber {
+        @include fill-space;
+        @include image-div;
+
+        background-image: url("/static/assets/throbber.gif");
+      }
+
+      .no-results {
+        @include fill-space;
+        padding-top: ($entityHeight - 16pt) / 2;
+        text-align: center;
+        font-size: 16pt;
+      }
+
       .result-area {
         position: absolute;
         top: $searchBarHeight;
@@ -100,10 +118,6 @@
               border: 5px solid black;
             }
           }
-	    }
-
-	    .result.empty {
-	      display: none;
 	    }
 
         @mixin result($num) {

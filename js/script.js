@@ -1,4 +1,7 @@
 
+goog.provide('mfk');
+
+goog.require('util');
 goog.require('goog.dom');
 goog.require('goog.dom.query');
 goog.require('goog.array');
@@ -12,10 +15,13 @@ goog.require('goog.ui.Dialog');
 goog.require('goog.ui.LabelInput');
 goog.require('goog.ui.LinkButtonRenderer');
 
-var mfk = {};
+// var mfk = {};
 
 mfk.ACTIONS = { 'marry' : true, 'fuck' : true, 'kill' : true };
 
+/**
+ * @constructor
+ */
 mfk.Triple = function(dom) {
   this.dom_ = dom;
   this.id_ = dom.getAttribute('triple_id');
@@ -89,6 +95,9 @@ mfk.Triple.prototype.edit = function() {
   goog.dom.classes.set(this.dom_, 'triple unvoted');
 };
 
+/**
+ * @constructor
+ */
 mfk.Maker = function(dom, imageSearch) {
   this.dom_ = $(dom);
 
@@ -113,6 +122,32 @@ mfk.Maker = function(dom, imageSearch) {
   // this.imgBox0_.name_.val('The Father');
 };
 
+/**
+ * @constructor
+ */
+mfk.ImageSearch = function() {
+  this.cache_ = {};
+};
+
+mfk.ImageSearch.prototype.search = function(query, callback) {
+  if (query in this.cache_) {
+    callback(this.cache_[query]);
+    return;
+  }
+
+  $.getJSON('/api/v1/imagesearch',
+            { 'query' : query },
+            this.processResults.bind(this, query, callback));
+};
+
+mfk.ImageSearch.prototype.processResults = function(query, callback, results) {
+  this.cache_[query] = results;
+  callback(results);
+};
+
+/**
+ * @constructor
+ */
 mfk.EntityMaker = function(dom, imageSearch) {
   this.dom_ = dom;
   this.imageSearch_ = imageSearch;
@@ -155,37 +190,59 @@ mfk.EntityMaker = function(dom, imageSearch) {
     $(this.resultImgs_[i]).click(this.selectImage.bind(this, i));
   }
 
+  this.throbber_ = goog.dom.query('.throbber', this.dom_)[0];
+  this.noResults_ = goog.dom.query('.no-results', this.dom_)[0];
+
 //  this.search();
 };
 
 mfk.EntityMaker.prototype.onNameChange = function() {
-  this.nameChangeCount_++;
-  setTimeout(this.checkUnchanged.bind(this, this.nameChangeCount_), 1000);
-};
+  var trimmed = goog.string.trim(this.nameTextWrap_.getValue());
 
-mfk.EntityMaker.prototype.checkUnchanged = function(changeNum) {
-  if (changeNum == this.nameChangeCount_) {
-    $(this.searchText_).val(this.nameTextWrap_.getValue());
-    this.search();
+  if (trimmed == this.lastQuery_) {
+    return;
   }
+  this.lastQuery_ = trimmed;
+
+  this.nameChangeCount_++;
+  setTimeout(this.search.bind(this, trimmed, this.nameChangeCount_), 1000);
+
+  this.hideAll();
+  util.show(this.throbber_);
 };
 
-mfk.EntityMaker.prototype.search = function() {
-  var trimmed = $.trim($(this.searchText_).val());
-  if (trimmed == this.lastSearch_) {
+mfk.EntityMaker.prototype.search = function(query, changeNum) {
+  if (changeNum != this.nameChangeCount_) {
+    console.log("Search obsolete: " + query);
     return;
   }
 
-  this.lastSearch_ = trimmed;
-  $.getJSON('/api/v1/imagesearch',
-            { 'query' : $(this.searchText_).val() },
-            this.processResults.bind(this));
-  console.log('Searching: ' + trimmed);
+  console.log('Searching: ' + query);
+  this.imageSearch_.search(query,
+                           this.processResults.bind(this, query, changeNum));
 };
 
-mfk.EntityMaker.prototype.processResults = function(results) {
+mfk.EntityMaker.prototype.hideAll = function() {
+  console.log(this);
+  util.hideAll(this.resultImgs_);
+  util.hide(this.throbber_);
+  util.hide(this.noResults_);
+};
+
+mfk.EntityMaker.prototype.processResults = function(query, changeNum, results) {
+  if (changeNum != this.nameChangeCount_) {
+    console.log("Results obsolete: " + query);
+    return;
+  }
+
+  this.hideAll();
   console.log('Search results');
   console.log(results);
+
+  if (results.images == null) {
+    util.show(this.noResults_);
+    return;
+  }
 
 //  this.deselect();
   this.results_ = results;
@@ -196,13 +253,12 @@ mfk.EntityMaker.prototype.processResults = function(results) {
     return;
   }
 
-  console.log(results);
-
   this.resultUrls_ = [];
   for (var i = 0; i < this.resultImgs_.length; i++) {
     var slot = this.resultImgs_[i];
     if (i < results.images.length) {
       var result = results.images[i];
+      util.show(slot);
       this.resultUrls_.push(result.url);
 
       // goog.style.setTransparentBackgroundImage(slot, result.url);
@@ -219,6 +275,9 @@ mfk.EntityMaker.prototype.selectImage = function(idx) {
   this.imgPreview_.style.backgroundImage= "url('"+ this.resultUrls_[idx] +"')";
 };
 
+/**
+ * @constructor
+ */
 mfk.AutoHeight = function(dom) {
   this.dom_ = dom;
   this.text_ = $('<textarea/>').appendTo($(this.dom_));
@@ -242,6 +301,9 @@ mfk.AutoHeight.prototype.onChange = function() {
 };
 
 
+/**
+ * @constructor
+ */
 mfk.ImageBox = function(dom, imgSearch) {
   this.dom_ = dom;
   this.imgSearch_ = imgSearch;
@@ -260,151 +322,157 @@ mfk.ImageBox.prototype.pickImage = function() {
 
 mfk.ImageBox.prototype.chooseImage = function(result) {
   console.log(result);
-  this,result_ = result;
+  this.result_ = result;
   this.img_.attr('src', result.url);
 }
 
-mfk.ImageSearch = function(dom) {
-  // this.dom_ = $(dom);
+// /**
+//  * @constructor
+//  */
+// mfk.ImageSearch = function(dom) {
+//   // this.dom_ = $(dom);
 
-  this.visible_ = false;
+//   this.visible_ = false;
 
-  this.dialog_ = new goog.ui.Dialog();
-  this.dom_ = $(this.dialog_.getContentElement());
-  this.dialog_.setTitle('Image Search');
+//   this.dialog_ = new goog.ui.Dialog();
+//   this.dom_ = $(this.dialog_.getContentElement());
+//   this.dialog_.setTitle('Image Search');
 
-  var buttonSet = goog.ui.Dialog.ButtonSet.createOkCancel()
-  buttonSet.setDefault(null);
-  this.dialog_.setButtonSet(buttonSet);
-
-
-  this.form_ = $('<form>').appendTo(this.dom_).submit(function(){
-      this.search();
-      return false;
-    }.bind(this));
-  this.query_ = $('<input/>').appendTo(this.form_);
-  $('<input type="submit"/>').appendTo(this.form_);
+//   var buttonSet = goog.ui.Dialog.ButtonSet.createOkCancel()
+//   buttonSet.setDefault(null);
+//   this.dialog_.setButtonSet(buttonSet);
 
 
-  $('<hr/>').appendTo(this.dom_);
+//   this.form_ = $('<form>').appendTo(this.dom_).submit(function(){
+//       this.search();
+//       return false;
+//     }.bind(this));
+//   this.query_ = $('<input/>').appendTo(this.form_);
+//   $('<input type="submit"/>').appendTo(this.form_);
 
 
-  this.resultsDiv_ = $('<div/>').addClass('results').appendTo(this.dom_);
-  this.results_ = [];
-  this.selected_ = null;
+//   $('<hr/>').appendTo(this.dom_);
 
-  this.resultSlots_ = [];
-  this.selectedSlot_ = null;
 
-  for (var i = 0; i < 12; ++i) {
-    var resultDiv = $('<a/>').attr('href', 'javascript:void(0)').addClass('result result' + i).appendTo(this.resultsDiv_).click(
-                                                                                                                                this.select.bind(this, i));
-    // resultDiv.click(function(div) {
-    //     if (this.selected_ != null) {
-    //       this.selected_.removeClass('selected');
-    //     }
-    //     this.selected_ = div;
-    //     div.addClass('selected');
-    //   }.bind(this, resultDiv));
-    $('<div/>').addClass('centerbox').append($('<img/>')).appendTo(resultDiv);
-    this.resultSlots_.push(resultDiv);
-  }
+//   this.resultsDiv_ = $('<div/>').addClass('results').appendTo(this.dom_);
+//   this.results_ = [];
+//   this.selected_ = null;
 
-  goog.events.listen(this.dialog_, goog.ui.Dialog.EventType.SELECT, function(e) {
-      if (e.key == 'ok') {
-        this.ok_cb_(this.selected_);
-      }
-      this.visible_ = false;
-      console.log('You chose: ' + e.key);
-}.bind(this));
+//   this.resultSlots_ = [];
+//   this.selectedSlot_ = null;
 
-};
+//   for (var i = 0; i < 12; ++i) {
+//     var resultDiv = $('<a/>').attr('href', 'javascript:void(0)').addClass('result result' + i).appendTo(this.resultsDiv_).click(
+//                                                                                                                                 this.select.bind(this, i));
+//     // resultDiv.click(function(div) {
+//     //     if (this.selected_ != null) {
+//     //       this.selected_.removeClass('selected');
+//     //     }
+//     //     this.selected_ = div;
+//     //     div.addClass('selected');
+//     //   }.bind(this, resultDiv));
+//     $('<div/>').addClass('centerbox').append($('<img/>')).appendTo(resultDiv);
+//     this.resultSlots_.push(resultDiv);
+//   }
 
-mfk.ImageSearch.prototype.show = function(query, ok_cb) {
-  if (this.visible_) {
-    console.log("Already visible");
-    return;
-  }
+//   goog.events.listen(this.dialog_, goog.ui.Dialog.EventType.SELECT, function(e) {
+//       if (e.key == 'ok') {
+//         this.ok_cb_(this.selected_);
+//       }
+//       this.visible_ = false;
+//       console.log('You chose: ' + e.key);
+// }.bind(this));
 
-  this.clear();
-  this.visible_ = true;
-  this.ok_cb_ = ok_cb;
+// };
 
-  this.query_.val(query);
-  this.search();
-  this.dialog_.setVisible(true);
-  this.query_.focus();
-};
+// mfk.ImageSearch.prototype.show = function(query, ok_cb) {
+//   if (this.visible_) {
+//     console.log("Already visible");
+//     return;
+//   }
 
-mfk.ImageSearch.prototype.clear = function() {
-  this.dialog_.getButtonSet().setButtonEnabled('ok', false);
+//   this.clear();
+//   this.visible_ = true;
+//   this.ok_cb_ = ok_cb;
 
-  this.deselect();
-  this.selected_ = null;
-  this.selectedSlot_ = null;
+//   this.query_.val(query);
+//   this.search();
+//   this.dialog_.setVisible(true);
+//   this.query_.focus();
+// };
 
-  $('.result').addClass('empty');
-};
+// mfk.ImageSearch.prototype.clear = function() {
+//   this.dialog_.getButtonSet().setButtonEnabled('ok', false);
 
-mfk.ImageSearch.prototype.deselect = function() {
-  if (this.selectedSlot_ != null) {
-    this.selectedSlot_.removeClass('selected');
-  }
-}
+//   this.deselect();
+//   this.selected_ = null;
+//   this.selectedSlot_ = null;
 
-mfk.ImageSearch.prototype.select = function(i) {
-  this.deselect();
-  this.selected_ = this.results_.images[i];
-  this.selectedSlot_ = this.resultSlots_[i];
-  this.selectedSlot_.addClass('selected');
+//   $('.result').addClass('empty');
+// };
 
-  this.dialog_.getButtonSet().setButtonEnabled('ok', true);
-};
+// mfk.ImageSearch.prototype.deselect = function() {
+//   if (this.selectedSlot_ != null) {
+//     this.selectedSlot_.removeClass('selected');
+//   }
+// }
 
-mfk.ImageSearch.prototype.search = function() {
-  console.log(this.query_.val());
-  if (this.query_.val() == '') {
-    return;
-  }
+// mfk.ImageSearch.prototype.select = function(i) {
+//   this.deselect();
+//   this.selected_ = this.results_.images[i];
+//   this.selectedSlot_ = this.resultSlots_[i];
+//   this.selectedSlot_.addClass('selected');
 
-  $.getJSON('/api/v1/imagesearch',
-{ 'query' : this.query_.val() },
-            this.processResults.bind(this));
-};
+//   this.dialog_.getButtonSet().setButtonEnabled('ok', true);
+// };
 
-mfk.ImageSearch.prototype.processResults = function(results) {
-  this.deselect();
-  this.results_ = results;
+// mfk.ImageSearch.prototype.search = function() {
+//   console.log(this.query_.val());
+//   if (this.query_.val() == '') {
+//     return;
+//   }
 
-  if (typeof(results.images) == 'undefined') {
-    this.clear();
-    //this.no_results_.toggleClass
-    return;
-  }
+//   $.getJSON('/api/v1/imagesearch',
+// { 'query' : this.query_.val() },
+//             this.processResults.bind(this));
+// };
 
-  console.log(results);
+// mfk.ImageSearch.prototype.processResults = function(results) {
+//   this.deselect();
+//   this.results_ = results;
 
-  for (var i = 0; i < this.resultSlots_.length; i++) {
-    var slot = this.resultSlots_[i];
-    if (i < results.images.length) {
-      var result = results.images[i];
-      slot.find('img').attr('src', result.url);
-      slot.removeClass('empty');
-    }
-  }
-};
+//   if (typeof(results.images) == 'undefined') {
+//     this.clear();
+//     //this.no_results_.toggleClass
+//     return;
+//   }
 
-function main() {
+//   console.log(results);
+
+//   for (var i = 0; i < this.resultSlots_.length; i++) {
+//     var slot = this.resultSlots_[i];
+//     if (i < results.images.length) {
+//       var result = results.images[i];
+//       slot.find('img').attr('src', result.url);
+//       slot.removeClass('empty');
+//     }
+//   }
+// };
+
+mfk.main = function() {
  // goog.array.forEach(goog.dom.query('.triple'),
  //                     function(triple) {
  //                       var t = new mfk.Triple(triple);
  //                       t.decorate();
  //                     });
 
+  var imageSearch = new mfk.ImageSearch();
+
   goog.array.forEach(goog.dom.query('#maker'),
-                     function(maker) {
-                       var t = new mfk.Maker(maker);
-                       //t.decorate();
+                     function(dom) {
+                       new mfk.Maker(dom, imageSearch);
                      });
 
 }
+
+goog.exportSymbol('mfk.main', mfk.main);

@@ -13,6 +13,8 @@
 		  <textarea label="Name me" class="name" rows="3"></textarea>
 		</div>
 		<div class="imagesearch">
+          <div class="no-results hidden">No results :(</div>
+          <div class="throbber hidden"></div>
 	      <div class="searchbar">
 	        <form>
 			  <input>
@@ -21,7 +23,7 @@
 		  </div>
 		  <div class="result-area">
 			{{range $resultIndex, $ := .ResultBoxes}}
-			<div class="result result{{$resultIndex}}">
+			<div class="result result{{$resultIndex}} hidden">
               <div class="result-border"></div>
 			</div>
 			{{end}}
