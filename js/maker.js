@@ -111,10 +111,12 @@ mfk.EntityMaker.prototype.onNameChange = function() {
   this.lastQuery_ = trimmed;
 
   this.nameChangeCount_++;
-  setTimeout(this.search.bind(this, trimmed, this.nameChangeCount_), 1000);
-
   this.hideAll();
-  util.show(this.throbber_);
+
+  if (trimmed != '') {
+    util.show(this.throbber_);
+    setTimeout(this.search.bind(this, trimmed, this.nameChangeCount_), 1000);
+  }
 };
 
 mfk.EntityMaker.prototype.search = function(query, changeNum) {
