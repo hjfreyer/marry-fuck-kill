@@ -235,6 +235,7 @@ func ApiImageSearchHandler(c *Context) {
 	}
 
 	var ourResult mfkImageSearchResult
+	ourResult.Images = make([]mfkImageSearchResultImage, 0)
 	for _, item := range res.Items {
 		img := item.Image
 		ourResult.Images = append(ourResult.Images, mfkImageSearchResultImage{
