@@ -1,12 +1,12 @@
 package gomfk
 
 import (
-"errors"
-	_"math/rand"
-	"time"
 	"appengine"
 	"appengine/datastore"
+	"errors"
 	"fmt"
+	_ "math/rand"
+	"time"
 )
 
 func NewAppengineDataAccessor(cxt appengine.Context) DataAccessor {
@@ -16,14 +16,14 @@ func NewAppengineDataAccessor(cxt appengine.Context) DataAccessor {
 type dbEntityImage FetchedImage
 
 type dbTriple struct {
-	NameA    string
-	VotesA   dbVoteCount
+	NameA  string
+	VotesA dbVoteCount
 
-	NameB    string
-	VotesB   dbVoteCount
+	NameB  string
+	VotesB dbVoteCount
 
-	NameC    string
-	VotesC   dbVoteCount
+	NameC  string
+	VotesC dbVoteCount
 
 	Creator      UserId
 	CreationTime time.Time
@@ -47,7 +47,7 @@ func voteIdx(vote byte) int {
 }
 
 func (t *dbTriple) addVote(vote dbVote) {
-	if (vote.Vote == "") {
+	if vote.Vote == "" {
 		return
 	}
 	t.VotesA[voteIdx(vote.Vote[0])]++
@@ -56,7 +56,7 @@ func (t *dbTriple) addVote(vote dbVote) {
 }
 
 func (t *dbTriple) subtractVote(vote dbVote) {
-	if (vote.Vote == "") {
+	if vote.Vote == "" {
 		return
 	}
 	t.VotesA[voteIdx(vote.Vote[0])]--
@@ -100,8 +100,8 @@ func (db appEngineDataAccessor) GetTripleIds(count int) ([]TripleId, error) {
 
 func (db appEngineDataAccessor) GetTriples(userId UserId, tripleIds []TripleId) (
 	[]Triple, error) {
-	keys := make([]*datastore.Key, 0, 2 * len(tripleIds))
-	triplesAndVotes := make([]interface{}, 0, 2 * len(tripleIds))
+	keys := make([]*datastore.Key, 0, 2*len(tripleIds))
+	triplesAndVotes := make([]interface{}, 0, 2*len(tripleIds))
 
 	for _, tripleId := range tripleIds {
 		tripleKey := datastore.NewKey(db.cxt, "dbTriple", "", int64(tripleId), nil)
@@ -136,29 +136,29 @@ func (db appEngineDataAccessor) GetTriples(userId UserId, tripleIds []TripleId) 
 		}
 
 		triples[i] = Triple{
-		Id : TripleId(keys[tripleIdx].IntID()),
-		Entities : [3]Entity{
+			Id: TripleId(keys[tripleIdx].IntID()),
+			Entities: [3]Entity{
 				Entity{
-				Name: dbT.NameA,
-				MarryCount: dbT.VotesA[0],
-				FuckCount: dbT.VotesA[1],
-				KillCount: dbT.VotesA[2],
+					Name:       dbT.NameA,
+					MarryCount: dbT.VotesA[0],
+					FuckCount:  dbT.VotesA[1],
+					KillCount:  dbT.VotesA[2],
 				},
 				Entity{
-				Name: dbT.NameB,
-				MarryCount: dbT.VotesB[0],
-				FuckCount: dbT.VotesB[1],
-				KillCount: dbT.VotesB[2],
+					Name:       dbT.NameB,
+					MarryCount: dbT.VotesB[0],
+					FuckCount:  dbT.VotesB[1],
+					KillCount:  dbT.VotesB[2],
 				},
 				Entity{
-				Name: dbT.NameC,
-				MarryCount: dbT.VotesC[0],
-				FuckCount: dbT.VotesC[1],
-				KillCount: dbT.VotesC[2],
+					Name:       dbT.NameC,
+					MarryCount: dbT.VotesC[0],
+					FuckCount:  dbT.VotesC[1],
+					KillCount:  dbT.VotesC[2],
 				},
 			},
-		UserVoted: userVoted,
-		UserVote: Vote(dbV.Vote),
+			UserVoted: userVoted,
+			UserVote:  Vote(dbV.Vote),
 		}
 	}
 
@@ -170,33 +170,33 @@ func (db appEngineDataAccessor) MakeTriple(request TripleCreation) (
 	r := NewRandom()
 
 	t := dbTriple{
-	NameA: request.A.Name,
-	VotesA: []int32{0, 0, 0},
-	NameB: request.B.Name,
-	VotesB: []int32{0, 0, 0},
-	NameC: request.C.Name,
-	VotesC: []int32{0, 0, 0},
-	Creator: request.Creator,
-	CreationTime: time.Now(),
-	Ordering: r.Int63(),
-	Disabled: false,
+		NameA:        request.A.Name,
+		VotesA:       []int32{0, 0, 0},
+		NameB:        request.B.Name,
+		VotesB:       []int32{0, 0, 0},
+		NameC:        request.C.Name,
+		VotesC:       []int32{0, 0, 0},
+		Creator:      request.Creator,
+		CreationTime: time.Now(),
+		Ordering:     r.Int63(),
+		Disabled:     false,
 	}
 
-	images := []*dbEntityImage {
+	images := []*dbEntityImage{
 		&dbEntityImage{
-		SourceUrl:   request.A.Image.SourceUrl,
-		ContentType: request.A.Image.ContentType,
-		Data:        request.A.Image.Data,
+			SourceUrl:   request.A.Image.SourceUrl,
+			ContentType: request.A.Image.ContentType,
+			Data:        request.A.Image.Data,
 		},
 		&dbEntityImage{
-		SourceUrl:   request.B.Image.SourceUrl,
-		ContentType: request.B.Image.ContentType,
-		Data:        request.B.Image.Data,
+			SourceUrl:   request.B.Image.SourceUrl,
+			ContentType: request.B.Image.ContentType,
+			Data:        request.B.Image.Data,
 		},
 		&dbEntityImage{
-		SourceUrl:   request.C.Image.SourceUrl,
-		ContentType: request.C.Image.ContentType,
-		Data:        request.C.Image.Data,
+			SourceUrl:   request.C.Image.SourceUrl,
+			ContentType: request.C.Image.ContentType,
+			Data:        request.C.Image.Data,
 		},
 	}
 
@@ -228,7 +228,6 @@ func (db appEngineDataAccessor) MakeTriple(request TripleCreation) (
 	return TripleId(tripleKey.IntID()), nil
 }
 
-
 type dbVote struct {
 	Vote string
 }
@@ -243,35 +242,35 @@ func (db appEngineDataAccessor) UpdateVote(tripleId TripleId,
 	voteKey := datastore.NewKey(db.cxt, "dbVote", string(userId), 0, tripleKey)
 
 	newVote := dbVote{string(vote)}
-	if (!vote.IsValid()) {
+	if !vote.IsValid() {
 		panic("invalid vote")
 	}
 
 	for tryTime := 0; tryTime < RETRY_COUNT; tryTime++ {
 		err := datastore.RunInTransaction(db.cxt,
 			func(cxt appengine.Context) error {
-			var triple dbTriple
-			if err := datastore.Get(cxt, tripleKey, &triple); err != nil {
-				return err
-			}
+				var triple dbTriple
+				if err := datastore.Get(cxt, tripleKey, &triple); err != nil {
+					return err
+				}
 
-			var oldVote dbVote
-			err := datastore.Get(cxt, voteKey, &oldVote)
-			if err != nil && err != datastore.ErrNoSuchEntity {
-				return err
-			}
-			if err != datastore.ErrNoSuchEntity {
-				triple.subtractVote(oldVote)
-			}
-			triple.addVote(newVote)
+				var oldVote dbVote
+				err := datastore.Get(cxt, voteKey, &oldVote)
+				if err != nil && err != datastore.ErrNoSuchEntity {
+					return err
+				}
+				if err != datastore.ErrNoSuchEntity {
+					triple.subtractVote(oldVote)
+				}
+				triple.addVote(newVote)
 
-			if _, err := datastore.PutMulti(cxt, []*datastore.Key{tripleKey, voteKey},
-				[]interface{}{&triple, &newVote}); err != nil {
-				return err
-			}
+				if _, err := datastore.PutMulti(cxt, []*datastore.Key{tripleKey, voteKey},
+					[]interface{}{&triple, &newVote}); err != nil {
+					return err
+				}
 
-			return nil
-		}, nil)
+				return nil
+			}, nil)
 
 		if err == nil {
 			return nil
@@ -298,4 +297,3 @@ func (db appEngineDataAccessor) UpdateVote(tripleId TripleId,
 // 	t.VotesB[v.Vote[1]]--
 // 	t.VotesC[v.Vote[2]]--
 // }
-

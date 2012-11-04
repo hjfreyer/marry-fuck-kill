@@ -1,20 +1,20 @@
 package gomfk
 
 import (
-"bytes"
-	"regexp"
-_"strings"
-"strconv"
 	"appengine"
-_	"appengine/datastore"
+	_ "appengine/datastore"
 	_ "appengine/urlfetch"
 	_ "appengine/user"
+	"bytes"
 	_ "encoding/json"
 	_ "fmt"
 	"html/template"
 	_ "io/ioutil"
 	"net/http"
 	_ "net/url"
+	"regexp"
+	"strconv"
+	_ "strings"
 )
 
 type TripleView Triple
@@ -42,9 +42,12 @@ func (tv *TripleView) MaxVote() int32 {
 
 func (tv *TripleView) Vote(idx int) string {
 	switch tv.UserVote[idx] {
-	case 'm': return "marry"
-	case 'f': return "fuck"
-	case 'k': return "kill"
+	case 'm':
+		return "marry"
+	case 'f':
+		return "fuck"
+	case 'k':
+		return "kill"
 	}
 	panic("invalid vote")
 }
@@ -71,12 +74,12 @@ func (tv TripleView) ChartUrl(entity int,
 
 	var buffer bytes.Buffer
 	err := t.Execute(&buffer, map[string]int32{
-		"Width" : 202,
-		"Height" : 90,
-		"Max" : tv.MaxVote() + 1,
-		"MarryCount" : marryCount,
-		"FuckCount" : fuckCount,
-		"KillCount" : killCount,
+		"Width":      202,
+		"Height":     90,
+		"Max":        tv.MaxVote() + 1,
+		"MarryCount": marryCount,
+		"FuckCount":  fuckCount,
+		"KillCount":  killCount,
 	})
 
 	if err != nil {
@@ -100,7 +103,8 @@ func NotFound(w http.ResponseWriter) {
 	http.Error(w, "404 not found!!!1", 404)
 }
 
-var IMAGE_RE,_ = regexp.Compile("^/i/([0-9]+)/([012])$")
+var IMAGE_RE, _ = regexp.Compile("^/i/([0-9]+)/([012])$")
+
 func ImageHandler(w http.ResponseWriter, r *http.Request) {
 	cxt := appengine.NewContext(r)
 
@@ -124,7 +128,7 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 	imageId := ImageId{TripleId(parentId), idx}
 	cxt.Infof("Looking up image: %d", imageId)
 
- 	db := NewAppengineDataAccessor(cxt)
+	db := NewAppengineDataAccessor(cxt)
 	contentType, data, err := db.GetImage(imageId)
 
 	if err != nil {
@@ -144,7 +148,7 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	cxt := appengine.NewContext(r)
- 	db := NewAppengineDataAccessor(cxt)
+	db := NewAppengineDataAccessor(cxt)
 
 	user := UserIdFromContext(r)
 
@@ -177,8 +181,8 @@ func ListHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func MakeHandler(c *Context) {
-	var makerStructure struct{
-		Entities [3]struct{
+	var makerStructure struct {
+		Entities [3]struct {
 			ResultBoxes [10]struct{}
 		}
 	}
@@ -196,17 +200,16 @@ func MakeHandler(c *Context) {
 // 	t.ExecuteTemplate(w, "vote", nil)
 // }
 
-	// if err != nil {
-	//   cxt.Infof("%s", err)
-	// 	return
-	// } else {
-	//   defer response.Body.Close()
-	//   contents, err := ioutil.ReadAll(response.Body)
-	//   if err != nil {
-	//     cxt.Infof("%s", err)
-	// 		return
-	//   }
-	//   cxt.Infof("%s\n", string(contents))
-	// }
+// if err != nil {
+//   cxt.Infof("%s", err)
+// 	return
+// } else {
+//   defer response.Body.Close()
+//   contents, err := ioutil.ReadAll(response.Body)
+//   if err != nil {
+//     cxt.Infof("%s", err)
+// 		return
+//   }
+//   cxt.Infof("%s\n", string(contents))
+// }
 // plate
-

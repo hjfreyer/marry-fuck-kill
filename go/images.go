@@ -3,9 +3,9 @@ package gomfk
 import (
 	"appengine"
 	_ "appengine"
-	_"appengine/datastore"
 	_ "appengine/datastore"
-	 "appengine/urlfetch"
+	_ "appengine/datastore"
+	"appengine/urlfetch"
 	_ "appengine/user"
 	_ "appengine/user"
 	_ "encoding/json"
@@ -14,7 +14,7 @@ import (
 	_ "fmt"
 	_ "gomfk/json_api"
 	_ "html/template"
-	 "io/ioutil"
+	"io/ioutil"
 	_ "net/http"
 	_ "net/http"
 	_ "net/url"
@@ -63,8 +63,7 @@ func FetchImage(cxt appengine.Context, url string) (
 	// TODO(hjfreyer): Check that the data isn't too large
 
 	return &FetchedImage{
-	ContentType : contentType,
-	Data : contents,
+		ContentType: contentType,
+		Data:        contents,
 	}, nil
 }
-

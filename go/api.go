@@ -1,27 +1,26 @@
 package gomfk
 
 import (
-"appengine/urlfetch"
-	"bytes"
-_	"text/template"
-	_"reflect"
-	_"strconv"
 	"appengine"
-	_"appengine/datastore"
+	_ "appengine/datastore"
+	"appengine/memcache"
+	"appengine/urlfetch"
 	_ "appengine/user"
+	"bytes"
 	"encoding/json"
 	"errors"
-	 "fmt"
-	_"gomfk/json_api"
+	"fmt"
+	_ "gomfk/json_api"
 	"gomfk/parse_args"
 	"net/http"
 	"net/url"
+	_ "reflect"
+	_ "strconv"
 	_ "strings"
-	"appengine/memcache"
+	_ "text/template"
 )
 
 const RETRY_COUNT = 3
-
 
 func WrapHandler(handler func(c *Context)) func(
 	w http.ResponseWriter, r *http.Request) {
@@ -37,16 +36,16 @@ func WrapHandler(handler func(c *Context)) func(
 
 type Context struct {
 	userId UserId
-	cxt appengine.Context
-	w http.ResponseWriter
-	r *http.Request
+	cxt    appengine.Context
+	w      http.ResponseWriter
+	r      *http.Request
 }
 
 func (c *Context) Error(code int, err error) {
 	c.Errorf(code, err.Error())
 }
 
-func (c *Context) Errorf(code int, f string, args... interface{}) {
+func (c *Context) Errorf(code int, f string, args ...interface{}) {
 	msg := fmt.Sprintf(f, args...)
 	c.cxt.Errorf(msg)
 	http.Error(c.w, msg, code)
@@ -59,18 +58,17 @@ type makeRequest struct {
 }
 
 type makeRequest_Entity struct {
-	Name  string  `parseArg:"Name,required"`
-	Image makeRequest_Image  `parseArg:"Image"`
+	Name  string            `parseArg:"Name,required"`
+	Image makeRequest_Image `parseArg:"Image"`
 }
 
 type makeRequest_Image struct {
-	Url         string `parseArg:"Url,required"`
+	Url string `parseArg:"Url,required"`
 	// ContentType string `parseArg:"ContentType"`
 	// SourceUrl   string `parseArg:"sourceUrl"`
 	// Salt        int64  `parseArg:"salt"`
 	// Hash        int64  `parseArg:"hash"`
 }
-
 
 type makeResponse struct {
 	Id int64 `json:"id"`
@@ -95,22 +93,22 @@ func ApiMakeHandler(c *Context) {
 	imageC := FetchOrDie(request.C.Image.Url)
 
 	triple := TripleCreation{
-	A: EntityCreation {
-			Name: request.A.Name,
+		A: EntityCreation{
+			Name:  request.A.Name,
 			Image: imageA,
 		},
-	B: EntityCreation {
-			Name: request.B.Name,
+		B: EntityCreation{
+			Name:  request.B.Name,
 			Image: imageB,
 		},
- 	C: EntityCreation {
-			Name: request.C.Name,
+		C: EntityCreation{
+			Name:  request.C.Name,
 			Image: imageC,
 		},
-	Creator: c.userId,
+		Creator: c.userId,
 	}
 
- 	db := NewAppengineDataAccessor(c.cxt)
+	db := NewAppengineDataAccessor(c.cxt)
 	tripleId, err := db.MakeTriple(triple)
 	if err != nil {
 		panic(err)
@@ -126,8 +124,8 @@ func ApiMakeHandler(c *Context) {
 }
 
 type voteRequest struct {
-	TripleId TripleId  `parseArg:"triple_id,required"`
-	Vote Vote `parseArg:"vote"`
+	TripleId TripleId `parseArg:"triple_id,required"`
+	Vote     Vote     `parseArg:"vote"`
 }
 
 func (v *voteRequest) Validate() error {
@@ -145,7 +143,7 @@ func ApiVoteHandler(c *Context) {
 		return
 	}
 
- 	db := NewAppengineDataAccessor(c.cxt)
+	db := NewAppengineDataAccessor(c.cxt)
 	err = db.UpdateVote(request.TripleId, c.userId, request.Vote)
 
 	if err != nil {
@@ -153,12 +151,10 @@ func ApiVoteHandler(c *Context) {
 	}
 }
 
-
-
 type googleImageSearchResult struct {
-	Items []struct{
-		Image struct{
-			ContextLink string
+	Items []struct {
+		Image struct {
+			ContextLink   string
 			ThumbnailLink string
 		}
 	}
@@ -170,7 +166,7 @@ type mfkImageSearchResult struct {
 
 type mfkImageSearchResultImage struct {
 	Context string `json:"context"`
-	Url string `json:"url"`
+	Url     string `json:"url"`
 }
 
 // type googleImageSearchResultItem struct {
@@ -182,7 +178,6 @@ type mfkImageSearchResultImage struct {
 
 // type mfkImageSearch
 
-
 func ApiImageSearchHandler(c *Context) {
 	query := c.r.FormValue("query")
 	c.cxt.Infof(query)
@@ -190,28 +185,27 @@ func ApiImageSearchHandler(c *Context) {
 	if item, err := memcache.Get(c.cxt, query); err == memcache.ErrCacheMiss {
 		c.cxt.Infof("Memcache: miss")
 	} else if err != nil {
-    panic(err)
+		panic(err)
 	} else {
 		c.cxt.Infof("Memcache: hit")
 		c.w.Write(item.Value)
 		return
-  }
+	}
 
 	const API_BASE = "https://www.googleapis.com/customsearch/v1"
 
 	values := url.Values{}
 	values.Set("cx", "017343173679326196998:omutomvh_wi")
-	values.Set(		"filter", "1")
-	values.Set(		"safe", "medium")
-	values.Set(		"searchType", "image")
-	values.Set(		"fields", "items(image(contextLink,thumbnailLink))")
-	values.Set(		"pp", "1")
-	values.Set(		"key", "AIzaSyDbjy0CKTMV5DoJR07ZYF5w-KL7Ey5lyGY")
-	values.Set(		"q", query)
-	values.Set(		"userIp", c.r.RemoteAddr)
+	values.Set("filter", "1")
+	values.Set("safe", "medium")
+	values.Set("searchType", "image")
+	values.Set("fields", "items(image(contextLink,thumbnailLink))")
+	values.Set("pp", "1")
+	values.Set("key", "AIzaSyDbjy0CKTMV5DoJR07ZYF5w-KL7Ey5lyGY")
+	values.Set("q", query)
+	values.Set("userIp", c.r.RemoteAddr)
 
 	url := API_BASE + "?" + values.Encode()
-
 
 	c.cxt.Infof("API Query: %s", url)
 
@@ -223,7 +217,7 @@ func ApiImageSearchHandler(c *Context) {
 
 	var resultBuffer bytes.Buffer
 	if _, err := resultBuffer.ReadFrom(response.Body); err != nil {
-		panic(err);
+		panic(err)
 	}
 
 	var res googleImageSearchResult
@@ -236,8 +230,8 @@ func ApiImageSearchHandler(c *Context) {
 	for _, item := range res.Items {
 		img := item.Image
 		ourResult.Images = append(ourResult.Images, mfkImageSearchResultImage{
-		Context: img.ContextLink,
-		Url: img.ThumbnailLink,
+			Context: img.ContextLink,
+			Url:     img.ThumbnailLink,
 		})
 	}
 
@@ -247,19 +241,19 @@ func ApiImageSearchHandler(c *Context) {
 	}
 
 	item := &memcache.Item{
-  Key:   query,
-  Value: ourResultJson,
+		Key:   query,
+		Value: ourResultJson,
 	}
 
 	if err := memcache.Add(c.cxt, item); err == memcache.ErrNotStored {
-    c.cxt.Warningf("item with key %q already exists", query)
+		c.cxt.Warningf("item with key %q already exists", query)
 	} else if err != nil {
-    panic(err)
+		panic(err)
 	} else {
-    c.cxt.Infof("Cached successfully: %q", query)
+		c.cxt.Infof("Cached successfully: %q", query)
 	}
 
 	if _, err := c.w.Write(ourResultJson); err != nil {
-		panic(err);
+		panic(err)
 	}
 }

@@ -1,14 +1,14 @@
 package gomfk
 
 import (
-	_"math/rand"
+	_ "math/rand"
 	"time"
 )
 
 type TripleId int64
 type ImageId struct {
 	parent TripleId
-	idx int64
+	idx    int64
 }
 
 type TripleCursor int64
@@ -19,7 +19,7 @@ type Triple struct {
 	Entities [3]Entity
 
 	UserVoted bool
-	UserVote Vote
+	UserVote  Vote
 
 	Creator      UserId
 	CreationTime time.Time
@@ -29,7 +29,7 @@ type Triple struct {
 }
 
 type Entity struct {
-	Name    string
+	Name string
 
 	MarryCount int32
 	FuckCount  int32
@@ -38,11 +38,11 @@ type Entity struct {
 
 type TripleCreation struct {
 	A, B, C EntityCreation
-	Creator      UserId
+	Creator UserId
 }
 
 type EntityCreation struct {
-	Name string
+	Name  string
 	Image *FetchedImage
 }
 
