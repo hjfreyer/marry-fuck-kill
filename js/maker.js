@@ -6,6 +6,9 @@ goog.require('goog.dom');
 goog.require('goog.dom.query');
 goog.require('goog.array');
 goog.require('goog.events');
+goog.require('goog.debug.Logger');
+goog.require('goog.debug.Console');
+
 goog.require("goog.dom");
 goog.require("goog.net.XhrIo");
 goog.require("goog.structs.Map");
@@ -15,18 +18,8 @@ goog.require('goog.ui.Dialog');
 goog.require('goog.ui.LabelInput');
 goog.require('goog.ui.LinkButtonRenderer');
 
-/**
- * @constructor
- */
-mfk.Maker = function(dom, imageSearch) {
-  this.dom_ = dom;
-
-  this.entityMakers_ = goog.array.map(
-    goog.dom.getChildren(this.dom_),
-    function(x) {
-      return new mfk.EntityMaker(x, imageSearch);
-    });
-};
+var E = goog.dom.getElement;
+var Q = goog.dom.query;
 
 /**
  * @constructor
@@ -53,16 +46,66 @@ mfk.ImageSearch.prototype.processResults = function(query, callback, results) {
 
 /**
  * @constructor
+ * @param {!mfk.ImageSearch} imageSearch
  */
-mfk.EntityMaker = function(dom, imageSearch) {
+mfk.Maker = function(imageSearch) {
+  this.entityMakers_ = [];
+
+  this.next_ = E('next');
+  this.next_.disabled = 'disabled';
+  util.click(this.next_, this.showReview.bind(this));
+
+  for (var i = 0; i < 3; i++) {
+    this.entityMakers_.push(
+      new mfk.EntityMaker(E('entity' + i),
+                          imageSearch,
+                          this.onChange.bind(this)));
+    this.entityMakers_[i].nameTextWrap_.setValue('' + i);
+    this.entityMakers_[i].onNameChange();
+  }
+
+  this.review_ = E('review');
+};
+
+mfk.Maker.prototype.showReview = function() {
+  for (var i = 0; i < 3; i++) {
+    util.log(i);
+    var reviewDom = E('entityReview' + i);
+    Q('.name', reviewDom)[0].value = this.entityMakers_[i].getName();
+  }
+};
+
+mfk.Maker.prototype.onChange = function() {
+  if (this.readyToSubmit()) {
+    this.next_.disabled = '';
+  } else {
+    this.next_.disabled = 'disabled';
+  }
+};
+
+mfk.Maker.prototype.readyToSubmit = function() {
+  for (var i = 0; i < 3; i++) {
+    if (this.entityMakers_[i].getName() == '' ||
+        this.entityMakers_[i].getImage() == null) {
+      return false;
+    }
+  }
+  return true;
+};
+
+/**
+ * @constructor
+ */
+mfk.EntityMaker = function(dom, imageSearch, onStateChange) {
   this.dom_ = dom;
   this.imageSearch_ = imageSearch;
+  this.onStateChange_ = onStateChange;
 
-  this.nameText_ = goog.dom.query('.preview .name', this.dom_)[0];
+  this.nameText_ = Q('.preview .name', this.dom_)[0];
   this.nameTextWrap_ = new goog.ui.LabelInput;
   this.nameTextWrap_.decorate(this.nameText_);
 
-  this.imgPreview_ = goog.dom.query('.preview .image', this.dom_)[0];
+  this.imgPreview_ = Q('.preview .image', this.dom_)[0];
 
   $(this.nameText_).focus(function () {
     console.log('foo');
@@ -77,17 +120,14 @@ mfk.EntityMaker = function(dom, imageSearch) {
   $(this.nameText_).bind('keyup', this.onNameChange.bind(this));
   $(this.nameText_).change(this.onNameChange.bind(this));
 
-//  this.nameText_.rows = 3;
-//  var foo= new mfk.AutoHeight(this.nameText_);
-
-  this.searchText_ = goog.dom.query('.imagesearch .searchbar input', this.dom_);
-  this.searchButton_ = goog.dom.query('.imagesearch .searchbar button',
-                                      this.dom_);
+  this.searchText_ = Q('.imagesearch .searchbar input', this.dom_);
+  this.searchButton_ = Q('.imagesearch .searchbar button', this.dom_);
   $(dom).find('form').submit(this.search.bind(this));
 
 //  $(this.searchText_).val('skittles');
-  console.log(this);
-  var resultArea = goog.dom.query('.imagesearch .result-area', this.dom_)[0];
+  util.log("fooooo");
+  util.log(this);
+  var resultArea = Q('.imagesearch .result-area', this.dom_)[0];
   console.log(resultArea);
 
   this.resultUrls_ = null;
@@ -96,10 +136,18 @@ mfk.EntityMaker = function(dom, imageSearch) {
     $(this.resultImgs_[i]).click(this.selectImage.bind(this, i));
   }
 
-  this.throbber_ = goog.dom.query('.throbber', this.dom_)[0];
-  this.noResults_ = goog.dom.query('.no-results', this.dom_)[0];
+  this.throbber_ = Q('.throbber', this.dom_)[0];
+  this.noResults_ = Q('.no-results', this.dom_)[0];
 
 //  this.search();
+};
+
+mfk.EntityMaker.prototype.getName = function() {
+  return goog.string.trim(this.nameTextWrap_.getValue());
+};
+
+mfk.EntityMaker.prototype.getImage = function() {
+  return this.selectedImage_;
 };
 
 mfk.EntityMaker.prototype.onNameChange = function() {
@@ -117,6 +165,7 @@ mfk.EntityMaker.prototype.onNameChange = function() {
     util.show(this.throbber_);
     setTimeout(this.search.bind(this, trimmed, this.nameChangeCount_), 1000);
   }
+  this.onStateChange_();
 };
 
 mfk.EntityMaker.prototype.search = function(query, changeNum) {
@@ -178,14 +227,15 @@ mfk.EntityMaker.prototype.processResults = function(query, changeNum, results) {
 };
 
 mfk.EntityMaker.prototype.selectImage = function(idx) {
-  console.log(idx);
   this.selectedImage_ = this.resultUrls_[idx];
   this.imgPreview_.style.backgroundImage= "url('"+ this.resultUrls_[idx] +"')";
+
+  this.onStateChange_();
 };
 
-mfk.MakeMaker = function() {
+mfk.maker.main = function() {
   var imageSearch = new mfk.ImageSearch();
-  new mfk.Maker(goog.dom.getElement('maker'), imageSearch);
+  new mfk.Maker(imageSearch);
 };
 
-goog.exportSymbol('mfk.maker.main', mfk.MakeMaker);
+goog.exportSymbol('mfk.maker.main', mfk.maker.main);

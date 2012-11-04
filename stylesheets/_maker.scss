@@ -1,143 +1,128 @@
 
 @import "base";
 
-@mixin fill-space {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
+$margin: 10px;
 
-@mixin image-div {
-  background-repeat: no-repeat;
-  background-position: center;
-}
+$previewWidth: 200px;
 
-#maker {
-  $margin: 10px;
+$searchBarHeight: 0px;
 
-  $previewWidth: 200px;
+$resultSize: 135px;
+$resultBorder: 2px;
+$numResultRows: 2;
+$numResultCols: 5;
 
-  $searchBarHeight: 0px;
+.entity {
+  margin: 30px auto;
+  position: relative;
 
-  $resultSize: 135px;
-  $resultBorder: 2px;
-  $numResultRows: 2;
-  $numResultCols: 5;
+  border: 1px solid grey;
 
-  .entity {
-    margin: 30px auto;
-    position: relative;
+  width: 4 * $margin + $previewWidth + $resultSize * $numResultCols;
 
-    border: 1px solid grey;
+  $entityHeight: $searchBarHeight + $numResultRows * $resultSize;
+  height: $entityHeight;
 
-    width: 4 * $margin + $previewWidth + $resultSize * $numResultCols;
+  .preview {
+    width: $previewWidth + 2 * $margin;
 
-    $entityHeight: $searchBarHeight + $numResultRows * $resultSize;
-    height: $entityHeight;
+    @include fill-space;
 
-    .preview {
-      width: $previewWidth + 2 * $margin;
+    border-right: 1px solid grey;
 
-      @include fill-space;
+    .name {
+      position: absolute;
+      left: $margin;
+      right: $margin;
 
-      border-right: 1px solid grey;
-
-      .name {
-        position: absolute;
-        left: $margin;
-        right: $margin;
-
-        font-size: 16pt;
-        text-align: center;
-      }
-
-      .image {
-        @include fill-space;
-        @include image-div;
-      }
+      font-size: 16pt;
+      text-align: center;
     }
 
-    .imagesearch {
+    .image {
+      @include fill-space;
+      @include image-div;
+    }
+  }
+
+  .imagesearch {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: $previewWidth + 2 * $margin;
+    right: 0;
+
+    .searchbar {
       position: absolute;
       top: 0;
-      bottom: 0;
-      left: $previewWidth + 2 * $margin;
-      right: 0;
-
-      .searchbar {
-        position: absolute;
-        top: 0;
-        left: $margin;
-        right: $margin;
+      left: $margin;
+      right: $margin;
 
 
-        overflow: hidden;
+      overflow: hidden;
 
 
 
-        height: $searchBarHeight;
-      }
+      height: $searchBarHeight;
+    }
 
-      .throbber {
-        @include fill-space;
+    .throbber {
+      @include fill-space;
+      @include image-div;
+
+      background-image: url("/static/assets/throbber.gif");
+    }
+
+    .no-results {
+      @include fill-space;
+      padding-top: ($entityHeight - 16pt) / 2;
+      text-align: center;
+      font-size: 16pt;
+    }
+
+    .result-area {
+      position: absolute;
+      top: $searchBarHeight;
+      left: $margin;
+      right: $margin;
+
+      height: 2 * $resultSize;
+
+	  .result {
+	    position: absolute;
+        width: $resultSize;
+        height: $resultSize;
+
+        cursor: pointer;
+
         @include image-div;
 
-        background-image: url("/static/assets/throbber.gif");
-      }
+        .result-border {
+          @include fill-space;
 
-      .no-results {
-        @include fill-space;
-        padding-top: ($entityHeight - 16pt) / 2;
-        text-align: center;
-        font-size: 16pt;
-      }
-
-      .result-area {
-        position: absolute;
-        top: $searchBarHeight;
-        left: $margin;
-        right: $margin;
-
-        height: 2 * $resultSize;
-
-	    .result {
-	      position: absolute;
-          width: $resultSize;
-          height: $resultSize;
-
-          cursor: pointer;
-
-          @include image-div;
-
-          .result-border {
-            @include fill-space;
-
-            &:hover {
-              border: 5px solid black;
-            }
-          }
-	    }
-
-        @mixin result($num) {
-          .result#{$num} {
-            left: ($num % $numResultCols) * $resultSize;
-            top: floor($num / $numResultCols) * $resultSize;
+          &:hover {
+            border: 5px solid black;
           }
         }
+	  }
 
-        @include result(0);
-        @include result(1);
-        @include result(2);
-        @include result(3);
-        @include result(4);
-        @include result(5);
-        @include result(6);
-        @include result(7);
-        @include result(8);
-        @include result(9);
+      @mixin result($num) {
+        .result#{$num} {
+          left: ($num % $numResultCols) * $resultSize;
+          top: floor($num / $numResultCols) * $resultSize;
+        }
       }
+
+      @include result(0);
+      @include result(1);
+      @include result(2);
+      @include result(3);
+      @include result(4);
+      @include result(5);
+      @include result(6);
+      @include result(7);
+      @include result(8);
+      @include result(9);
     }
   }
 }

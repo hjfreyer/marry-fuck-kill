@@ -5,7 +5,7 @@
     {{template "head" "Make Your Own"}}
   </head>
   <body>
-    <div id="maker">
+    <div>
 	  {{range $entityIndex, $entityStructure := .Entities}}
       <div id="entity{{$entityIndex}}" class="entity">
 		<div class="preview">
@@ -31,6 +31,16 @@
 		</div>
       </div>
  	  {{end}}
+      <button id="next">Next</button>
+
+      <div id="review">
+	    {{range $entityIndex, $entityStructure := .Entities}}
+        <div id="entityReview{{$entityIndex}}" class="entityReview">
+          <textarea class="name" rows="3"></textarea>
+          <div class="image"></div>
+        </div>
+        {{end}}
+      </div>
     </div>
     <script>mfk.maker.main()</script>
     {{template "foot"}}

@@ -2,3 +2,16 @@
 .hidden {
   display: none;
 }
+
+@mixin fill-space {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+@mixin image-div {
+  background-repeat: no-repeat;
+  background-position: center;
+}

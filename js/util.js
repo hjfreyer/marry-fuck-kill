@@ -3,6 +3,15 @@ goog.provide('util');
 
 goog.require('goog.array');
 goog.require('goog.dom.classes');
+goog.require('goog.events');
+
+util.log = function(x) {
+  console.log(x);
+};
+
+util.click = function(elem, cb) {
+  goog.events.listen(elem, goog.events.EventType.CLICK, cb);
+};
 
 util.show = function(elem) {
   goog.dom.classes.remove(elem, 'hidden');
