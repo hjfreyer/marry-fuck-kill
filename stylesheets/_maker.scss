@@ -2,127 +2,166 @@
 @import "base";
 
 $margin: 10px;
-
-$previewWidth: 200px;
-
-$searchBarHeight: 0px;
+$searchMargin: 10px;
 
 $resultSize: 135px;
 $resultBorder: 2px;
 $numResultRows: 2;
 $numResultCols: 5;
 
-.entity {
-  margin: 30px auto;
+$totalWidth: 2 * $searchMargin + $resultSize * $numResultCols;
+
+$entityWidth: $totalWidth / 3;
+$entityHeight: 250px;
+
+$previewWidth: 200px;
+
+$searchBarHeight: 40px;
+$imageSearchHeight: $searchBarHeight + $numResultRows * $resultSize;
+
+$totalHeight: $entityHeight + $imageSearchHeight;
+
+#maker {
   position: relative;
+  width: $totalWidth;
+  height: $totalHeight;
 
-  border: 1px solid grey;
+  margin: auto;
 
-  width: 4 * $margin + $previewWidth + $resultSize * $numResultCols;
+  .triple-preview {
+    position: relative;
+    height: $entityHeight;
 
-  $entityHeight: $searchBarHeight + $numResultRows * $resultSize;
-  height: $entityHeight;
-
-  .preview {
-    width: $previewWidth + 2 * $margin;
-
-    @include fill-space;
-
-    border-right: 1px solid grey;
-
-    .name {
-      position: absolute;
-      left: $margin;
-      right: $margin;
-
-      font-size: 16pt;
-      text-align: center;
+    @mixin entityNum($idx) {
+      .entity#{$idx} {
+        left: $idx / 3 * $totalWidth;
+        right: (2 - $idx) / 3 * $totalWidth;
+      }
     }
 
-    .image {
-      @include fill-space;
-      @include image-div;
-    }
-  }
+    @include entityNum(0);
+    @include entityNum(1);
+    @include entityNum(2);
 
-  .imagesearch {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    left: $previewWidth + 2 * $margin;
-    right: 0;
-
-    .searchbar {
+    .entity {
       position: absolute;
       top: 0;
-      left: $margin;
-      right: $margin;
+      bottom: 0;
 
+      border: 1px solid grey;
 
-      overflow: hidden;
-
-
-
-      height: $searchBarHeight;
-    }
-
-    .throbber {
-      @include fill-space;
-      @include image-div;
-
-      background-image: url("/static/assets/throbber.gif");
-    }
-
-    .no-results {
-      @include fill-space;
-      padding-top: ($entityHeight - 16pt) / 2;
-      text-align: center;
-      font-size: 16pt;
-    }
-
-    .result-area {
-      position: absolute;
-      top: $searchBarHeight;
-      left: $margin;
-      right: $margin;
-
-      height: 2 * $resultSize;
-
-	  .result {
-	    position: absolute;
-        width: $resultSize;
-        height: $resultSize;
-
-        cursor: pointer;
-
-        @include image-div;
-
-        .result-border {
-          @include fill-space;
-
-          &:hover {
-            border: 5px solid black;
-          }
-        }
-	  }
-
-      @mixin result($num) {
-        .result#{$num} {
-          left: ($num % $numResultCols) * $resultSize;
-          top: floor($num / $numResultCols) * $resultSize;
-        }
+      .name-div {
+        height: 60px;
       }
 
-      @include result(0);
-      @include result(1);
-      @include result(2);
-      @include result(3);
-      @include result(4);
-      @include result(5);
-      @include result(6);
-      @include result(7);
-      @include result(8);
-      @include result(9);
+      .image {
+        @include image-div;
+        @include fill-space;
+        top: 60px;
+      }
     }
   }
+
+  .search-window {
+    position: relative;
+    height: $imageSearchHeight;
+
+    .search-panels {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: $totalWidth;
+
+      width: $totalWidth * 3;
+
+      .search-panel {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+
+        .search-bar {
+          height: $searchBarHeight;
+        }
+
+        .throbber {
+          @include fill-space;
+          @include image-div;
+
+          background-image: url("/static/assets/throbber.gif");
+        }
+
+        .no-results {
+          @include fill-space;
+          padding-top: ($entityHeight - 16pt) / 2;
+          text-align: center;
+          font-size: 16pt;
+        }
+
+        .result-area {
+          position: absolute;
+          top: $searchBarHeight;
+          left: 0;
+          right: 0;
+          bottom: 0;
+
+	      .result {
+	        position: absolute;
+            width: $resultSize;
+            height: $resultSize;
+
+            cursor: pointer;
+
+            @include image-div;
+
+            .result-border {
+              @include fill-space;
+
+              &:hover {
+                border: 5px solid black;
+              }
+            }
+	      }
+
+          @mixin result($num) {
+            .result#{$num} {
+              left: ($num % $numResultCols) * $resultSize + $searchMargin;
+              top: floor($num / $numResultCols) * $resultSize;
+            }
+          }
+
+          @include result(0);
+          @include result(1);
+          @include result(2);
+          @include result(3);
+          @include result(4);
+          @include result(5);
+          @include result(6);
+          @include result(7);
+          @include result(8);
+          @include result(9);
+        }
+      }
+    }
+
+    @mixin searchNum($idx) {
+      .search-panel#{$idx} {
+        left: $idx * $totalWidth;
+        right: (2 - $idx) * $totalWidth;
+      }
+    }
+
+    @include searchNum(0);
+    @include searchNum(1);
+    @include searchNum(2);
+  }
+
+  @mixin searchSlide($idx) {
+    &.show-search-#{$idx} .search-panels {
+      left: - $idx * $totalWidth;
+    }
+  }
+
+  @include searchSlide(0);
+  @include searchSlide(1);
+  @include searchSlide(2);
 }

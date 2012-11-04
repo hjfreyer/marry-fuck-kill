@@ -13,6 +13,14 @@ util.click = function(elem, cb) {
   goog.events.listen(elem, goog.events.EventType.CLICK, cb);
 };
 
+util.cancelEnter = function(elem) {
+  goog.events.listen(elem, goog.events.EventType.KEYPRESS,
+                     function(event) {
+                       if (event.keyCode == 13)
+                         event.preventDefault();
+                     });
+};
+
 util.show = function(elem) {
   goog.dom.classes.remove(elem, 'hidden');
 };
