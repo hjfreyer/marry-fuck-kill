@@ -179,7 +179,7 @@ mfk.EntityMaker = function(entityDom, searchDom, imageSearch,
                      goog.events.EventType.KEYUP,
                      this.onNameChange.bind(this));
 
-  mfk.clearLabelOnFocus('Name me', this.name_);
+  mfk.clearLabelOnFocus('Give me a name', this.name_);
   util.click(this.imgPreview_, this.onShowSearch.bind(this));
 
   goog.events.listen(this.searchForm_,

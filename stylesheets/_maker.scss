@@ -11,15 +11,13 @@ $numResultCols: 5;
 
 $totalWidth: 2 * $searchMargin + $resultSize * $numResultCols;
 
-$entityWidth: $totalWidth / 3;
-$entityHeight: 250px;
-
-$previewWidth: 200px;
-
 $searchBarHeight: 40px;
-$imageSearchHeight: $searchBarHeight + $numResultRows * $resultSize;
+$drawerHeight: $searchBarHeight + $numResultRows * $resultSize;
 
-$totalHeight: $entityHeight + $imageSearchHeight;
+$totalHeight: $drawerHeight * 2;
+
+$entityHeight: $drawerHeight;
+$imageSearchHeight: $drawerHeight;
 
 #maker {
   position: relative;
@@ -31,6 +29,8 @@ $totalHeight: $entityHeight + $imageSearchHeight;
   .triple-preview {
     position: relative;
     height: $entityHeight;
+    background: white;
+    z-index: 20;
 
     @mixin entityNum($idx) {
       .entity#{$idx} {
@@ -45,19 +45,42 @@ $totalHeight: $entityHeight + $imageSearchHeight;
 
     .entity {
       position: absolute;
-      top: 0;
+      top: 50px;
       bottom: 0;
 
       border: 1px solid grey;
 
+      $nameHeight: 60px;
+
       .name-div {
-        height: 60px;
+        position: relative;
+        height: $nameHeight;
+
+        .name {
+          $nameMargin: 5px;
+
+          position: absolute;
+          left: $nameMargin;
+          right: $nameMargin;
+          top: $nameMargin;
+
+          border-style: none;
+          border-color: Transparent;
+          outline: none;
+          resize: none;
+          text-align: center;
+          font-size: 16pt;
+        }
       }
 
       .image {
         @include image-div;
         @include fill-space;
-        top: 60px;
+        top: $nameHeight;
+
+        .instructions {
+          @include fill-space;
+        }
       }
     }
   }
@@ -66,102 +89,98 @@ $totalHeight: $entityHeight + $imageSearchHeight;
     position: relative;
     height: $imageSearchHeight;
 
-    .search-panels {
+    .search-panel {
       position: absolute;
-      top: 0;
-      bottom: 0;
-      left: $totalWidth;
 
-      width: $totalWidth * 3;
+      top: -$imageSearchHeight;
+      left: 0;
+      right: 0;
+      height: $imageSearchHeight - 1;
 
-      .search-panel {
+      background: white;
+
+      border: 1px solid black;
+      border-top: none;
+
+      -webkit-transition: top 0.4s;
+
+      .search-bar {
+        height: $searchBarHeight;
+      }
+
+      .throbber {
+        @include fill-space;
+        @include image-div;
+
+        background-image: url("/static/assets/throbber.gif");
+      }
+
+      .no-results {
+        @include fill-space;
+        padding-top: ($entityHeight - 16pt) / 2;
+        text-align: center;
+        font-size: 16pt;
+      }
+
+      .result-area {
         position: absolute;
-        top: 0;
+        top: $searchBarHeight;
+        left: 0;
+        right: 0;
         bottom: 0;
 
-        .search-bar {
-          height: $searchBarHeight;
-        }
+	    .result {
+	      position: absolute;
+          width: $resultSize;
+          height: $resultSize;
 
-        .throbber {
-          @include fill-space;
+          cursor: pointer;
+
           @include image-div;
 
-          background-image: url("/static/assets/throbber.gif");
-        }
+          .result-border {
+            @include fill-space;
 
-        .no-results {
-          @include fill-space;
-          padding-top: ($entityHeight - 16pt) / 2;
-          text-align: center;
-          font-size: 16pt;
-        }
-
-        .result-area {
-          position: absolute;
-          top: $searchBarHeight;
-          left: 0;
-          right: 0;
-          bottom: 0;
-
-	      .result {
-	        position: absolute;
-            width: $resultSize;
-            height: $resultSize;
-
-            cursor: pointer;
-
-            @include image-div;
-
-            .result-border {
-              @include fill-space;
-
-              &:hover {
-                border: 5px solid black;
-              }
-            }
-	      }
-
-          @mixin result($num) {
-            .result#{$num} {
-              left: ($num % $numResultCols) * $resultSize + $searchMargin;
-              top: floor($num / $numResultCols) * $resultSize;
+            &:hover {
+              border: 5px solid black;
             }
           }
+	    }
 
-          @include result(0);
-          @include result(1);
-          @include result(2);
-          @include result(3);
-          @include result(4);
-          @include result(5);
-          @include result(6);
-          @include result(7);
-          @include result(8);
-          @include result(9);
+        @mixin result($num) {
+          .result#{$num} {
+            left: ($num % $numResultCols) * $resultSize + $searchMargin;
+            top: floor($num / $numResultCols) * $resultSize;
+          }
         }
+
+        @include result(0);
+        @include result(1);
+        @include result(2);
+        @include result(3);
+        @include result(4);
+        @include result(5);
+        @include result(6);
+        @include result(7);
+        @include result(8);
+        @include result(9);
       }
     }
+  }
 
-    @mixin searchNum($idx) {
+  @mixin activeSearch($idx) {
+    &.show-search-#{$idx} {
       .search-panel#{$idx} {
-        left: $idx * $totalWidth;
-        right: (2 - $idx) * $totalWidth;
+        top: 0;
+      }
+
+      .entity#{$idx} {
+        border-bottom: none;
       }
     }
-
-    @include searchNum(0);
-    @include searchNum(1);
-    @include searchNum(2);
   }
 
-  @mixin searchSlide($idx) {
-    &.show-search-#{$idx} .search-panels {
-      left: - $idx * $totalWidth;
-    }
-  }
-
-  @include searchSlide(0);
-  @include searchSlide(1);
-  @include searchSlide(2);
+  @include activeSearch(0);
+  @include activeSearch(1);
+  @include activeSearch(2);
 }
