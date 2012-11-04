@@ -84,31 +84,28 @@ func ApiMakeHandler(c *Context) {
 		return
 	}
 
-	imageA, err := FetchImage(c.cxt, request.A.Image.Url)
-	if err != nil {
-		panic(err)
+	FetchOrDie := func(url string) *FetchedImage {
+		image, err := FetchImage(c.cxt, url)
+		maybePanic(err)
+		return image
 	}
-	imageB, err := FetchImage(c.cxt, request.B.Image.Url)
-	if err != nil {
-		panic(err)
-	}
-	imageC, err := FetchImage(c.cxt, request.C.Image.Url)
-	if err != nil {
-		panic(err)
-	}
+
+	imageA := FetchOrDie(request.A.Image.Url)
+	imageB := FetchOrDie(request.B.Image.Url)
+	imageC := FetchOrDie(request.C.Image.Url)
 
 	triple := TripleCreation{
 	A: EntityCreation {
-		Name: request.A.Name,
-		Image: imageA,
+			Name: request.A.Name,
+			Image: imageA,
 		},
 	B: EntityCreation {
-		Name: request.B.Name,
-		Image: imageB,
+			Name: request.B.Name,
+			Image: imageB,
 		},
  	C: EntityCreation {
-		Name: request.C.Name,
-		Image: imageC,
+			Name: request.C.Name,
+			Image: imageC,
 		},
 	Creator: c.userId,
 	}

@@ -6,7 +6,7 @@ goog.require('goog.dom.classes');
 goog.require('goog.events');
 
 util.log = function(x) {
-  console.log(x);
+//  console.log(x);
 };
 
 util.click = function(elem, cb) {

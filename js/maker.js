@@ -34,12 +34,12 @@ mfk.ImageSearch.prototype.search = function(query, callback) {
     return;
   }
 
-  $.getJSON('/api/v1/imagesearch',
-            { 'query' : query },
-            this.processResults.bind(this, query, callback));
+  goog.net.XhrIo.send('/api/v1/imagesearch?query=' + query,
+                      this.processResults.bind(this, query, callback));
 };
 
-mfk.ImageSearch.prototype.processResults = function(query, callback, results) {
+mfk.ImageSearch.prototype.processResults = function(query, callback, event) {
+  var results = event.target.getResponseJson();
   this.cache_[query] = results;
   callback(results);
 };
@@ -197,39 +197,6 @@ mfk.EntityMaker = function(entityDom, searchDom, imageSearch,
   for (var i = 0; i < this.resultSlots_.length; i++) {
     util.click(this.resultSlots_[i], this.selectImage.bind(this, i));
   }
-
-
-  // this.nameText_ = Q('.preview .name', this.dom_)[0];
-  // this.nameTextWrap_ = new goog.ui.LabelInput;
-  // this.nameTextWrap_.decorate(this.nameText_);
-
-//   $(this.nameText_).focus(function () {
-//     console.log('foo');
-//     this.nameTextWrap_.setLabel('');
-//   }.bind(this));
-//   $(this.nameText_).blur(function () {
-//     this.nameTextWrap_.setLabel('Name me');
-//   }.bind(this));
-
-//   this.nameChangeCount_ = 0;
-//   this.lastSearch_ = null;
-//   $(this.nameText_).bind('keyup', this.onNameChange.bind(this));
-//   $(this.nameText_).change(this.onNameChange.bind(this));
-
-//   this.searchText_ = Q('.imagesearch .searchbar input', this.dom_);
-//   this.searchButton_ = Q('.imagesearch .searchbar button', this.dom_);
-//   $(dom).find('form').submit(this.search.bind(this));
-
-// //  $(this.searchText_).val('skittles');
-//   util.log("fooooo");
-//   util.log(this);
-//   var resultArea = Q('.imagesearch .result-area', this.dom_)[0];
-//   console.log(resultArea);
-
-//   this.resultUrls_ = null;
-
-
-//  this.search();
 };
 
 mfk.EntityMaker.prototype.getName = function() {
@@ -278,7 +245,7 @@ mfk.EntityMaker.prototype.onShowSearch = function() {
 
 mfk.EntityMaker.prototype.search = function() {
   var query = this.searchBox_.value;
-  console.log('Searching: ' + query);
+  util.log('Searching: ' + query);
 
   this.searchCount_++;
 
@@ -291,7 +258,7 @@ mfk.EntityMaker.prototype.search = function() {
 };
 
 mfk.EntityMaker.prototype.hideAll = function() {
-  console.log(this);
+  util.log(this);
   util.hideAll(this.resultSlots_);
   util.hide(this.throbber_);
   util.hide(this.noResults_);
