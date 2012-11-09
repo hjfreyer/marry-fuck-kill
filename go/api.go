@@ -17,6 +17,7 @@ import (
 	_ "reflect"
 	_ "strconv"
 	_ "strings"
+	_ "code.google.com/p/goprotobuf/proto"
 	_ "text/template"
 )
 
@@ -151,32 +152,28 @@ func ApiVoteHandler(c *Context) {
 	}
 }
 
-type googleImageSearchResult struct {
-	Items []struct {
-		Image struct {
-			ContextLink   string
-			ThumbnailLink string
+type HttpError struct {
+	StatusCode int
+	Message string
+}
+
+type Fetcher interface {
+	Fetch(query string) *http.Response
+}
+
+func ImageSearch(query string, logger Logger, fetcher Fetcher) (ImageSearchResponse, HttpError) {
+	var imageSearchJson []byte
+	for attempt := 0; attempt < NUM_RETRIES; attempt++ {
+		resp := fetcher.Fetch(query)
+		defer resp.Body.Close()
+
+		if resp.StatusCode == 200 {
+			var err error
+			imageSearchJson, err = ioutil.ReadAll(resp.Body)
+			CheckOk(err)
 		}
 	}
 }
-
-type mfkImageSearchResult struct {
-	Images []mfkImageSearchResultImage `json:"images"`
-}
-
-type mfkImageSearchResultImage struct {
-	Context string `json:"context"`
-	Url     string `json:"url"`
-}
-
-// type googleImageSearchResultItem struct {
-// 	Image googleImageSearchResultImage
-// }
-
-// type googleImageSearchResultImage struct {
-// }
-
-// type mfkImageSearch
 
 func ApiImageSearchHandler(c *Context) {
 	query := c.r.FormValue("query")
@@ -220,18 +217,25 @@ func ApiImageSearchHandler(c *Context) {
 		panic(err)
 	}
 
-	var res googleImageSearchResult
-	if err := json.Unmarshal(resultBuffer.Bytes(), &res); err != nil {
+	var res struct {
+		Items []struct {
+			Image struct {
+				ContextLink   string
+				ThumbnailLink string
+			}
+		}
+	}
+	if json.Unmarshal(resultBuffer.Bytes(), &res); err != nil {
+		// TODO: 400 in this case.
 		panic(err)
 	}
 
-	var ourResult mfkImageSearchResult
-	ourResult.Images = make([]mfkImageSearchResultImage, 0)
+	var ourResult ImageSearchResponse
 	for _, item := range res.Items {
 		img := item.Image
-		ourResult.Images = append(ourResult.Images, mfkImageSearchResultImage{
-			Context: img.ContextLink,
-			Url:     img.ThumbnailLink,
+		ourResult.Image = append(ourResult.Image, &ImageMetadata{
+			ContextUrl: &img.ContextLink,
+			Url:     &img.ThumbnailLink,
 		})
 	}
 

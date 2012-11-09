@@ -1,7 +1,7 @@
 package gomfk
 
-func maybePanic(x interface{}) {
-	if x != nil {
-		panic(x)
+func CheckOk(err error) {
+	if err != nil {
+		panic(err)
 	}
 }

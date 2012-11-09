@@ -1,0 +1,11 @@
+
+package mfklib;
+
+message ImageMetadata {
+  optional string url = 1;
+  optional string context_url = 2;
+}
+
+message ImageSearchResponse {
+  repeated ImageMetadata image = 1;
+}
