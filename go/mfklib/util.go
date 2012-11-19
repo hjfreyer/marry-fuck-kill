@@ -1,4 +1,4 @@
-package gomfk
+package mfklib
 
 func CheckOk(err error) {
 	if err != nil {

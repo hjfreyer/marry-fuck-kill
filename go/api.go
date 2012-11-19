@@ -175,6 +175,8 @@ func ImageSearch(query string, logger Logger, fetcher Fetcher) (ImageSearchRespo
 	}
 }
 
+func CachedHandler
+
 func ApiImageSearchHandler(c *Context) {
 	query := c.r.FormValue("query")
 	c.cxt.Infof(query)

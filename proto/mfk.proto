@@ -3,9 +3,51 @@ package mfklib;
 
 message ImageMetadata {
   optional string url = 1;
-  optional string context_url = 2;
+  optional string context = 2;
+}
+
+message WrappedImageMetadata {
+  optional ImageMetadata metadata = 1;
 }
 
 message ImageSearchResponse {
-  repeated ImageMetadata image = 1;
+  repeated WrappedImageMetadata image = 1;
 }
+
+message Vote {
+  enum VoteType {
+    INVALID = 0;
+    MFK = 1;
+    MKF = 2;
+    FMK = 3;
+    FKM = 4;
+    KMF = 5;
+    KFM = 6;
+  }
+
+  optional int64 triple_id = 1;
+  optional string user_id = 2;
+  optional VoteType vote = 3;
+}
+
+message Triple {
+  optional int64 triple_id = 1;
+
+  optional string creator_id = 2;
+
+  optional Entity a = 3;
+  optional Entity b = 4;
+  optional Entity c = 5;
+}
+
+message Entity {
+  optional string name = 1;
+  optional VoteTally tally = 2;
+}
+
+message VoteTally {
+  optional uint64 marry = 1;
+  optional uint64 fuck = 2;
+  optional uint64 kill = 3;
+}
+
