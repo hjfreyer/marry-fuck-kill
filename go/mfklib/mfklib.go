@@ -5,6 +5,7 @@ import (
 _	"net/http"
 _	"io/ioutil"
 _	"encoding/json"
+	 "code.google.com/p/goprotobuf/proto"
 )
 
 type Error struct {
@@ -22,13 +23,30 @@ type ImageSearcher interface {
 	Search(query string) ([]ImageMetadata, error)
 }
 
+type ImageFetcher interface {
+	FetchImage(url string) chan struct{Image; error}
+}
+
+type TripleStatsUpdater func(*TripleStats)
+
+type Database interface {
+	AddTriple(*Triple) (int64, error)
+	GetTriple(triple_id int64) (*Triple, error)
+
+	UpdateStats(triple_id int64, updater TripleStatsUpdater) error
+}
+
 type MFKImpl struct {
-	Log Logger
-	ImageSearcher ImageSearcher
+	UserId string
+
+	Logger
+	ImageSearcher
+	ImageFetcher
+	Database
 }
 
 func (mfk MFKImpl) ImageSearch(query string) (*ImageSearchResponse, *Error) {
-	results, err := mfk.ImageSearcher.Search(query)
+	results, err := mfk.Search(query)
 
 	if err != nil {
 		return nil, &Error{500, "Could not get image search results.", nil}
@@ -44,7 +62,49 @@ func (mfk MFKImpl) ImageSearch(query string) (*ImageSearchResponse, *Error) {
 	return &response, nil
 }
 
+func (mfk MFKImpl) MakeTriple(request *MakeTripleRequest) (*MakeTripleResponse, *Error) {
+	if (!mfk.VerifyWrappedImage(request.A.Image) ||
+		!mfk.VerifyWrappedImage(request.B.Image) ||
+		!mfk.VerifyWrappedImage(request.C.Image)) {
+		return nil, &Error{400, "Image verification failed.", nil}
+	}
 
+	fetchA := mfk.FetchImage(*request.A.Image.Metadata.Url)
+	fetchB := mfk.FetchImage(*request.B.Image.Metadata.Url)
+	fetchC := mfk.FetchImage(*request.C.Image.Metadata.Url)
+
+	imgA := <-fetchA
+	imgB := <-fetchB
+	imgC := <-fetchC
+
+	for _, img := range []struct{Image; error} {imgA, imgB, imgC} {
+		if img.error != nil {
+			return nil, &Error{500, "Error fetching image.", img.error}
+		}
+	}
+
+	triple := Triple{
+		CreatorId: proto.String(mfk.UserId),
+	A: &Triple_Entity{
+		},
+	}
+
+	tripleId, err := mfk.AddTriple(&triple)
+
+	if err != nil {
+		return nil, &Error{500, "Error storing triple.", err}
+	}
+
+	response := MakeTripleResponse{
+		TripleId: proto.Int64(tripleId),
+	}
+
+	return &response, nil
+}
+
+func (mfk MFKImpl) VerifyWrappedImage(image *WrappedImageMetadata) bool {
+	return true
+}
 
 
 	// var imageSearchJson struct {

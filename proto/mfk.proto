@@ -6,12 +6,10 @@ message ImageMetadata {
   optional string context = 2;
 }
 
-message WrappedImageMetadata {
+message Image {
   optional ImageMetadata metadata = 1;
-}
-
-message ImageSearchResponse {
-  repeated WrappedImageMetadata image = 1;
+  optional string content_type = 2;
+  optional bytes data = 3;
 }
 
 message Vote {
@@ -31,23 +29,54 @@ message Vote {
 }
 
 message Triple {
-  optional int64 triple_id = 1;
-
   optional string creator_id = 2;
+
+  message Entity {
+    optional string name = 1;
+    optional Image image = 2;
+  }
 
   optional Entity a = 3;
   optional Entity b = 4;
   optional Entity c = 5;
 }
 
-message Entity {
-  optional string name = 1;
-  optional VoteTally tally = 2;
+message TripleStats {
+  optional uint64 views = 1;
+  optional uint64 skips = 2;
+
+  message Tally {
+    optional uint64 marry = 1;
+    optional uint64 fuck = 2;
+    optional uint64 kill = 3;
+  }
+
+  optional Tally a = 3;
+  optional Tally b = 4;
+  optional Tally c = 5;
 }
 
-message VoteTally {
-  optional uint64 marry = 1;
-  optional uint64 fuck = 2;
-  optional uint64 kill = 3;
+// API
+
+message WrappedImageMetadata {
+  optional ImageMetadata metadata = 1;
 }
 
+message ImageSearchResponse {
+  repeated WrappedImageMetadata image = 1;
+}
+
+message MakeTripleRequest {
+  message MakeEntityRequest {
+    optional string name = 1;
+    optional WrappedImageMetadata image = 2;
+  }
+
+  optional MakeEntityRequest a = 3;
+  optional MakeEntityRequest b = 4;
+  optional MakeEntityRequest c = 5;
+}
+
+message MakeTripleResponse {
+  optional int64 triple_id = 1;
+}

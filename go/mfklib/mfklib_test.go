@@ -10,7 +10,7 @@ import (
 
 func Test(t *testing.T) { TestingT(t) }
 
-type TestLogger struct { *testing.T }
+type TestLogger struct { *C }
 
 func (t TestLogger) Infof(format string, args ...interface{}) {
 	t.Logf(format, args...)
@@ -54,10 +54,10 @@ func (f FakeImageSearcher) Search(query string) (results []ImageMetadata, err er
 type S struct{}
 var _ = Suite(&S{})
 
-func (s *S) TestHelloWorld(c *C) {
-    c.Check(42, Equals, "42")
-//    c.Check(os.Errno(13), Matches, "perm.*accepted")
-}
+// func (s *S) TestHelloWorld(c *C) {
+//     c.Check(42, Equals, "42")
+// //    c.Check(os.Errno(13), Matches, "perm.*accepted")
+// }
 
 func assertProtoEquals(t *testing.T, expected, actual proto.Message) {
 	if !proto.Equal(expected, actual) {
@@ -71,7 +71,7 @@ func (s *S) TestImageSearchFails(c *C) {
 	err := errors.New("Test error")
 
 	mfk := MFKImpl {
-		Log: TestLogger{t},
+		Logger: TestLogger{c},
 		ImageSearcher: FakeImageSearcher(func(query string) ([]ImageMetadata, error) {
 			return nil, err
 		}),

@@ -88,30 +88,37 @@ func (this *ImageMetadata) GetContext() string {
 	return ""
 }
 
-type WrappedImageMetadata struct {
+type Image struct {
 	Metadata         *ImageMetadata `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	ContentType      *string        `protobuf:"bytes,2,opt,name=content_type" json:"content_type,omitempty"`
+	Data             []byte         `protobuf:"bytes,3,opt,name=data" json:"data,omitempty"`
 	XXX_unrecognized []byte         `json:"-"`
 }
 
-func (this *WrappedImageMetadata) Reset()         { *this = WrappedImageMetadata{} }
-func (this *WrappedImageMetadata) String() string { return proto.CompactTextString(this) }
-func (*WrappedImageMetadata) ProtoMessage()       {}
+func (this *Image) Reset()         { *this = Image{} }
+func (this *Image) String() string { return proto.CompactTextString(this) }
+func (*Image) ProtoMessage()       {}
 
-func (this *WrappedImageMetadata) GetMetadata() *ImageMetadata {
+func (this *Image) GetMetadata() *ImageMetadata {
 	if this != nil {
 		return this.Metadata
 	}
 	return nil
 }
 
-type ImageSearchResponse struct {
-	Image            []*WrappedImageMetadata `protobuf:"bytes,1,rep,name=image" json:"image,omitempty"`
-	XXX_unrecognized []byte                  `json:"-"`
+func (this *Image) GetContentType() string {
+	if this != nil && this.ContentType != nil {
+		return *this.ContentType
+	}
+	return ""
 }
 
-func (this *ImageSearchResponse) Reset()         { *this = ImageSearchResponse{} }
-func (this *ImageSearchResponse) String() string { return proto.CompactTextString(this) }
-func (*ImageSearchResponse) ProtoMessage()       {}
+func (this *Image) GetData() []byte {
+	if this != nil {
+		return this.Data
+	}
+	return nil
+}
 
 type Vote struct {
 	TripleId         *int64         `protobuf:"varint,1,opt,name=triple_id" json:"triple_id,omitempty"`
@@ -146,24 +153,16 @@ func (this *Vote) GetVote() Vote_VoteType {
 }
 
 type Triple struct {
-	TripleId         *int64  `protobuf:"varint,1,opt,name=triple_id" json:"triple_id,omitempty"`
-	CreatorId        *string `protobuf:"bytes,2,opt,name=creator_id" json:"creator_id,omitempty"`
-	A                *Entity `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
-	B                *Entity `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
-	C                *Entity `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
-	XXX_unrecognized []byte  `json:"-"`
+	CreatorId        *string        `protobuf:"bytes,2,opt,name=creator_id" json:"creator_id,omitempty"`
+	A                *Triple_Entity `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
+	B                *Triple_Entity `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
+	C                *Triple_Entity `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
 }
 
 func (this *Triple) Reset()         { *this = Triple{} }
 func (this *Triple) String() string { return proto.CompactTextString(this) }
 func (*Triple) ProtoMessage()       {}
-
-func (this *Triple) GetTripleId() int64 {
-	if this != nil && this.TripleId != nil {
-		return *this.TripleId
-	}
-	return 0
-}
 
 func (this *Triple) GetCreatorId() string {
 	if this != nil && this.CreatorId != nil {
@@ -172,79 +171,226 @@ func (this *Triple) GetCreatorId() string {
 	return ""
 }
 
-func (this *Triple) GetA() *Entity {
+func (this *Triple) GetA() *Triple_Entity {
 	if this != nil {
 		return this.A
 	}
 	return nil
 }
 
-func (this *Triple) GetB() *Entity {
+func (this *Triple) GetB() *Triple_Entity {
 	if this != nil {
 		return this.B
 	}
 	return nil
 }
 
-func (this *Triple) GetC() *Entity {
+func (this *Triple) GetC() *Triple_Entity {
 	if this != nil {
 		return this.C
 	}
 	return nil
 }
 
-type Entity struct {
-	Name             *string    `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
-	Tally            *VoteTally `protobuf:"bytes,2,opt,name=tally" json:"tally,omitempty"`
-	XXX_unrecognized []byte     `json:"-"`
+type Triple_Entity struct {
+	Name             *string `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Image            *Image  `protobuf:"bytes,2,opt,name=image" json:"image,omitempty"`
+	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (this *Entity) Reset()         { *this = Entity{} }
-func (this *Entity) String() string { return proto.CompactTextString(this) }
-func (*Entity) ProtoMessage()       {}
+func (this *Triple_Entity) Reset()         { *this = Triple_Entity{} }
+func (this *Triple_Entity) String() string { return proto.CompactTextString(this) }
+func (*Triple_Entity) ProtoMessage()       {}
 
-func (this *Entity) GetName() string {
+func (this *Triple_Entity) GetName() string {
 	if this != nil && this.Name != nil {
 		return *this.Name
 	}
 	return ""
 }
 
-func (this *Entity) GetTally() *VoteTally {
+func (this *Triple_Entity) GetImage() *Image {
 	if this != nil {
-		return this.Tally
+		return this.Image
 	}
 	return nil
 }
 
-type VoteTally struct {
+type TripleStats struct {
+	Views            *uint64            `protobuf:"varint,1,opt,name=views" json:"views,omitempty"`
+	Skips            *uint64            `protobuf:"varint,2,opt,name=skips" json:"skips,omitempty"`
+	A                *TripleStats_Tally `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
+	B                *TripleStats_Tally `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
+	C                *TripleStats_Tally `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
+	XXX_unrecognized []byte             `json:"-"`
+}
+
+func (this *TripleStats) Reset()         { *this = TripleStats{} }
+func (this *TripleStats) String() string { return proto.CompactTextString(this) }
+func (*TripleStats) ProtoMessage()       {}
+
+func (this *TripleStats) GetViews() uint64 {
+	if this != nil && this.Views != nil {
+		return *this.Views
+	}
+	return 0
+}
+
+func (this *TripleStats) GetSkips() uint64 {
+	if this != nil && this.Skips != nil {
+		return *this.Skips
+	}
+	return 0
+}
+
+func (this *TripleStats) GetA() *TripleStats_Tally {
+	if this != nil {
+		return this.A
+	}
+	return nil
+}
+
+func (this *TripleStats) GetB() *TripleStats_Tally {
+	if this != nil {
+		return this.B
+	}
+	return nil
+}
+
+func (this *TripleStats) GetC() *TripleStats_Tally {
+	if this != nil {
+		return this.C
+	}
+	return nil
+}
+
+type TripleStats_Tally struct {
 	Marry            *uint64 `protobuf:"varint,1,opt,name=marry" json:"marry,omitempty"`
 	Fuck             *uint64 `protobuf:"varint,2,opt,name=fuck" json:"fuck,omitempty"`
 	Kill             *uint64 `protobuf:"varint,3,opt,name=kill" json:"kill,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (this *VoteTally) Reset()         { *this = VoteTally{} }
-func (this *VoteTally) String() string { return proto.CompactTextString(this) }
-func (*VoteTally) ProtoMessage()       {}
+func (this *TripleStats_Tally) Reset()         { *this = TripleStats_Tally{} }
+func (this *TripleStats_Tally) String() string { return proto.CompactTextString(this) }
+func (*TripleStats_Tally) ProtoMessage()       {}
 
-func (this *VoteTally) GetMarry() uint64 {
+func (this *TripleStats_Tally) GetMarry() uint64 {
 	if this != nil && this.Marry != nil {
 		return *this.Marry
 	}
 	return 0
 }
 
-func (this *VoteTally) GetFuck() uint64 {
+func (this *TripleStats_Tally) GetFuck() uint64 {
 	if this != nil && this.Fuck != nil {
 		return *this.Fuck
 	}
 	return 0
 }
 
-func (this *VoteTally) GetKill() uint64 {
+func (this *TripleStats_Tally) GetKill() uint64 {
 	if this != nil && this.Kill != nil {
 		return *this.Kill
+	}
+	return 0
+}
+
+type WrappedImageMetadata struct {
+	Metadata         *ImageMetadata `protobuf:"bytes,1,opt,name=metadata" json:"metadata,omitempty"`
+	XXX_unrecognized []byte         `json:"-"`
+}
+
+func (this *WrappedImageMetadata) Reset()         { *this = WrappedImageMetadata{} }
+func (this *WrappedImageMetadata) String() string { return proto.CompactTextString(this) }
+func (*WrappedImageMetadata) ProtoMessage()       {}
+
+func (this *WrappedImageMetadata) GetMetadata() *ImageMetadata {
+	if this != nil {
+		return this.Metadata
+	}
+	return nil
+}
+
+type ImageSearchResponse struct {
+	Image            []*WrappedImageMetadata `protobuf:"bytes,1,rep,name=image" json:"image,omitempty"`
+	XXX_unrecognized []byte                  `json:"-"`
+}
+
+func (this *ImageSearchResponse) Reset()         { *this = ImageSearchResponse{} }
+func (this *ImageSearchResponse) String() string { return proto.CompactTextString(this) }
+func (*ImageSearchResponse) ProtoMessage()       {}
+
+type MakeTripleRequest struct {
+	A                *MakeTripleRequest_MakeEntityRequest `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
+	B                *MakeTripleRequest_MakeEntityRequest `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
+	C                *MakeTripleRequest_MakeEntityRequest `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
+	XXX_unrecognized []byte                               `json:"-"`
+}
+
+func (this *MakeTripleRequest) Reset()         { *this = MakeTripleRequest{} }
+func (this *MakeTripleRequest) String() string { return proto.CompactTextString(this) }
+func (*MakeTripleRequest) ProtoMessage()       {}
+
+func (this *MakeTripleRequest) GetA() *MakeTripleRequest_MakeEntityRequest {
+	if this != nil {
+		return this.A
+	}
+	return nil
+}
+
+func (this *MakeTripleRequest) GetB() *MakeTripleRequest_MakeEntityRequest {
+	if this != nil {
+		return this.B
+	}
+	return nil
+}
+
+func (this *MakeTripleRequest) GetC() *MakeTripleRequest_MakeEntityRequest {
+	if this != nil {
+		return this.C
+	}
+	return nil
+}
+
+type MakeTripleRequest_MakeEntityRequest struct {
+	Name             *string               `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
+	Image            *WrappedImageMetadata `protobuf:"bytes,2,opt,name=image" json:"image,omitempty"`
+	XXX_unrecognized []byte                `json:"-"`
+}
+
+func (this *MakeTripleRequest_MakeEntityRequest) Reset() {
+	*this = MakeTripleRequest_MakeEntityRequest{}
+}
+func (this *MakeTripleRequest_MakeEntityRequest) String() string { return proto.CompactTextString(this) }
+func (*MakeTripleRequest_MakeEntityRequest) ProtoMessage()       {}
+
+func (this *MakeTripleRequest_MakeEntityRequest) GetName() string {
+	if this != nil && this.Name != nil {
+		return *this.Name
+	}
+	return ""
+}
+
+func (this *MakeTripleRequest_MakeEntityRequest) GetImage() *WrappedImageMetadata {
+	if this != nil {
+		return this.Image
+	}
+	return nil
+}
+
+type MakeTripleResponse struct {
+	TripleId         *int64 `protobuf:"varint,1,opt,name=triple_id" json:"triple_id,omitempty"`
+	XXX_unrecognized []byte `json:"-"`
+}
+
+func (this *MakeTripleResponse) Reset()         { *this = MakeTripleResponse{} }
+func (this *MakeTripleResponse) String() string { return proto.CompactTextString(this) }
+func (*MakeTripleResponse) ProtoMessage()       {}
+
+func (this *MakeTripleResponse) GetTripleId() int64 {
+	if this != nil && this.TripleId != nil {
+		return *this.TripleId
 	}
 	return 0
 }
