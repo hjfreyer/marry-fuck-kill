@@ -1,25 +1,24 @@
 package mfklib
 
 import (
-    . "launchpad.net/gocheck"
+	. "launchpad.net/gocheck"
 	"testing"
 	// "fmt"
-	"errors"
 	"code.google.com/p/goprotobuf/proto"
+	"errors"
 )
 
 func Test(t *testing.T) { TestingT(t) }
 
-type TestLogger struct { *C }
+type TestLogger struct{ *C }
 
 func (t TestLogger) Infof(format string, args ...interface{}) {
 	t.Logf(format, args...)
 }
 
 func (t TestLogger) Warningf(format string, args ...interface{}) {
-	t.Logf("W: " + format, args...)
+	t.Logf("W: "+format, args...)
 }
-
 
 type FakeImageSearcher func(query string) (results []ImageMetadata, err error)
 
@@ -31,8 +30,6 @@ func (f FakeImageSearcher) Search(query string) (results []ImageMetadata, err er
 // 	t *testing.T
 // 	fails, count int
 // }
-
-
 
 // func (i *ImageSearchImpl) Search(query string)  (results []ImageMetadata, err error) {
 // 	if query != "query" {
@@ -52,6 +49,7 @@ func (f FakeImageSearcher) Search(query string) (results []ImageMetadata, err er
 // }
 
 type S struct{}
+
 var _ = Suite(&S{})
 
 // func (s *S) TestHelloWorld(c *C) {
@@ -70,7 +68,7 @@ func assertProtoEquals(t *testing.T, expected, actual proto.Message) {
 func (s *S) TestImageSearchFails(c *C) {
 	err := errors.New("Test error")
 
-	mfk := MFKImpl {
+	mfk := MFKImpl{
 		Logger: TestLogger{c},
 		ImageSearcher: FakeImageSearcher(func(query string) ([]ImageMetadata, error) {
 			return nil, err
@@ -81,12 +79,11 @@ func (s *S) TestImageSearchFails(c *C) {
 	c.Check(metadata, IsNil)
 	c.Check(actual_error, Equals, err)
 
+	// //	if metadata !=
+	// 	if err == nil {
+	// 		t.Error("expected error")
+	// 	}
 
-// //	if metadata !=
-// 	if err == nil {
-// 		t.Error("expected error")
-// 	}
-
-// 	_, err := mfk.ImageSearch("query", 1)
+	// 	_, err := mfk.ImageSearch("query", 1)
 
 }
