@@ -1,11 +1,10 @@
 package mfklib
 
 import (
-	. "launchpad.net/gocheck"
-	"testing"
-	// "fmt"
 	"code.google.com/p/goprotobuf/proto"
 	"errors"
+	. "launchpad.net/gocheck"
+	"testing"
 )
 
 func Test(t *testing.T) { TestingT(t) }
@@ -20,70 +19,47 @@ func (t TestLogger) Warningf(format string, args ...interface{}) {
 	t.Logf("W: "+format, args...)
 }
 
-type FakeImageSearcher func(query string) (results []ImageMetadata, err error)
+type FakeImageSearcher func(query string) (results []*ImageMetadata, err error)
 
-func (f FakeImageSearcher) Search(query string) (results []ImageMetadata, err error) {
+func (f FakeImageSearcher) Search(query string) (results []*ImageMetadata, err error) {
 	return f(query)
 }
-
-// type ImageSearchImpl struct {
-// 	t *testing.T
-// 	fails, count int
-// }
-
-// func (i *ImageSearchImpl) Search(query string)  (results []ImageMetadata, err error) {
-// 	if query != "query" {
-// 		i.t.Errorf("Illegal query: %s", query)
-// 	}
-
-// 	if i.count < i.fails {
-// 		err = fmt.Errorf("Test error: %d", i.count)
-// 	} else {
-// 		results = []ImageMetadata{
-// 			{Url: proto.String("img1"), Context: proto.String("context1")},
-// 			{Url: proto.String("img2"), Context: proto.String("context2")},
-// 		}
-// 	}
-// 	i.count++
-// 	return
-// }
 
 type S struct{}
 
 var _ = Suite(&S{})
 
-// func (s *S) TestHelloWorld(c *C) {
-//     c.Check(42, Equals, "42")
-// //    c.Check(os.Errno(13), Matches, "perm.*accepted")
-// }
-
-func assertProtoEquals(t *testing.T, expected, actual proto.Message) {
-	if !proto.Equal(expected, actual) {
-		t.Errorf("Protos not equal, expected:\n%s\nActual:\n%s",
-			proto.MarshalTextString(expected),
-			proto.MarshalTextString(actual))
-	}
-}
-
 func (s *S) TestImageSearchFails(c *C) {
-	err := errors.New("Test error")
-
 	mfk := MFKImpl{
 		Logger: TestLogger{c},
-		ImageSearcher: FakeImageSearcher(func(query string) ([]ImageMetadata, error) {
-			return nil, err
+		ImageSearcher: FakeImageSearcher(func(query string) ([]*ImageMetadata, error) {
+			c.Check(query, Equals, "query")
+			return nil, errors.New("Test error")
 		}),
 	}
 
-	metadata, actual_error := mfk.ImageSearch("query")
+	metadata, err := mfk.ImageSearch("query")
 	c.Check(metadata, IsNil)
-	c.Check(actual_error, Equals, err)
+	c.Check(err, NotNil)
+}
 
-	// //	if metadata !=
-	// 	if err == nil {
-	// 		t.Error("expected error")
-	// 	}
+func (s *S) TestImageSearchSucceeds(c *C) {
+	m1 := ImageMetadata{Url: proto.String("img1"), Context: proto.String("context1")}
+	m2 := ImageMetadata{Url: proto.String("img2"), Context: proto.String("context2")}
 
-	// 	_, err := mfk.ImageSearch("query", 1)
+	mfk := MFKImpl{
+		Logger: TestLogger{c},
+		ImageSearcher: FakeImageSearcher(func(query string) ([]*ImageMetadata, error) {
+			c.Check(query, Equals, "query")
+			return []*ImageMetadata{&m1, &m2}, nil
+		}),
+	}
 
+	metadata, err := mfk.ImageSearch("query")
+	c.Check(err, IsNil)
+	c.Check(metadata, ProtoEquals, &ImageSearchResponse{
+		Image: []*WrappedImageMetadata{
+			{Metadata: &m1},
+			{Metadata: &m2},
+		}})
 }

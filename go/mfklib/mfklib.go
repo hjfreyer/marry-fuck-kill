@@ -16,7 +16,7 @@ type Logger interface {
 }
 
 type ImageSearcher interface {
-	Search(query string) ([]ImageMetadata, error)
+	Search(query string) ([]*ImageMetadata, error)
 }
 
 type ImageOrError struct {
@@ -56,7 +56,7 @@ func (mfk MFKImpl) ImageSearch(query string) (*ImageSearchResponse, *Error) {
 	response := ImageSearchResponse{}
 	for _, img := range results {
 		response.Image = append(response.Image, &WrappedImageMetadata{
-			Metadata: &img,
+			Metadata: img,
 		})
 	}
 
@@ -89,6 +89,14 @@ func (mfk MFKImpl) MakeTriple(request *MakeTripleRequest) (*MakeTripleResponse, 
 		A: &Triple_Entity{
 			Name:  request.A.Name,
 			Image: &imgA.Image,
+		},
+		B: &Triple_Entity{
+			Name:  request.B.Name,
+			Image: &imgB.Image,
+		},
+		C: &Triple_Entity{
+			Name:  request.C.Name,
+			Image: &imgC.Image,
 		},
 	}
 
