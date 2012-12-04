@@ -14,13 +14,14 @@ message Image {
 
 message Vote {
   enum VoteType {
-    INVALID = 0;
+    UNSET = 0;
     MFK = 1;
     MKF = 2;
     FMK = 3;
     FKM = 4;
     KMF = 5;
     KFM = 6;
+    SKIP = 7;
   }
 
   optional int64 triple_id = 1;
@@ -66,15 +67,15 @@ message ImageSearchResponse {
   repeated WrappedImageMetadata image = 1;
 }
 
-message MakeTripleRequest {
-  message MakeEntityRequest {
+message MakeTripleRequest{
+  message Entity {
     optional string name = 1;
     optional WrappedImageMetadata image = 2;
   }
 
-  optional MakeEntityRequest a = 3;
-  optional MakeEntityRequest b = 4;
-  optional MakeEntityRequest c = 5;
+  optional Entity a = 3;
+  optional Entity b = 4;
+  optional Entity c = 5;
 }
 
 message MakeTripleResponse {

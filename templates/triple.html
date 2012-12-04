@@ -29,9 +29,9 @@
         <button class="vote-button marry">Marry</button>
         <button class="vote-button fuck">Fuck</button>
         <button class="vote-button kill">Kill</button>
-        <div class="chart marry"><img src="{{$.ChartUrl $idx 1 0 0}}"></div>
-        <div class="chart fuck"><img src="{{$.ChartUrl $idx 0 1 0}}"></div>
-        <div class="chart kill"><img src="{{$.ChartUrl $idx 0 0 1}}"></div>
+        <div class="chart marry"><img src="{{.ChartUrl 1 0 0}}"></div>
+        <div class="chart fuck"><img src="{{.ChartUrl 0 1 0}}"></div>
+        <div class="chart kill"><img src="{{.ChartUrl 0 0 1}}"></div>
       </div>
     </div>
   {{end}}

@@ -322,57 +322,55 @@ func (this *ImageSearchResponse) String() string { return proto.CompactTextStrin
 func (*ImageSearchResponse) ProtoMessage()       {}
 
 type MakeTripleRequest struct {
-	A                *MakeTripleRequest_MakeEntityRequest `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
-	B                *MakeTripleRequest_MakeEntityRequest `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
-	C                *MakeTripleRequest_MakeEntityRequest `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
-	XXX_unrecognized []byte                               `json:"-"`
+	A                *MakeTripleRequest_Entity `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
+	B                *MakeTripleRequest_Entity `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
+	C                *MakeTripleRequest_Entity `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
+	XXX_unrecognized []byte                    `json:"-"`
 }
 
 func (this *MakeTripleRequest) Reset()         { *this = MakeTripleRequest{} }
 func (this *MakeTripleRequest) String() string { return proto.CompactTextString(this) }
 func (*MakeTripleRequest) ProtoMessage()       {}
 
-func (this *MakeTripleRequest) GetA() *MakeTripleRequest_MakeEntityRequest {
+func (this *MakeTripleRequest) GetA() *MakeTripleRequest_Entity {
 	if this != nil {
 		return this.A
 	}
 	return nil
 }
 
-func (this *MakeTripleRequest) GetB() *MakeTripleRequest_MakeEntityRequest {
+func (this *MakeTripleRequest) GetB() *MakeTripleRequest_Entity {
 	if this != nil {
 		return this.B
 	}
 	return nil
 }
 
-func (this *MakeTripleRequest) GetC() *MakeTripleRequest_MakeEntityRequest {
+func (this *MakeTripleRequest) GetC() *MakeTripleRequest_Entity {
 	if this != nil {
 		return this.C
 	}
 	return nil
 }
 
-type MakeTripleRequest_MakeEntityRequest struct {
+type MakeTripleRequest_Entity struct {
 	Name             *string               `protobuf:"bytes,1,opt,name=name" json:"name,omitempty"`
 	Image            *WrappedImageMetadata `protobuf:"bytes,2,opt,name=image" json:"image,omitempty"`
 	XXX_unrecognized []byte                `json:"-"`
 }
 
-func (this *MakeTripleRequest_MakeEntityRequest) Reset() {
-	*this = MakeTripleRequest_MakeEntityRequest{}
-}
-func (this *MakeTripleRequest_MakeEntityRequest) String() string { return proto.CompactTextString(this) }
-func (*MakeTripleRequest_MakeEntityRequest) ProtoMessage()       {}
+func (this *MakeTripleRequest_Entity) Reset()         { *this = MakeTripleRequest_Entity{} }
+func (this *MakeTripleRequest_Entity) String() string { return proto.CompactTextString(this) }
+func (*MakeTripleRequest_Entity) ProtoMessage()       {}
 
-func (this *MakeTripleRequest_MakeEntityRequest) GetName() string {
+func (this *MakeTripleRequest_Entity) GetName() string {
 	if this != nil && this.Name != nil {
 		return *this.Name
 	}
 	return ""
 }
 
-func (this *MakeTripleRequest_MakeEntityRequest) GetImage() *WrappedImageMetadata {
+func (this *MakeTripleRequest_Entity) GetImage() *WrappedImageMetadata {
 	if this != nil {
 		return this.Image
 	}

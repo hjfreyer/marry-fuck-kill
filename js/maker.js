@@ -5,6 +5,7 @@ goog.require('util');
 goog.require('goog.dom');
 goog.require('goog.dom.query');
 goog.require('goog.array');
+goog.require('goog.json');
 goog.require('goog.events');
 goog.require('goog.debug.Logger');
 goog.require('goog.debug.Console');
@@ -65,9 +66,9 @@ mfk.clearLabelOnFocus = function(label, labelInput) {
 mfk.Maker = function(dom, imageSearch) {
   this.dom_ = dom;
 
-  // this.next_ = E('next');
+  this.createButton_ = Q('.create', this.dom_)[0];
   // this.next_.disabled = 'disabled';
-  // util.click(this.next_, this.showReview.bind(this));
+  util.click(this.createButton_, this.onSubmit.bind(this));
 
   this.entityMakers_ = [];
 
@@ -137,9 +138,9 @@ mfk.Maker.prototype.showReview = function() {
 
 mfk.Maker.prototype.onChange = function() {
   if (this.readyToSubmit()) {
-    this.next_.disabled = '';
+    this.createButton_.disabled = '';
   } else {
-    this.next_.disabled = 'disabled';
+    this.createButton_.disabled = 'disabled';
   }
 };
 
@@ -151,6 +152,28 @@ mfk.Maker.prototype.readyToSubmit = function() {
     }
   }
   return true;
+};
+
+mfk.Maker.prototype.onSubmit = function() {
+  var data = {};
+
+  data['a'] = {
+    'name' : this.entityMakers_[0].getName(),
+    'image' : this.entityMakers_[0].getImage()
+  };
+  data['b'] = {
+    'name' : this.entityMakers_[1].getName(),
+    'image' : this.entityMakers_[1].getImage()
+  };
+  data['c'] = {
+    'name' : this.entityMakers_[2].getName(),
+    'image' : this.entityMakers_[2].getImage()
+  };
+
+  goog.net.XhrIo.send('/api/v1/make',
+                      this.processResults.bind(this),
+                      'POST',
+                      goog.json.serialize(data));
 };
 
 /**
@@ -275,25 +298,25 @@ mfk.EntityMaker.prototype.processResults = function(query, searchNum, results) {
   util.log(results);
 
   this.results_ = results;
-  if (results.images.length == 0) {
+  if (results.image.length == 0) {
     util.show(this.noResults_);
     return;
   }
 
   for (var i = 0; i < this.resultSlots_.length; i++) {
     var slot = this.resultSlots_[i];
-    if (i < results.images.length) {
-      var result = results.images[i];
+    if (i < results.image.length) {
+      var result = results.image[i].metadata;
       util.show(slot);
-      slot.style.backgroundImage= "url('"+ result.url +"')";
+      slot.style.backgroundImage = "url('"+ result.url +"')";
     }
   }
 };
 
 mfk.EntityMaker.prototype.selectImage = function(idx) {
-  this.selectedImage_ = this.results_.images[idx];
+  this.selectedImage_ = this.results_.image[idx];
   this.imgPreview_.style.backgroundImage =
-    "url('"+ this.selectedImage_.url + "')";
+    "url('"+ this.selectedImage_.metadata.url + "')";
 
   this.onStateChange_();
 };

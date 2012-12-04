@@ -2,12 +2,31 @@ package mfklib
 
 import (
 	"code.google.com/p/goprotobuf/proto"
+	"errors"
+	"fmt"
 )
 
-type Error struct {
-	StatusCode int
-	Message    string
-	Error      error
+type EntityNotFoundError struct {
+	Type string
+	Id int64
+	Err error
+}
+
+func (e EntityNotFoundError) Error() string {
+	return fmt.Sprintf("Entity of type %q with id %d not found. Error: %s",
+		e.Type, e.Id, e.Err)
+}
+
+type IllegalArgumentError struct {
+	Func string
+	Argument string
+	Value interface{}
+	Cause string
+}
+
+func (e IllegalArgumentError) Error() string {
+	return fmt.Sprintf("Function %q got illegal value %q for argument %q: %s",
+		e.Func, e.Value, e.Argument, e.Cause)
 }
 
 type Logger interface {
@@ -20,22 +39,24 @@ type ImageSearcher interface {
 }
 
 type ImageOrError struct {
-	Image
+	*Image
 	error
 }
 
 type ImageFetcher interface {
-	FetchImage(url string) chan ImageOrError
+	FetchImage(metadata *ImageMetadata) chan ImageOrError
 }
 
-type TripleStatsUpdater func(*TripleStats)
+type TripleStatsUpdater func(*TripleStats, Vote_VoteType) Vote_VoteType
 
 type Database interface {
-	AddTriple(*Triple) (int64, error)
-	GetTriple(triple_id int64) (*Triple, error)
+	AddTriple(*Triple) (TripleId, error)
+	GetTriple(tripleId TripleId) (*Triple, error)
 
-	UpdateStats(triple_id int64, updater TripleStatsUpdater) error
+	UpdateStats(tripleId TripleId, updater TripleStatsUpdater) error
 }
+
+type TripleId int64
 
 type MFKImpl struct {
 	UserId string
@@ -46,11 +67,11 @@ type MFKImpl struct {
 	Database
 }
 
-func (mfk MFKImpl) ImageSearch(query string) (*ImageSearchResponse, *Error) {
+func (mfk MFKImpl) ImageSearch(query string) (*ImageSearchResponse, error) {
 	results, err := mfk.Search(query)
 
 	if err != nil {
-		return nil, &Error{500, "Could not get image search results.", nil}
+		return nil, err
 	}
 
 	response := ImageSearchResponse{}
@@ -63,16 +84,18 @@ func (mfk MFKImpl) ImageSearch(query string) (*ImageSearchResponse, *Error) {
 	return &response, nil
 }
 
-func (mfk MFKImpl) MakeTriple(request *MakeTripleRequest) (*MakeTripleResponse, *Error) {
-	if !mfk.VerifyWrappedImage(request.A.Image) ||
-		!mfk.VerifyWrappedImage(request.B.Image) ||
-		!mfk.VerifyWrappedImage(request.C.Image) {
-		return nil, &Error{400, "Image verification failed.", nil}
+var ImageVerificationFailedError = errors.New("Image verification failed.")
+
+func (mfk MFKImpl) MakeTriple(request *MakeTripleRequest) (*MakeTripleResponse, error) {
+	if !mfk.verifyWrappedImage(request.A.Image) ||
+		!mfk.verifyWrappedImage(request.B.Image) ||
+		!mfk.verifyWrappedImage(request.C.Image) {
+		return nil, ImageVerificationFailedError
 	}
 
-	fetchA := mfk.FetchImage(*request.A.Image.Metadata.Url)
-	fetchB := mfk.FetchImage(*request.B.Image.Metadata.Url)
-	fetchC := mfk.FetchImage(*request.C.Image.Metadata.Url)
+	fetchA := mfk.FetchImage(request.A.Image.Metadata)
+	fetchB := mfk.FetchImage(request.B.Image.Metadata)
+	fetchC := mfk.FetchImage(request.C.Image.Metadata)
 
 	imgA := <-fetchA
 	imgB := <-fetchB
@@ -80,7 +103,7 @@ func (mfk MFKImpl) MakeTriple(request *MakeTripleRequest) (*MakeTripleResponse, 
 
 	for _, img := range []ImageOrError{imgA, imgB, imgC} {
 		if img.error != nil {
-			return nil, &Error{500, "Error fetching image.", img.error}
+			return nil, img.error
 		}
 	}
 
@@ -88,33 +111,54 @@ func (mfk MFKImpl) MakeTriple(request *MakeTripleRequest) (*MakeTripleResponse, 
 		CreatorId: proto.String(mfk.UserId),
 		A: &Triple_Entity{
 			Name:  request.A.Name,
-			Image: &imgA.Image,
+			Image: imgA.Image,
 		},
 		B: &Triple_Entity{
 			Name:  request.B.Name,
-			Image: &imgB.Image,
+			Image: imgB.Image,
 		},
 		C: &Triple_Entity{
 			Name:  request.C.Name,
-			Image: &imgC.Image,
+			Image: imgC.Image,
 		},
 	}
 
 	tripleId, err := mfk.AddTriple(&triple)
 
 	if err != nil {
-		return nil, &Error{500, "Error storing triple.", err}
+		return nil, err
 	}
 
 	response := MakeTripleResponse{
-		TripleId: proto.Int64(tripleId),
+		TripleId: proto.Int64(int64(tripleId)),
 	}
 
 	return &response, nil
 }
 
-func (mfk MFKImpl) VerifyWrappedImage(image *WrappedImageMetadata) bool {
+func (mfk MFKImpl) verifyWrappedImage(image *WrappedImageMetadata) bool {
 	return true
+}
+
+func (mfk MFKImpl) GetImage(tripleId TripleId, entity string) (*Image, error) {
+	triple, err := mfk.GetTriple(tripleId)
+	if err != nil {
+		return nil, err
+	}
+	switch entity {
+	case "0":
+		return triple.A.Image, nil
+	case "1":
+		return triple.B.Image, nil
+	case "2":
+		return triple.C.Image, nil
+	}
+	return nil, &IllegalArgumentError{
+		Func: "GetImage",
+		Argument: "entity",
+		Value: entity,
+		Cause: "Must be 0, 1, or 2",
+	}
 }
 
 // var imageSearchJson struct {
