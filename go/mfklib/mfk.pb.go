@@ -4,7 +4,7 @@
 
 package mfklib
 
-import proto "code.google.com/p/goprotobuf/proto"
+import proto "github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 import json "encoding/json"
 import math "math"
 

@@ -1,11 +1,12 @@
 package impl
 
 import (
-	"code.google.com/p/goprotobuf/proto"
+//	"code.google.com/p/goprotobuf/proto"
 	"appengine"
 	"appengine/datastore"
 
 	"github.com/hjfreyer/marry-fuck-kill/go/mfklib"
+	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 )
 
 func NewDb(c appengine.Context) mfklib.Database {

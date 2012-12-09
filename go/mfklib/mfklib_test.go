@@ -1,7 +1,7 @@
 package mfklib
 
 import (
-	"code.google.com/p/goprotobuf/proto"
+	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 	"errors"
 	. "launchpad.net/gocheck"
 	"testing"
