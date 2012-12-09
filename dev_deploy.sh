@@ -2,22 +2,28 @@
 
 trap 'kill $(jobs -pr)' SIGINT SIGTERM EXIT
 
-DEV_APPSERVER="/Users/hjfreyer/tools/google_appengine/dev_appserver.py"
+APPENGINE_DIR=${APPENGINE_DIR-"$HOME/tools/google_appengine"}
+DEV_APPSERVER="$APPENGINE_DIR/dev_appserver.py"
 
 SRC="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 BIN="$SRC/bin/dev"
-TMP=$(mktemp -d -t mfk)
+TMP=$(mktemp -d -t mfk.XXXX)
+
+GODIR="$BIN/github.com/hjfreyer/marry-fuck-kill/go"
 
 rm -rf $BIN
 
 mkdir -p $BIN
+mkdir -p $(dirname $GODIR)
+ln -s $SRC/go $GODIR
 
 function lns {
     ln -s $SRC/$1 $BIN/$2
 }
 
+lns main.go github.com/
+
 lns app.yaml ''
-lns go gomfk
 lns templates templates
 
 mkdir $BIN/generated_templates

@@ -1,4 +1,4 @@
-package gomfk
+package handlers
 
 import (
 	_"appengine"
@@ -12,7 +12,6 @@ import (
 	_ "io/ioutil"
 	"net/http"
 	_ "net/url"
-	_"gomfk/handlers"
 	_"regexp"
 	_"strconv"
 	_ "strings"

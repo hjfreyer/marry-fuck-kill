@@ -1,9 +1,9 @@
-package gomfk
+package handlers
 
 import (
 	"appengine"
-	"gomfk/handlers"
-	"gomfk/mfklib"
+	"github.com/hjfreyer/marry-fuck-kill/go/mfklib"
+	"github.com/hjfreyer/marry-fuck-kill/go/impl"
 	// _ "appengine/datastore"
 	// 	"appengine/memcache"
 	"appengine/urlfetch"
@@ -209,7 +209,7 @@ func MakeMFKImpl(req *http.Request) *mfklib.MFKImpl {
 	userId = req.RemoteAddr
 
 	backend := BackendImpl{cxt, req}
-	db := NewDb(cxt)
+	db := impl.NewDb(cxt)
 
 	return &mfklib.MFKImpl{
 		UserId:        userId,
@@ -254,7 +254,7 @@ func (a apiImageSearchHandler) GetKey(r *http.Request) string {
 	return "IMGSRCH:" + r.FormValue("query")
 }
 
-func (a apiImageSearchHandler) Handle(r *http.Request) ([]byte, *handlers.Error) {
+func (a apiImageSearchHandler) Handle(r *http.Request) ([]byte, *Error) {
 	query := r.FormValue("query")
 
 	mfk := MakeMFKImpl(r)
@@ -267,15 +267,15 @@ func (a apiImageSearchHandler) Handle(r *http.Request) ([]byte, *handlers.Error)
 	return response, nil
 }
 
-var ImageSearchApiHandler = handlers.NewCachedHandler(apiImageSearchHandler{})
+var ImageSearchApiHandler = NewCachedHandler(apiImageSearchHandler{})
 
 
 
 type makeTripleHandler struct{}
 
-func (m makeTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *handlers.Error {
+func (m makeTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error {
 	if r.Method != "POST" {
-		return &handlers.Error{http.StatusMethodNotAllowed, "Error: Use POST", nil}
+		return &Error{http.StatusMethodNotAllowed, "Error: Use POST", nil}
 	}
 
 	defer r.Body.Close()
@@ -286,7 +286,7 @@ func (m makeTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *handl
 
 	request := mfklib.MakeTripleRequest{}
 	if err := json.Unmarshal(body, &request); err != nil {
-		return &handlers.Error{400, "Request body is not a valid JSON MakeTripleRequest", err}
+		return &Error{400, "Request body is not a valid JSON MakeTripleRequest", err}
 	}
 
 	mfk := MakeMFKImpl(r)
@@ -299,13 +299,13 @@ func (m makeTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *handl
 	return nil
 }
 
-var MakeTripleApiHandler = handlers.NewErrorHandler(makeTripleHandler{})
+var MakeTripleApiHandler = NewErrorHandler(makeTripleHandler{})
 
-func parseTripleId(t string) (mfklib.TripleId, *handlers.Error) {
+func parseTripleId(t string) (mfklib.TripleId, *Error) {
 	tripleId, err := strconv.ParseInt(t, 10, 64)
 	if err != nil {
 		if nerr := err.(*strconv.NumError); nerr.Err == strconv.ErrRange {
-			return 0, &handlers.Error{404, "Triple ID too long", err}
+			return 0, &Error{404, "Triple ID too long", err}
 		} else {
 			panic(err)
 		}
@@ -314,25 +314,25 @@ func parseTripleId(t string) (mfklib.TripleId, *handlers.Error) {
 	return mfklib.TripleId(tripleId), nil
 }
 
-func notFoundError(err error) *handlers.Error {
+func notFoundError(err error) *Error {
 	if err == nil {
 		return nil
 	}
 
 	switch e := err.(type) {
 	case mfklib.EntityNotFoundError:
-		return &handlers.Error{404, "Not found.", e}
+		return &Error{404, "Not found.", e}
 	}
 	panic(err)
 }
 
 type getImageHandler struct{}
 
-var badUrlFormat = &handlers.Error{404, "Bad URL format", nil}
+var badUrlFormat = &Error{404, "Bad URL format", nil}
 
 var IMAGE_RE, _ = regexp.Compile("^/i/([0-9]+)/([012])$")
 
-func (getImageHandler) Handle(w http.ResponseWriter, r *http.Request) *handlers.Error{
+func (getImageHandler) Handle(w http.ResponseWriter, r *http.Request) *Error{
 	match := IMAGE_RE.FindStringSubmatch(r.URL.Path)
 	if match == nil {
 		return badUrlFormat
@@ -358,7 +358,7 @@ func (getImageHandler) Handle(w http.ResponseWriter, r *http.Request) *handlers.
 	return nil
 }
 
-var GetImageHandler = handlers.NewErrorHandler(getImageHandler{})
+var GetImageHandler = NewErrorHandler(getImageHandler{})
 
 // var request makeRequest
 // err := parse_args.ParseArgs(c.r, &request)
@@ -502,7 +502,7 @@ type singleTripleHandler struct{}
 
 var VOTE_RE, _ = regexp.Compile("^/vote/([0-9]+)$")
 
-func (singleTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *handlers.Error {
+func (singleTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error {
 	match := VOTE_RE.FindStringSubmatch(r.URL.Path)
 	if match == nil {
 		return badUrlFormat
@@ -553,4 +553,4 @@ func (singleTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *handl
 	return nil
 }
 
-var SingleTripleHandler = handlers.NewErrorHandler(singleTripleHandler{})
+var SingleTripleHandler = NewErrorHandler(singleTripleHandler{})

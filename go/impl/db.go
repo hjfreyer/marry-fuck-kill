@@ -1,10 +1,11 @@
-package gomfk
+package impl
 
 import (
 	"code.google.com/p/goprotobuf/proto"
 	"appengine"
 	"appengine/datastore"
-	"gomfk/mfklib"
+
+	"github.com/hjfreyer/marry-fuck-kill/go/mfklib"
 )
 
 func NewDb(c appengine.Context) mfklib.Database {
@@ -46,9 +47,10 @@ func (db mfkDb) GetTriple(tripleId mfklib.TripleId) (*mfklib.Triple, error) {
 	}
 
 	result := &mfklib.Triple{}
-	err := proto.Unmarshal(triple.Proto, result)
-	checkOk(err)
-
+	if err := proto.Unmarshal(triple.Proto, result); err != nil {
+		panic(err)
+	}
+	
 	return result, nil
 }
 

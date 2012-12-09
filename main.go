@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"github.com/hjfreyer/marry-fuck-kill/go/handlers"
 )
 
 func NewRandom() *rand.Rand {
@@ -24,10 +25,10 @@ func NewRandom() *rand.Rand {
 }
 
 func init() {
-	http.HandleFunc("/make", MakeHandler)
-	http.Handle("/api/v1/imagesearch", ImageSearchApiHandler)
-	http.Handle("/api/v1/make", MakeTripleApiHandler)
+	http.HandleFunc("/make", handlers.MakeHandler)
+	http.Handle("/api/v1/imagesearch", handlers.ImageSearchApiHandler)
+	http.Handle("/api/v1/make", handlers.MakeTripleApiHandler)
 	// http.HandleFunc("/api/v1/vote", WrapHandler(ApiVoteHandler))
-	http.Handle("/i/", GetImageHandler)
-	http.Handle("/vote/", SingleTripleHandler)
+	http.Handle("/i/", handlers.GetImageHandler)
+	http.Handle("/vote/", handlers.SingleTripleHandler)
 }

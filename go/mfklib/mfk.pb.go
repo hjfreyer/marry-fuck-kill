@@ -16,32 +16,35 @@ var _ = math.Inf
 type Vote_VoteType int32
 
 const (
-	Vote_INVALID Vote_VoteType = 0
-	Vote_MFK     Vote_VoteType = 1
-	Vote_MKF     Vote_VoteType = 2
-	Vote_FMK     Vote_VoteType = 3
-	Vote_FKM     Vote_VoteType = 4
-	Vote_KMF     Vote_VoteType = 5
-	Vote_KFM     Vote_VoteType = 6
+	Vote_UNSET Vote_VoteType = 0
+	Vote_MFK   Vote_VoteType = 1
+	Vote_MKF   Vote_VoteType = 2
+	Vote_FMK   Vote_VoteType = 3
+	Vote_FKM   Vote_VoteType = 4
+	Vote_KMF   Vote_VoteType = 5
+	Vote_KFM   Vote_VoteType = 6
+	Vote_SKIP  Vote_VoteType = 7
 )
 
 var Vote_VoteType_name = map[int32]string{
-	0: "INVALID",
+	0: "UNSET",
 	1: "MFK",
 	2: "MKF",
 	3: "FMK",
 	4: "FKM",
 	5: "KMF",
 	6: "KFM",
+	7: "SKIP",
 }
 var Vote_VoteType_value = map[string]int32{
-	"INVALID": 0,
-	"MFK":     1,
-	"MKF":     2,
-	"FMK":     3,
-	"FKM":     4,
-	"KMF":     5,
-	"KFM":     6,
+	"UNSET": 0,
+	"MFK":   1,
+	"MKF":   2,
+	"FMK":   3,
+	"FKM":   4,
+	"KMF":   5,
+	"KFM":   6,
+	"SKIP":  7,
 }
 
 func (x Vote_VoteType) Enum() *Vote_VoteType {
