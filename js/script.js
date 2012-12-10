@@ -95,6 +95,14 @@ mfk.Triple.prototype.edit = function() {
   goog.dom.classes.set(this.dom_, 'triple unvoted');
 };
 
+mfk.makeTriples = function() {
+  goog.array.forEach(goog.dom.query('.triple'),
+                     function(triple) {
+					   var t = new mfk.Triple(triple);
+					   t.decorate();
+                     });
+};
+
 mfk.main = function() {
  // goog.array.forEach(goog.dom.query('.triple'),
  //                     function(triple) {
@@ -102,6 +110,7 @@ mfk.main = function() {
  //                       t.decorate();
  //                     });
 
-}
+};
 
 goog.exportSymbol('mfk.main', mfk.main);
+goog.exportSymbol('mfk.makeTriples', mfk.makeTriples);

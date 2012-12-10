@@ -103,87 +103,59 @@ div {
 	opacity: 0;
   }
 
-  .triple.voted.smarry0 .entity0 .vote-button.marry,
-  .triple.voted.smarry1 .entity1 .vote-button.marry,
-  .triple.voted.smarry2 .entity2 .vote-button.marry,
+  @mixin selectedVote($entityNum, $vote) {
+	&.voted.s#{$vote}#{$entityNum} .entity#{$entityNum} {
+	  .vote-button.#{$vote} {
+		top: $buttonMargin;
+		opacity: 1;
+		background: white;
+		border: 0;
+	  }
 
-  .triple.voted.sfuck0 .entity0 .vote-button.fuck,
-  .triple.voted.sfuck1 .entity1 .vote-button.fuck,
-  .triple.voted.sfuck2 .entity2 .vote-button.fuck,
+	  .chart.#{$vote} {
+		opacity: 1;
+	  }
+	}
 
-  .triple.voted.skill0 .entity0 .vote-button.kill,
-  .triple.voted.skill1 .entity1 .vote-button.kill,
-  .triple.voted.skill2 .entity2 .vote-button.kill {
-	top: $buttonMargin;
-	opacity: 1;
-	background: white;
-	border: 0;
+	&.s#{$vote}#{$entityNum} .entity#{$entityNum} .vote-button.#{$vote} {
+	  font-weight: bold;
+	  font-size: 13pt;
+	}
   }
 
-  .triple.smarry0 .entity0 .vote-button.marry,
-  .triple.smarry1 .entity1 .vote-button.marry,
-  .triple.smarry2 .entity2 .vote-button.marry,
+  @include selectedVote(0, marry);
+  @include selectedVote(1, marry);
+  @include selectedVote(2, marry);
 
-  .triple.sfuck0 .entity0 .vote-button.fuck,
-  .triple.sfuck1 .entity1 .vote-button.fuck,
-  .triple.sfuck2 .entity2 .vote-button.fuck,
+  @include selectedVote(0, fuck);
+  @include selectedVote(1, fuck);
+  @include selectedVote(2, fuck);
 
-  .triple.skill0 .entity0 .vote-button.kill,
-  .triple.skill1 .entity1 .vote-button.kill,
-  .triple.skill2 .entity2 .vote-button.kill {
-	font-weight: bold;
-	font-size: 13pt;
-  }
-
-  .triple.voted.smarry0 .entity0 .chart.marry,
-  .triple.voted.smarry1 .entity1 .chart.marry,
-  .triple.voted.smarry2 .entity2 .chart.marry,
-
-  .triple.voted.sfuck0 .entity0 .chart.fuck,
-  .triple.voted.sfuck1 .entity1 .chart.fuck,
-  .triple.voted.sfuck2 .entity2 .chart.fuck,
-
-  .triple.voted.skill0 .entity0 .chart.kill,
-  .triple.voted.skill1 .entity1 .chart.kill,
-  .triple.voted.skill2 .entity2 .chart.kill {
-	opacity: 1;
-  }
-
+  @include selectedVote(0, kill);
+  @include selectedVote(1, kill);
+  @include selectedVote(2, kill);
 
   button.vote {
 	display: none;
   }
 
-  .triple.unvoted.smarry0.sfuck1.skill2,
-  .triple.unvoted.smarry0.sfuck2.skill1,
-
-  .triple.unvoted.smarry1.sfuck0.skill2,
-  .triple.unvoted.smarry1.sfuck2.skill0,
-
-  .triple.unvoted.smarry2.sfuck0.skill1,
-  .triple.unvoted.smarry2.sfuck1.skill0 {
-	button.vote {
-	  display: inline-block;
-	}
-	button.disabledVote {
-	  display: none;
+  &.unvoted {
+	&.smarry0.sfuck1.skill2,
+	&.smarry0.sfuck2.skill1,
+	&.smarry1.sfuck0.skill2,
+	&.smarry1.sfuck2.skill0,
+	&.smarry2.sfuck0.skill1,
+	&.smarry2.sfuck1.skill0 {
+	  button.vote {
+		display: inline-block;
+	  }
+	  button.disabledVote {
+		display: none;
+	  }
 	}
   }
 
-  .triple.voted.smarry1 .entity1 .chart.marry,
-  .triple.voted.smarry2 .entity2 .chart.marry,
-
-  .triple.voted.sfuck0 .entity0 .chart.fuck,
-  .triple.voted.sfuck1 .entity1 .chart.fuck,
-  .triple.voted.sfuck2 .entity2 .chart.fuck,
-
-  .triple.voted.skill0 .entity0 .chart.kill,
-  .triple.voted.skill1 .entity1 .chart.kill,
-  .triple.voted.skill2 .entity2 .chart.kill {
-	opacity: 1;
-  }
-
-  .triple.voted .vote-button.unselected {
+  &.voted .vote-button {
 	opacity: 0;
   }
 }
