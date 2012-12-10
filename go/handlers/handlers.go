@@ -361,8 +361,13 @@ var GetImageHandler = NewErrorHandler(getImageHandler{})
 // 	}
 
 type tripleView struct {
-	Id mfklib.TripleId
 	*mfklib.Triple
+
+	Id mfklib.TripleId
+
+	MarryCount uint64
+	FuckCount uint64
+	KillCount uint64
 }
 
 func (tv tripleView) UserVoted() bool {

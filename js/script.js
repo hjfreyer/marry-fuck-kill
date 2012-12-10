@@ -22,11 +22,17 @@ mfk.ACTIONS = { 'marry' : true, 'fuck' : true, 'kill' : true };
 /**
  * @constructor
  */
-mfk.Triple = function(dom) {
+mfk.Triple = function(dom, triple_id, marry_count, fuck_count, kill_count) {
   this.dom_ = dom;
-  this.id_ = dom.getAttribute('triple_id');
+  this.id_ = triple_id;
+	this.marry_count_ = marry_count;
+	this.fuck_count_ = fuck_count;
+	this.kill_count_ = kill_count;
+
   this.vote_ = goog.dom.query('.vote', this.dom_)[0];
   this.edit_ = goog.dom.query('.edit', this.dom_)[0];
+
+	this.decorate();
 };
 
 mfk.Triple.prototype.decorate = function() {
@@ -95,13 +101,13 @@ mfk.Triple.prototype.edit = function() {
   goog.dom.classes.set(this.dom_, 'triple unvoted');
 };
 
-mfk.makeTriples = function() {
-  goog.array.forEach(goog.dom.query('.triple'),
-                     function(triple) {
-					   var t = new mfk.Triple(triple);
-					   t.decorate();
-                     });
-};
+// mfk.makeTriples = function() {
+//   goog.array.forEach(goog.dom.query('.triple'),
+//                      function(triple) {
+// 					   var t = new mfk.Triple(triple);
+// 					   t.decorate();
+//                      });
+// };
 
 mfk.main = function() {
  // goog.array.forEach(goog.dom.query('.triple'),
@@ -113,4 +119,4 @@ mfk.main = function() {
 };
 
 goog.exportSymbol('mfk.main', mfk.main);
-goog.exportSymbol('mfk.makeTriples', mfk.makeTriples);
+goog.exportSymbol('mfk.Triple', mfk.Triple);

@@ -9,14 +9,13 @@
       {{template "triple" .}}
     </div>
     {{end}}
-	<script>mfk.makeTriples()</script>
     {{template "foot"}}
   </body>
 </html>
 {{end}}
 
 {{define "triple"}}
-<div class="triple {{if .UserVoted}}voted s{{.Vote 0}}0 s{{.Vote 1}}1 s{{.Vote 2}}2 {{else}}unvoted{{end}}" triple_id={{.Id}}>
+<div class="triple {{if .UserVoted}}voted s{{.Vote 0}}0 s{{.Vote 1}}1 s{{.Vote 2}}2 {{else}}unvoted{{end}}" id="triple{{.Id}}">
   <div class="entities">
     {{range $idx, $entity := .Entities}}
     <div class="entity entity{{$idx}}">
@@ -41,6 +40,13 @@
   <button class="disabledVote" disabled="disabled">Vote</button>
   <button class="edit">Edit</button>
 </div>
+<script>new mfk.Triple(
+	document.getElementById('triple{{.Id}}'), 
+	{{.Id}}, 
+	{{.MarryCount}},
+	{{.FuckCount}},
+	{{.KillCount}});
+</script>
 {{end}}
 
 {{define "entity"}}
