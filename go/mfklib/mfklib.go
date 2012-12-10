@@ -1,15 +1,15 @@
 package mfklib
 
 import (
-	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 	"errors"
 	"fmt"
+	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 )
 
 type EntityNotFoundError struct {
 	Type string
-	Id int64
-	Err error
+	Id   int64
+	Err  error
 }
 
 func (e EntityNotFoundError) Error() string {
@@ -18,10 +18,10 @@ func (e EntityNotFoundError) Error() string {
 }
 
 type IllegalArgumentError struct {
-	Func string
+	Func     string
 	Argument string
-	Value interface{}
-	Cause string
+	Value    interface{}
+	Cause    string
 }
 
 func (e IllegalArgumentError) Error() string {
@@ -154,65 +154,9 @@ func (mfk MFKImpl) GetImage(tripleId TripleId, entity string) (*Image, error) {
 		return triple.C.Image, nil
 	}
 	return nil, &IllegalArgumentError{
-		Func: "GetImage",
+		Func:     "GetImage",
 		Argument: "entity",
-		Value: entity,
-		Cause: "Must be 0, 1, or 2",
+		Value:    entity,
+		Cause:    "Must be 0, 1, or 2",
 	}
 }
-
-// var imageSearchJson struct {
-// 	Items []struct {
-// 		Image struct {
-// 			ContextLink   string
-// 			ThumbnailLink string
-// 		}
-// 	}
-// }
-
-// tryImageSearch := func() bool {
-// 	resp, err := mfk.ImageSearcher.Search(query)
-// 	defer resp.Body.Close()
-
-// 	if err != nil {
-// 		mfk.Log.Warningf("%s", err)
-// 		return false
-// 	}
-
-// 	body, err := ioutil.ReadAll(resp.Body)
-// 	CheckOk(err)
-// 	if resp.StatusCode != 200 {
-// 		mfk.Log.Warningf("Image search returned error: %s\n%s", resp.Status, body)
-// 		return false
-// 	}
-
-// 	if json.Unmarshal(body, &imageSearchJson); err != nil {
-// 		mfk.Log.Warningf("Failed to parse JSON:\n%s", body)
-// 		return false
-// 	}
-// 	return true
-// }
-
-// success := false
-// for attempt := 0; attempt < retries; attempt++ {
-// 	mfk.Log.Infof("Attempt number %d to search for '%s'", attempt, query)
-// 	if tryImageSearch() {
-// 		mfk.Log.Infof("Attempt number %d to search for '%s'", attempt, query)
-// 		success = true
-// 		break;
-// 	}
-// }
-// if !success {
-// 	return nil, &Error{500, "Could not get image search results.", nil}
-// }
-
-// response := ImageSearchResponse{}
-// for _, item := range imageSearchJson.Items {
-// 	img := item.Image
-// 	response.Image = append(response.Image, &ImageMetadata{
-// 		ContextUrl: &img.ContextLink,
-// 		Url:     &img.ThumbnailLink,
-// 	})
-// }
-
-// return &response, nil

@@ -1,40 +1,20 @@
-
 package impl
-
 
 import (
 	"appengine"
+	"appengine/urlfetch"
+	"encoding/json"
+	"fmt"
 	"github.com/hjfreyer/marry-fuck-kill/go/mfklib"
 	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
-		// _ "appengine/datastore"
-	// 	"appengine/memcache"
-	"appengine/urlfetch"
-	_"appengine/user"
-	// 	"bytes"
-	"encoding/json"
-_	"errors"
-	"fmt"
-	// 	_ "gomfk/json_api"
-_	"time"
-	// 	"gomfk/parse_args"
-	// 	"gomfk/mfklib"
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	// 	_ "reflect"
-	// 	_ "strconv"
-	// 	_ "strings"
-//	"code.google.com/p/goprotobuf/proto"
-	_"regexp"
-_"strconv"
-// 	_ "text/template"
 )
-
 
 type BackendImpl struct {
 	appengine.Context
 	*http.Request
-
 }
 
 func (b BackendImpl) Search(query string) ([]*mfklib.ImageMetadata, error) {
@@ -91,28 +71,6 @@ func (b BackendImpl) Search(query string) ([]*mfklib.ImageMetadata, error) {
 		})
 	}
 	return result, nil
-
-	// ourResultJson, err := json.Marshal(ourResult)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// item := &memcache.Item{
-	// 	Key:   query,
-	// 	Value: ourResultJson,
-	// }
-
-	// if err := memcache.Add(c.cxt, item); err == memcache.ErrNotStored {
-	// 	c.cxt.Warningf("item with key %q already exists", query)
-	// } else if err != nil {
-	// 	panic(err)
-	// } else {
-	// 	c.cxt.Infof("Cached successfully: %q", query)
-	// }
-
-	// if _, err := c.w.Write(ourResultJson); err != nil {
-	// 	panic(err)
-	// }
 }
 
 func (b BackendImpl) FetchImage(metadata *mfklib.ImageMetadata) chan mfklib.ImageOrError {
@@ -133,9 +91,9 @@ func (b BackendImpl) FetchImage(metadata *mfklib.ImageMetadata) chan mfklib.Imag
 		}
 
 		return &mfklib.Image{
-			Metadata: metadata,
+			Metadata:    metadata,
 			ContentType: proto.String(response.Header.Get("Content-Type")),
-			Data: body,
+			Data:        body,
 		}, nil
 	}
 

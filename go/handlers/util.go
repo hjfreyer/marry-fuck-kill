@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"net/http"
 	"appengine"
 	"appengine/memcache"
+	"net/http"
 )
 
 type Error struct {
@@ -91,4 +91,3 @@ func (c cachedHandler) Handle(w http.ResponseWriter, r *http.Request) *Error {
 	}
 	return nil
 }
-

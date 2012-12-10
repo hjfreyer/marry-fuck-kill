@@ -1,12 +1,11 @@
 package mfklib
 
 import (
-	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 	"errors"
+	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 	. "launchpad.net/gocheck"
 	"testing"
 )
-
 
 type protoEqualsChecker struct {
 	*CheckerInfo
@@ -34,7 +33,6 @@ func (checker *protoEqualsChecker) Check(params []interface{}, names []string) (
 
 	return proto.Equal(obtained, expected), ""
 }
-
 
 func Test(t *testing.T) { TestingT(t) }
 

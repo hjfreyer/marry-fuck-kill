@@ -1,10 +1,8 @@
 package impl
 
 import (
-//	"code.google.com/p/goprotobuf/proto"
 	"appengine"
 	"appengine/datastore"
-
 	"github.com/hjfreyer/marry-fuck-kill/go/mfklib"
 	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 )
@@ -40,8 +38,8 @@ func (db mfkDb) GetTriple(tripleId mfklib.TripleId) (*mfklib.Triple, error) {
 	if err := datastore.Get(db, key, &triple); err == datastore.ErrNoSuchEntity {
 		return nil, mfklib.EntityNotFoundError{
 			Type: "Triple",
-			Id: int64(tripleId),
-			Err: err,
+			Id:   int64(tripleId),
+			Err:  err,
 		}
 	} else if err != nil {
 		return nil, err
@@ -51,7 +49,7 @@ func (db mfkDb) GetTriple(tripleId mfklib.TripleId) (*mfklib.Triple, error) {
 	if err := proto.Unmarshal(triple.Proto, result); err != nil {
 		panic(err)
 	}
-	
+
 	return result, nil
 }
 
