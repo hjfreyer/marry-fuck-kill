@@ -37,5 +37,6 @@ lns assets static/assets
 sass \
     --watch $SRC/stylesheets/:$BIN/static/ \
     --cache-location $TMP > $TMP/sass.log &
+guard -i -w . &
 
 $DEV_APPSERVER $BIN

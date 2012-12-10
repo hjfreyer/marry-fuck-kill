@@ -1,21 +1,21 @@
 package handlers
 
-import (
-	_"appengine"
-	_ "appengine/datastore"
-	_ "appengine/urlfetch"
-	_ "appengine/user"
-	_"bytes"
-	_ "encoding/json"
-	_ "fmt"
-	"html/template"
-	_ "io/ioutil"
-	"net/http"
-	_ "net/url"
-	_"regexp"
-	_"strconv"
-	_ "strings"
-)
+// import (
+// 	_"appengine"
+// 	_ "appengine/datastore"
+// 	_ "appengine/urlfetch"
+// 	_ "appengine/user"
+// 	_"bytes"
+// 	_ "encoding/json"
+// 	_ "fmt"
+// 	"html/template"
+// 	_ "io/ioutil"
+// 	"net/http"
+// 	_ "net/url"
+// 	_"regexp"
+// 	_"strconv"
+// 	_ "strings"
+// )
 
 // type TripleView Triple
 
@@ -89,16 +89,6 @@ import (
 // 	return template.URL(buffer.String())
 // }
 
-func Templates() *template.Template {
-	return template.Must(template.ParseFiles(
-		"templates/header.html",
-		"templates/make.html",
-		"templates/triple.html",
-		"templates/vote.html",
-		"generated_templates/js_include.html",
-	))
-}
-
 // func NotFound(w http.ResponseWriter) {
 // 	http.Error(w, "404 not found!!!1", 404)
 // }
@@ -140,23 +130,6 @@ func Templates() *template.Template {
 // 	w.Header().Set("content-type", contentType)
 // 	w.Write(data)
 // }
-
-func ListHandler(w http.ResponseWriter, r *http.Request) {
-}
-
-func MakeHandler(w http.ResponseWriter, r *http.Request) {
-	var makerStructure struct {
-		Entities [3]struct {
-			ResultBoxes [10]struct{}
-		}
-	}
-
-	t := Templates()
-
-	if err := t.ExecuteTemplate(w, "make", makerStructure); err != nil {
-		panic(err)
-	}
-}
 
 // func VoteHandler(w http.ResponseWriter, r *http.Request) {
 // 	t := Templates()
