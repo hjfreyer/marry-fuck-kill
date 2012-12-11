@@ -24,7 +24,7 @@ enum VoteStatus {
 }
 
 message TripleUserStatus {
-	optional VoteStatus status = 1;
+	optional VoteStatus status = 1 [default = UNSET];
 }
 
 message Triple {
