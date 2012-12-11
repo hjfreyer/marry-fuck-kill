@@ -13,20 +13,20 @@ var _ = proto.Marshal
 var _ = &json.SyntaxError{}
 var _ = math.Inf
 
-type Vote_VoteType int32
+type VoteStatus int32
 
 const (
-	Vote_UNSET Vote_VoteType = 0
-	Vote_MFK   Vote_VoteType = 1
-	Vote_MKF   Vote_VoteType = 2
-	Vote_FMK   Vote_VoteType = 3
-	Vote_FKM   Vote_VoteType = 4
-	Vote_KMF   Vote_VoteType = 5
-	Vote_KFM   Vote_VoteType = 6
-	Vote_SKIP  Vote_VoteType = 7
+	VoteStatus_UNSET VoteStatus = 0
+	VoteStatus_MFK   VoteStatus = 1
+	VoteStatus_MKF   VoteStatus = 2
+	VoteStatus_FMK   VoteStatus = 3
+	VoteStatus_FKM   VoteStatus = 4
+	VoteStatus_KMF   VoteStatus = 5
+	VoteStatus_KFM   VoteStatus = 6
+	VoteStatus_SKIP  VoteStatus = 7
 )
 
-var Vote_VoteType_name = map[int32]string{
+var VoteStatus_name = map[int32]string{
 	0: "UNSET",
 	1: "MFK",
 	2: "MKF",
@@ -36,7 +36,7 @@ var Vote_VoteType_name = map[int32]string{
 	6: "KFM",
 	7: "SKIP",
 }
-var Vote_VoteType_value = map[string]int32{
+var VoteStatus_value = map[string]int32{
 	"UNSET": 0,
 	"MFK":   1,
 	"MKF":   2,
@@ -47,23 +47,23 @@ var Vote_VoteType_value = map[string]int32{
 	"SKIP":  7,
 }
 
-func (x Vote_VoteType) Enum() *Vote_VoteType {
-	p := new(Vote_VoteType)
+func (x VoteStatus) Enum() *VoteStatus {
+	p := new(VoteStatus)
 	*p = x
 	return p
 }
-func (x Vote_VoteType) String() string {
-	return proto.EnumName(Vote_VoteType_name, int32(x))
+func (x VoteStatus) String() string {
+	return proto.EnumName(VoteStatus_name, int32(x))
 }
-func (x Vote_VoteType) MarshalJSON() ([]byte, error) {
+func (x VoteStatus) MarshalJSON() ([]byte, error) {
 	return json.Marshal(x.String())
 }
-func (x *Vote_VoteType) UnmarshalJSON(data []byte) error {
-	value, err := proto.UnmarshalJSONEnum(Vote_VoteType_value, data, "Vote_VoteType")
+func (x *VoteStatus) UnmarshalJSON(data []byte) error {
+	value, err := proto.UnmarshalJSONEnum(VoteStatus_value, data, "VoteStatus")
 	if err != nil {
 		return err
 	}
-	*x = Vote_VoteType(value)
+	*x = VoteStatus(value)
 	return nil
 }
 
@@ -123,34 +123,18 @@ func (this *Image) GetData() []byte {
 	return nil
 }
 
-type Vote struct {
-	TripleId         *int64         `protobuf:"varint,1,opt,name=triple_id" json:"triple_id,omitempty"`
-	UserId           *string        `protobuf:"bytes,2,opt,name=user_id" json:"user_id,omitempty"`
-	Vote             *Vote_VoteType `protobuf:"varint,3,opt,name=vote,enum=mfklib.Vote_VoteType" json:"vote,omitempty"`
-	XXX_unrecognized []byte         `json:"-"`
+type TripleUserStatus struct {
+	Status           *VoteStatus `protobuf:"varint,1,opt,name=status,enum=mfklib.VoteStatus" json:"status,omitempty"`
+	XXX_unrecognized []byte      `json:"-"`
 }
 
-func (this *Vote) Reset()         { *this = Vote{} }
-func (this *Vote) String() string { return proto.CompactTextString(this) }
-func (*Vote) ProtoMessage()       {}
+func (this *TripleUserStatus) Reset()         { *this = TripleUserStatus{} }
+func (this *TripleUserStatus) String() string { return proto.CompactTextString(this) }
+func (*TripleUserStatus) ProtoMessage()       {}
 
-func (this *Vote) GetTripleId() int64 {
-	if this != nil && this.TripleId != nil {
-		return *this.TripleId
-	}
-	return 0
-}
-
-func (this *Vote) GetUserId() string {
-	if this != nil && this.UserId != nil {
-		return *this.UserId
-	}
-	return ""
-}
-
-func (this *Vote) GetVote() Vote_VoteType {
-	if this != nil && this.Vote != nil {
-		return *this.Vote
+func (this *TripleUserStatus) GetStatus() VoteStatus {
+	if this != nil && this.Status != nil {
+		return *this.Status
 	}
 	return 0
 }
@@ -397,5 +381,5 @@ func (this *MakeTripleResponse) GetTripleId() int64 {
 }
 
 func init() {
-	proto.RegisterEnum("mfklib.Vote_VoteType", Vote_VoteType_name, Vote_VoteType_value)
+	proto.RegisterEnum("mfklib.VoteStatus", VoteStatus_name, VoteStatus_value)
 }

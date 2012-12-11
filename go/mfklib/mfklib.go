@@ -2,64 +2,11 @@ package mfklib
 
 import (
 	"errors"
-	"fmt"
 	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 )
 
-type EntityNotFoundError struct {
-	Type string
-	Id   int64
-	Err  error
-}
-
-func (e EntityNotFoundError) Error() string {
-	return fmt.Sprintf("Entity of type %q with id %d not found. Error: %s",
-		e.Type, e.Id, e.Err)
-}
-
-type IllegalArgumentError struct {
-	Func     string
-	Argument string
-	Value    interface{}
-	Cause    string
-}
-
-func (e IllegalArgumentError) Error() string {
-	return fmt.Sprintf("Function %q got illegal value %q for argument %q: %s",
-		e.Func, e.Value, e.Argument, e.Cause)
-}
-
-type Logger interface {
-	Infof(format string, args ...interface{})
-	Warningf(format string, args ...interface{})
-}
-
-type ImageSearcher interface {
-	Search(query string) ([]*ImageMetadata, error)
-}
-
-type ImageOrError struct {
-	*Image
-	error
-}
-
-type ImageFetcher interface {
-	FetchImage(metadata *ImageMetadata) chan ImageOrError
-}
-
-type TripleStatsUpdater func(*TripleStats, Vote_VoteType) Vote_VoteType
-
-type Database interface {
-	AddTriple(*Triple) (TripleId, error)
-	GetTriple(tripleId TripleId) (*Triple, error)
-
-	UpdateStats(tripleId TripleId, updater TripleStatsUpdater) error
-}
-
-type TripleId int64
-
 type MFKImpl struct {
-	UserId string
+	UserId
 
 	Logger
 	ImageSearcher
@@ -108,7 +55,7 @@ func (mfk MFKImpl) MakeTriple(request *MakeTripleRequest) (*MakeTripleResponse, 
 	}
 
 	triple := Triple{
-		CreatorId: proto.String(mfk.UserId),
+		CreatorId: proto.String(string(mfk.UserId)),
 		A: &Triple_Entity{
 			Name:  request.A.Name,
 			Image: imgA.Image,
@@ -159,4 +106,14 @@ func (mfk MFKImpl) GetImage(tripleId TripleId, entity string) (*Image, error) {
 		Value:    entity,
 		Cause:    "Must be 0, 1, or 2",
 	}
+}
+
+func (mfk MFKImpl) GetTripleStatsForView(
+	tripleId TripleId, userId UserId) (*TripleStats, VoteStatus, error) {
+	type result struct {
+		*TripleStats
+		VoteStatus
+		err
+	}
+	return nil, 0, nil
 }

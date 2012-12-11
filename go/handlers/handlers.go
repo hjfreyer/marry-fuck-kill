@@ -26,7 +26,7 @@ func MakeMFKImpl(req *http.Request) *mfklib.MFKImpl {
 	db := impl.NewDb(cxt)
 
 	return &mfklib.MFKImpl{
-		UserId:        userId,
+		UserId:        mfklib.UserId(userId),
 		Logger:        backend,
 		ImageSearcher: backend,
 		ImageFetcher:  backend,
@@ -104,7 +104,7 @@ func parseTripleId(t string) (mfklib.TripleId, *Error) {
 	return mfklib.TripleId(tripleId), nil
 }
 
-func notFoundError(err error) *Error {
+func asNotFoundError(err error) *Error {
 	if err == nil {
 		return nil
 	}
@@ -137,7 +137,7 @@ func (getImageHandler) Handle(w http.ResponseWriter, r *http.Request) *Error {
 	mfk := MakeMFKImpl(r)
 
 	image, err := mfk.GetImage(tripleId, entity)
-	if herr := notFoundError(err); herr != nil {
+	if herr := asNotFoundError(err); herr != nil {
 		return herr
 	}
 
@@ -200,7 +200,7 @@ func (singleTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error
 	mfk := MakeMFKImpl(r)
 
 	triple, err := mfk.GetTriple(tripleId)
-	if herr := notFoundError(err); herr != nil {
+	if herr := asNotFoundError(err); herr != nil {
 		return herr
 	}
 	// mfk

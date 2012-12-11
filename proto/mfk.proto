@@ -12,21 +12,19 @@ message Image {
   optional bytes data = 3;
 }
 
-message Vote {
-  enum VoteType {
-    UNSET = 0;
-    MFK = 1;
-    MKF = 2;
-    FMK = 3;
-    FKM = 4;
-    KMF = 5;
-    KFM = 6;
-    SKIP = 7;
-  }
+enum VoteStatus {
+	UNSET = 0;
+	MFK = 1;
+	MKF = 2;
+	FMK = 3;
+	FKM = 4;
+	KMF = 5;
+	KFM = 6;
+	SKIP = 7;
+}
 
-  optional int64 triple_id = 1;
-  optional string user_id = 2;
-  optional VoteType vote = 3;
+message TripleUserStatus {
+	optional VoteStatus status = 1;
 }
 
 message Triple {
