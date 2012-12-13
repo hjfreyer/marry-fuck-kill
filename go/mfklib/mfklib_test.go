@@ -47,34 +47,51 @@ func (t TestLogger) Warningf(format string, args ...interface{}) {
 }
 
 type FakeImageSearcher func(query string) (results []*ImageMetadata, err error)
-type FakeImageFetcher func(url string) chan ImageOrError
+type FakeImageFetcher func(metadata *ImageMetadata) chan ImageOrError
 
 func (f FakeImageSearcher) Search(query string) (results []*ImageMetadata, err error) {
 	return f(query)
 }
 
-func (f FakeImageFetcher) FetchImage(url string) chan ImageOrError {
-	return f(url)
+func (f FakeImageFetcher) FetchImage(metadata *ImageMetadata) chan ImageOrError {
+	return f(metadata)
+}
+
+type tripleUserIdPair struct {
+	TripleId
+	UserId
 }
 
 type inMemoryDatabase struct {
-	triples []*Triple
-	stats   []*TripleStats
+	triples []Triple
+	stats   []TripleStats
+	status   map[tripleUserIdPair] TripleUserStatus
 }
 
-func (db *inMemoryDatabase) AddTriple(triple *Triple) (int64, error) {
+func (db *inMemoryDatabase) AddTriple(triple *Triple) (TripleId, error) {
 	id := len(db.triples)
-	db.triples = append(db.triples, triple)
-	db.stats = append(db.stats, &TripleStats{})
-	return int64(id), nil
+	db.triples = append(db.triples, *triple)
+	db.stats = append(db.stats, TripleStats{})
+	return TripleId(id), nil
 }
 
-func (db *inMemoryDatabase) GetTriple(id int64) (*Triple, error) {
-	return db.triples[id], nil
+func (db *inMemoryDatabase) GetTriple(tripleId TripleId) (*Triple, error) {
+	if int(tripleId) >= len(db.stats) {
+		return nil, &EntityNotFoundError{}
+	}
+	return &db.triples[int(tripleId)], nil
 }
 
-func (db *inMemoryDatabase) UpdateStats(id int64, updater TripleStatsUpdater) error {
-	updater(db.stats[id])
+func (db *inMemoryDatabase) UpdateStats(
+	tripleId TripleId, userId UserId, 
+	stats *TripleStats, status *TripleUserStatus, updater Updater) error {
+	if int(tripleId) >= len(db.stats) {
+		return &EntityNotFoundError{}
+	}
+
+	*stats = db.stats[int(tripleId)]
+	*status = db.status[tripleUserIdPair{tripleId, userId}]
+
 	return nil
 }
 
@@ -150,9 +167,9 @@ var MAKE_REQUEST = MakeTripleRequest{
 func (s *S) TestMakeTriple_FetchFails(c *C) {
 	mfk := MFKImpl{
 		Logger: TestLogger{c},
-		ImageFetcher: FakeImageFetcher(func(url string) chan ImageOrError {
+	ImageFetcher: FakeImageFetcher(func(metadata *ImageMetadata) chan ImageOrError {
 			ret := make(chan ImageOrError, 1)
-			switch url {
+			switch *metadata.Url {
 			case "bulbapic.png":
 				ret <- ImageOrError{}
 			case "pikachu.png":
@@ -187,9 +204,9 @@ func (s *S) TestMakeTriple_Success(c *C) {
 	mfk := MFKImpl{
 		UserId: "Scott",
 		Logger: TestLogger{c},
-		ImageFetcher: FakeImageFetcher(func(url string) chan ImageOrError {
+		ImageFetcher: FakeImageFetcher(func(metadata *ImageMetadata) chan ImageOrError {
 			ret := make(chan ImageOrError, 1)
-			switch url {
+			switch *metadata.Url {
 			case "bulbapic.png":
 				ret <- ImageOrError{Image: &im1}
 			case "pikachu.png":
@@ -209,7 +226,7 @@ func (s *S) TestMakeTriple_Success(c *C) {
 	c.Check(err, IsNil)
 
 	c.Check(len(db.triples), Equals, 1)
-	c.Check(db.triples[0], ProtoEquals, &Triple{
+	c.Check(&db.triples[0], ProtoEquals, &Triple{
 		CreatorId: proto.String("Scott"),
 		A: &Triple_Entity{
 			Name:  MAKE_REQUEST.A.Name,

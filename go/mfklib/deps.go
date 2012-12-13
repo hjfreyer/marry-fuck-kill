@@ -48,13 +48,12 @@ type ImageFetcher interface {
 	FetchImage(metadata *ImageMetadata) chan ImageOrError
 }
 
-type TripleStatsUpdater func(*TripleStats, *TripleUserStatus)
+type Updater func() (bool, error)
 
 type Database interface {
 	AddTriple(*Triple) (TripleId, error)
 	GetTriple(tripleId TripleId) (*Triple, error)
 
-	UpdateStats(tripleId TripleId, userId UserId, updater TripleStatsUpdater) (
-		*TripleStats, *TripleUserStatus, error)
+	UpdateStats(TripleId, UserId, *TripleStats, *TripleUserStatus, Updater) error
 }
 

@@ -113,7 +113,7 @@ func (mfk MFKImpl) GetTripleStatsForView(
 	type result struct {
 		*TripleStats
 		VoteStatus
-		err
+		
 	}
 	return nil, 0, nil
 }
