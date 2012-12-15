@@ -66,16 +66,35 @@ func (db mfkDb) GetTriple(tripleId mfklib.TripleId) (*mfklib.Triple, error) {
 	return result, nil
 }
 
-func (db mfkDb) UpdateStats(
-	tripleId mfklib.TripleId, userId UserId, updater mfklib.TripleStatsUpdater) (
-	*mfklib.TripleStats, *mfklib.TripleUserStatus, error) {
-	statsKey := datastore.NewKey(db, "dbTripleStats", "", int64(tripleId), nil)
-	userStatusKey := datastore.NewKey(db, "dbTripleUserStatus", string(userId), 0, nil)
+func getStatsAndStatus(statsKey, statusKey *datastore.Key, 
 
-	stats := mfklib.TripleStats{}
-	status := mfklib.TripleUserStatus{}
+func (db mfkDb) UpdateStats(
+	tripleId mfklib.TripleId, userId mfklib.UserId,
+	stats *mfklib.TripleStats, status *mfklib.TripleUserStatus,
+	updater mfklib.Updater) error {
+
+	statsKey := datastore.NewKey(db, "dbTripleStats", "", int64(tripleId), nil)
+	userStatusKey := datastore.NewKey(
+		db, "dbTripleUserStatus", string(userId), 0, statsKey)
 
 	err := datastore.RunInTransaction(db, func(c appengine.Context) error {
+		if err := datastore.GetMulti(c,
+			[]*datastore.Key{statsKey, userStatusKey}, 
+			[]interface{}{stats, status}); err != nil {
+			merr := err.(appengine.MultiError)
+			if 
+		}
+
+		if err := datastore.Get(c, statusKey, status); err == datastore.ErrNoSuchEntity {
+			*status := mfklib.TripleUserStatus{}
+		} else if err != nil {
+			return err
+		}
+
+		store, err := updater()
 		
+		if store {
+			
+		}
 	})
 }
