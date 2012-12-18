@@ -66,35 +66,59 @@ func (db mfkDb) GetTriple(tripleId mfklib.TripleId) (*mfklib.Triple, error) {
 	return result, nil
 }
 
-func getStatsAndStatus(statsKey, statusKey *datastore.Key, 
+func getStatsAndStatus(cxt appengine.Context,
+	statsKey, userStatusKey *datastore.Key,
+	stats *mfklib.TripleStats, status *mfklib.TripleUserStatus) error {
+	err := datastore.GetMulti(cxt, []*datastore.Key{statsKey, userStatusKey},
+		[]interface{}{stats, status})
+	if err != nil {
+		merr := err.(appengine.MultiError)
+		for _, e := range merr {
+			if e != nil && e != datastore.ErrNoSuchEntity {
+				return merr
+			}
+		}
+		if merr[0] == datastore.ErrNoSuchEntity {
+			*stats = mfklib.TripleStats{}
+		}
+		if merr[1] == datastore.ErrNoSuchEntity {
+			*status = mfklib.TripleUserStatus{}
+		}
+	}
+	return nil
+}
 
 func (db mfkDb) UpdateStats(
 	tripleId mfklib.TripleId, userId mfklib.UserId,
 	stats *mfklib.TripleStats, status *mfklib.TripleUserStatus,
 	updater mfklib.Updater) error {
-
 	statsKey := datastore.NewKey(db, "dbTripleStats", "", int64(tripleId), nil)
 	userStatusKey := datastore.NewKey(
 		db, "dbTripleUserStatus", string(userId), 0, statsKey)
 
-	err := datastore.RunInTransaction(db, func(c appengine.Context) error {
-		if err := datastore.GetMulti(c,
-			[]*datastore.Key{statsKey, userStatusKey}, 
-			[]interface{}{stats, status}); err != nil {
-			merr := err.(appengine.MultiError)
-			if 
-		}
-
-		if err := datastore.Get(c, statusKey, status); err == datastore.ErrNoSuchEntity {
-			*status := mfklib.TripleUserStatus{}
-		} else if err != nil {
+	updateFunc := func(c appengine.Context) error {
+		if err := getStatsAndStatus(c, statsKey, userStatusKey, stats, status); err != nil {
 			return err
 		}
 
 		store, err := updater()
-		
-		if store {
-			
+		if err != nil {
+			return err
 		}
-	})
+
+		if store {
+			_, err := datastore.PutMulti(c, []*datastore.Key{statsKey, userStatusKey},
+				[]interface{}{stats, status})
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+
+	if err := datastore.RunInTransaction(
+		db, updateFunc, &datastore.TransactionOptions{XG: false}); err != nil {
+		return err
+	}
+	return nil
 }

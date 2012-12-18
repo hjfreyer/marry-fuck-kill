@@ -2,6 +2,7 @@ package mfklib
 
 import (
 	"errors"
+	"fmt"
 	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 )
 
@@ -108,12 +109,71 @@ func (mfk MFKImpl) GetImage(tripleId TripleId, entity string) (*Image, error) {
 	}
 }
 
-func (mfk MFKImpl) GetTripleStatsForView(
-	tripleId TripleId, userId UserId) (*TripleStats, VoteStatus, error) {
-	type result struct {
-		*TripleStats
-		VoteStatus
-		
+func getIntsForVote(s *TripleStats, v VoteStatus) []*uint64 {
+	switch v {
+	case VoteStatus_UNSET:
+		return []*uint64{}
+	case VoteStatus_SKIP:
+		return []*uint64{&s.Skips}
+	case VoteStatus_MFK:
+		return []*uint64{&s.A.Marry, &s.B.Fuck, &s.C.Kill}
+	case VoteStatus_MKF:
+		return []*uint64{&s.A.Marry, &s.B.Kill, &s.C.Fuck}
+	case VoteStatus_FMK:
+		return []*uint64{&s.A.Fuck, &s.B.Marry, &s.C.Kill}
+	case VoteStatus_FKM:
+		return []*uint64{&s.A.Fuck, &s.B.Kill, &s.C.Marry}
+	case VoteStatus_KMF:
+		return []*uint64{&s.A.Kill, &s.B.Marry, &s.C.Fuck}
+	case VoteStatus_KFM:
+		return []*uint64{&s.A.Kill, &s.B.Fuck, &s.C.Marry}
 	}
-	return nil, 0, nil
+	panic(fmt.Errorf("Invalid vote: %d", v))
+}
+
+func addVoteToStats(stats *TripleStats, vote VoteStatus) {
+	for _, num := range getIntsForVote(stats, vote) {
+		*num++
+	}
+}
+
+func subtractVoteFromStats(stats *TripleStats, vote VoteStatus) {
+	for _, num := range getIntsForVote(stats, vote) {
+		*num--
+	}
+}
+
+func (mfk MFKImpl) GetTripleStatsForUser(tripleId TripleId) (TripleStats, VoteStatus, error) {
+	var	stats TripleStats
+	var	vote VoteStatus
+
+	err := mfk.UpdateStats(tripleId, mfk.UserId, &stats, &vote, func() (bool, error) {
+		return false, nil
+	})
+	if err != nil {
+		return stats, vote, err
+	}
+
+	subtractVoteFromStats(&stats, vote)
+
+	return stats, vote, nil
+}
+
+func (mfk MFKImpl) ChangeVote(tripleId TripleId, newVote VoteStatus) error {
+	var stats TripleStats
+	var prevVote VoteStatus
+
+	err := mfk.UpdateStats(tripleId, mfk.UserId, &stats, &prevVote, func() (bool, error) {
+		if newVote == prevVote {
+			return false, nil
+		}
+		subtractVoteFromStats(&stats, prevVote)
+		addVoteToStats(&stats, newVote)
+		prevVote = newVote
+		return true, nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }

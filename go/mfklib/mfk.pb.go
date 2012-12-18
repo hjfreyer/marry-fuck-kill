@@ -124,7 +124,7 @@ func (this *Image) GetData() []byte {
 }
 
 type TripleUserStatus struct {
-	Status           *VoteStatus `protobuf:"varint,1,opt,name=status,enum=mfklib.VoteStatus" json:"status,omitempty"`
+	Vote             *VoteStatus `protobuf:"varint,1,opt,name=vote,enum=mfklib.VoteStatus,def=0" json:"vote,omitempty"`
 	XXX_unrecognized []byte      `json:"-"`
 }
 
@@ -132,11 +132,13 @@ func (this *TripleUserStatus) Reset()         { *this = TripleUserStatus{} }
 func (this *TripleUserStatus) String() string { return proto.CompactTextString(this) }
 func (*TripleUserStatus) ProtoMessage()       {}
 
-func (this *TripleUserStatus) GetStatus() VoteStatus {
-	if this != nil && this.Status != nil {
-		return *this.Status
+const Default_TripleUserStatus_Vote VoteStatus = VoteStatus_UNSET
+
+func (this *TripleUserStatus) GetVote() VoteStatus {
+	if this != nil && this.Vote != nil {
+		return *this.Vote
 	}
-	return 0
+	return Default_TripleUserStatus_Vote
 }
 
 type Triple struct {
@@ -203,84 +205,82 @@ func (this *Triple_Entity) GetImage() *Image {
 	return nil
 }
 
-type TripleStats struct {
-	Views            *uint64            `protobuf:"varint,1,opt,name=views" json:"views,omitempty"`
-	Skips            *uint64            `protobuf:"varint,2,opt,name=skips" json:"skips,omitempty"`
-	A                *TripleStats_Tally `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
-	B                *TripleStats_Tally `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
-	C                *TripleStats_Tally `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
-	XXX_unrecognized []byte             `json:"-"`
+type TripleStatsProto struct {
+	Skips            *uint64                 `protobuf:"varint,2,opt,name=skips,def=0" json:"skips,omitempty"`
+	A                *TripleStatsProto_Tally `protobuf:"bytes,3,opt,name=a" json:"a,omitempty"`
+	B                *TripleStatsProto_Tally `protobuf:"bytes,4,opt,name=b" json:"b,omitempty"`
+	C                *TripleStatsProto_Tally `protobuf:"bytes,5,opt,name=c" json:"c,omitempty"`
+	XXX_unrecognized []byte                  `json:"-"`
 }
 
-func (this *TripleStats) Reset()         { *this = TripleStats{} }
-func (this *TripleStats) String() string { return proto.CompactTextString(this) }
-func (*TripleStats) ProtoMessage()       {}
+func (this *TripleStatsProto) Reset()         { *this = TripleStatsProto{} }
+func (this *TripleStatsProto) String() string { return proto.CompactTextString(this) }
+func (*TripleStatsProto) ProtoMessage()       {}
 
-func (this *TripleStats) GetViews() uint64 {
-	if this != nil && this.Views != nil {
-		return *this.Views
-	}
-	return 0
-}
+const Default_TripleStatsProto_Skips uint64 = 0
 
-func (this *TripleStats) GetSkips() uint64 {
+func (this *TripleStatsProto) GetSkips() uint64 {
 	if this != nil && this.Skips != nil {
 		return *this.Skips
 	}
-	return 0
+	return Default_TripleStatsProto_Skips
 }
 
-func (this *TripleStats) GetA() *TripleStats_Tally {
+func (this *TripleStatsProto) GetA() *TripleStatsProto_Tally {
 	if this != nil {
 		return this.A
 	}
 	return nil
 }
 
-func (this *TripleStats) GetB() *TripleStats_Tally {
+func (this *TripleStatsProto) GetB() *TripleStatsProto_Tally {
 	if this != nil {
 		return this.B
 	}
 	return nil
 }
 
-func (this *TripleStats) GetC() *TripleStats_Tally {
+func (this *TripleStatsProto) GetC() *TripleStatsProto_Tally {
 	if this != nil {
 		return this.C
 	}
 	return nil
 }
 
-type TripleStats_Tally struct {
-	Marry            *uint64 `protobuf:"varint,1,opt,name=marry" json:"marry,omitempty"`
-	Fuck             *uint64 `protobuf:"varint,2,opt,name=fuck" json:"fuck,omitempty"`
-	Kill             *uint64 `protobuf:"varint,3,opt,name=kill" json:"kill,omitempty"`
+type TripleStatsProto_Tally struct {
+	Marry            *uint64 `protobuf:"varint,1,opt,name=marry,def=0" json:"marry,omitempty"`
+	Fuck             *uint64 `protobuf:"varint,2,opt,name=fuck,def=0" json:"fuck,omitempty"`
+	Kill             *uint64 `protobuf:"varint,3,opt,name=kill,def=0" json:"kill,omitempty"`
 	XXX_unrecognized []byte  `json:"-"`
 }
 
-func (this *TripleStats_Tally) Reset()         { *this = TripleStats_Tally{} }
-func (this *TripleStats_Tally) String() string { return proto.CompactTextString(this) }
-func (*TripleStats_Tally) ProtoMessage()       {}
+func (this *TripleStatsProto_Tally) Reset()         { *this = TripleStatsProto_Tally{} }
+func (this *TripleStatsProto_Tally) String() string { return proto.CompactTextString(this) }
+func (*TripleStatsProto_Tally) ProtoMessage()       {}
 
-func (this *TripleStats_Tally) GetMarry() uint64 {
+const Default_TripleStatsProto_Tally_Marry uint64 = 0
+const Default_TripleStatsProto_Tally_Fuck uint64 = 0
+const Default_TripleStatsProto_Tally_Kill uint64 = 0
+
+func (this *TripleStatsProto_Tally) GetMarry() uint64 {
 	if this != nil && this.Marry != nil {
 		return *this.Marry
 	}
-	return 0
+	return Default_TripleStatsProto_Tally_Marry
 }
 
-func (this *TripleStats_Tally) GetFuck() uint64 {
+func (this *TripleStatsProto_Tally) GetFuck() uint64 {
 	if this != nil && this.Fuck != nil {
 		return *this.Fuck
 	}
-	return 0
+	return Default_TripleStatsProto_Tally_Fuck
 }
 
-func (this *TripleStats_Tally) GetKill() uint64 {
+func (this *TripleStatsProto_Tally) GetKill() uint64 {
 	if this != nil && this.Kill != nil {
 		return *this.Kill
 	}
-	return 0
+	return Default_TripleStatsProto_Tally_Kill
 }
 
 type WrappedImageMetadata struct {

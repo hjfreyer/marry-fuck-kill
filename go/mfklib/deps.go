@@ -54,6 +54,5 @@ type Database interface {
 	AddTriple(*Triple) (TripleId, error)
 	GetTriple(tripleId TripleId) (*Triple, error)
 
-	UpdateStats(TripleId, UserId, *TripleStats, *TripleUserStatus, Updater) error
+	UpdateStats(TripleId, UserId, *TripleStats, *VoteStatus, Updater) error
 }
-

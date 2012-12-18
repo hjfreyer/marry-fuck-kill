@@ -24,7 +24,7 @@ enum VoteStatus {
 }
 
 message TripleUserStatus {
-	optional VoteStatus status = 1 [default = UNSET];
+  optional VoteStatus vote = 1 [default = UNSET];
 }
 
 message Triple {
@@ -40,14 +40,14 @@ message Triple {
   optional Entity c = 5;
 }
 
-message TripleStats {
-  optional uint64 views = 1;
-  optional uint64 skips = 2;
+message TripleStatsProto {
+  //  optional uint64 views = 1;
+  optional uint64 skips = 2 [default = 0];
 
   message Tally {
-    optional uint64 marry = 1;
-    optional uint64 fuck = 2;
-    optional uint64 kill = 3;
+    optional uint64 marry = 1 [default = 0];
+    optional uint64 fuck = 2 [default = 0];
+    optional uint64 kill = 3 [default = 0];
   }
 
   optional Tally a = 3;

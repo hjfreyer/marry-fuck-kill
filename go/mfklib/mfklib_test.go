@@ -5,6 +5,7 @@ import (
 	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 	. "launchpad.net/gocheck"
 	"testing"
+	_"fmt"
 )
 
 type protoEqualsChecker struct {
@@ -65,7 +66,13 @@ type tripleUserIdPair struct {
 type inMemoryDatabase struct {
 	triples []Triple
 	stats   []TripleStats
-	status   map[tripleUserIdPair] TripleUserStatus
+	vote  map[tripleUserIdPair]VoteStatus
+}
+
+func NewInMemoryDb() *inMemoryDatabase {
+	return &inMemoryDatabase{
+		vote: make(map[tripleUserIdPair]VoteStatus),
+	}
 }
 
 func (db *inMemoryDatabase) AddTriple(triple *Triple) (TripleId, error) {
@@ -83,14 +90,23 @@ func (db *inMemoryDatabase) GetTriple(tripleId TripleId) (*Triple, error) {
 }
 
 func (db *inMemoryDatabase) UpdateStats(
-	tripleId TripleId, userId UserId, 
-	stats *TripleStats, status *TripleUserStatus, updater Updater) error {
+	tripleId TripleId, userId UserId,
+	stats *TripleStats, vote *VoteStatus, updater Updater) error {
 	if int(tripleId) >= len(db.stats) {
 		return &EntityNotFoundError{}
 	}
 
 	*stats = db.stats[int(tripleId)]
-	*status = db.status[tripleUserIdPair{tripleId, userId}]
+	*vote = db.vote[tripleUserIdPair{tripleId, userId}]
+
+	update, err := updater()
+	if err != nil {
+		return err
+	}
+	if update {
+		db.stats[int(tripleId)] = *stats
+		db.vote[tripleUserIdPair{tripleId, userId}] = *vote
+	}
 
 	return nil
 }
@@ -167,7 +183,7 @@ var MAKE_REQUEST = MakeTripleRequest{
 func (s *S) TestMakeTriple_FetchFails(c *C) {
 	mfk := MFKImpl{
 		Logger: TestLogger{c},
-	ImageFetcher: FakeImageFetcher(func(metadata *ImageMetadata) chan ImageOrError {
+		ImageFetcher: FakeImageFetcher(func(metadata *ImageMetadata) chan ImageOrError {
 			ret := make(chan ImageOrError, 1)
 			switch *metadata.Url {
 			case "bulbapic.png":
@@ -199,7 +215,7 @@ func (s *S) TestMakeTriple_Success(c *C) {
 		Data:        []byte("char"),
 	}
 
-	db := inMemoryDatabase{}
+	db := NewInMemoryDb()
 
 	mfk := MFKImpl{
 		UserId: "Scott",
@@ -216,7 +232,7 @@ func (s *S) TestMakeTriple_Success(c *C) {
 			}
 			return ret
 		}),
-		Database: &db,
+		Database: db,
 	}
 
 	resp, err := mfk.MakeTriple(&MAKE_REQUEST)
@@ -241,4 +257,104 @@ func (s *S) TestMakeTriple_Success(c *C) {
 			Image: &im3,
 		},
 	})
+}
+
+// The ProtoEquals checker verifies that the obtained and expected values are
+// both Google protocol buffers, and that they are proto-equal.
+var EqualsStats Checker = &equalsStatsChecker{
+	&CheckerInfo{Name: "EqualsStats", Params: []string{
+			"obtained", "skips",
+			"am", "af", "ak",
+			"bm", "bf", "bk",
+			"cm", "cf", "ck",
+	}},
+}
+
+type equalsStatsChecker struct {
+	*CheckerInfo
+}
+
+func (checker *equalsStatsChecker) Check(params []interface{}, names []string) (result bool, error string) {
+	obtained, ok := params[0].(TripleStats)
+	if !ok {
+		return false, "obtained is not a TripleStats"
+	}
+
+	i := func(num interface{}) uint64 {
+		return uint64(num.(int))
+	}
+
+	return obtained.Skips == i(params[1]) &&
+		obtained.A.Marry == i(params[2]) &&
+		obtained.A.Fuck == i(params[3]) &&
+		obtained.A.Kill == i(params[4]) &&
+		obtained.B.Marry == i(params[5]) &&
+		obtained.B.Fuck == i(params[6]) &&
+		obtained.B.Kill == i(params[7]) &&
+		obtained.C.Marry == i(params[8]) &&
+		obtained.C.Fuck == i(params[9]) &&
+		obtained.C.Kill == i(params[10]), "";
+}
+
+func makeStats(
+	am, af, ak,
+	bm, bf, bk,
+	cm, cf, ck uint64) TripleStats{
+	return TripleStats{
+	A: Tally {
+			Marry: am,
+			Fuck: af,
+			Kill: ak,
+		},
+	B: Tally {
+			Marry: bm,
+			Fuck: bf,
+			Kill: bk,
+		},
+	C: Tally {
+			Marry: cm,
+			Fuck: cf,
+			Kill: ck,
+		},
+	}
+}
+
+func (s *S) TestBasicVoting(c *C) {
+	db := NewInMemoryDb()
+	t1, _ := db.AddTriple(&Triple{})
+	db.AddTriple(&Triple{})
+
+	mfk := MFKImpl{
+		UserId: "Scott",
+		Logger: TestLogger{c},
+		Database: db,
+	}
+	stats, vote, err := mfk.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
+	c.Check(stats, EqualsStats, 0,
+		0, 0, 0,
+		0, 0, 0,
+		0, 0, 0)
+	c.Check(vote, Equals, VoteStatus_UNSET)
+
+	err = mfk.ChangeVote(t1, VoteStatus_MFK)
+	c.Check(err, IsNil)
+
+	// The stats are with this user's vote removed.
+	stats, vote, err = mfk.GetTripleStatsForUser(t1)
+	c.Check(stats, EqualsStats, 0,
+		0, 0, 0,
+		0, 0, 0,
+		0, 0, 0)
+	c.Check(vote, Equals, VoteStatus_MFK)
+
+	// From another user's perspective, the stats are positive.
+	mfk.UserId = "Mike"
+	stats, vote, err = mfk.GetTripleStatsForUser(t1)
+
+	c.Check(stats, EqualsStats, 0,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1)
+	c.Check(vote, Equals, VoteStatus_UNSET)
 }
