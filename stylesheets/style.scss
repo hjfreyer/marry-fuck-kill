@@ -12,115 +12,120 @@ div {
 
 .triple {
   .entities {
-	width: 640px;
-	height: 344px;
-	position: relative;
-	margin: auto;
+    width: 640px;
+    height: 344px;
+    position: relative;
+    margin: auto;
   }
 
   .entity {
-	position: absolute;
-	width: 210px;
-	top: 0;
+    position: absolute;
+    width: 210px;
+    top: 0;
   }
 
   .entity .name {
-	position: absolute;
-	width: 100%;
-	top: 0;
-	left: 0;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    left: 0;
+
+    text-align: center;
+    font-size: 18pt;
   }
 
   .entity .image {
-	margin-top: 30px;
-	height: 180px;
+    margin-top: 30px;
+    height: 180px;
   }
 
   .entity .image .centerbox {
-	display: table-cell;
-	height: 180px;
-	width: 210px;
-	vertical-align: middle;
-	text-align: center;
+    display: table-cell;
+    height: 180px;
+    width: 210px;
+    vertical-align: middle;
+    text-align: center;
   }
 
   .entity0 {
-	left: 0;
+    left: 0;
   }
 
   .entity1 {
-	left: 215px;
+    left: 215px;
   }
 
   .entity2 {
-	right: 0px;
+    right: 0px;
   }
 
   .button-area {
-	height: 3 * $buttonMargin + 4 * $buttonHeight;
-	position: relative;
+    height: 3 * $buttonMargin + 4 * $buttonHeight;
+    position: relative;
   }
 
-  .vote-button {
-	position: absolute;
-	height: $buttonHeight;
-	width: 202px;
-	left: $buttonMargin;
-	text-align: center;
-	z-index: 1;
-	font-size: 12pt;
+  $transition: 150ms;
 
-	-webkit-transition: 150ms;
+  .vote-button {
+    position: absolute;
+    height: $buttonHeight;
+    width: 202px;
+    left: $buttonMargin;
+    text-align: center;
+    z-index: 1;
+    font-size: 12pt;
+
+    -webkit-transition: $transition;
   }
 
   .chart {
-	position: absolute;
-	bottom: $buttonMargin;
-	left: $buttonMargin;
+    position: absolute;
+    top: $buttonHeight + $buttonMargin * 2 - 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
 
-	-webkit-transition: opacity 150ms;
+    opacity: 0;
+    border: none;
+    margin: 0;
+
+    -webkit-transition: opacity $transition;
   }
 
   .vote-button.marry {
-	top: ($buttonMargin + $buttonHeight) / 2;
+    top: ($buttonMargin + $buttonHeight) / 2;
   }
 
   .vote-button.fuck {
-	top: ($buttonMargin + $buttonHeight) * 3 / 2
+    top: ($buttonMargin + $buttonHeight) * 3 / 2
   }
 
   .vote-button.kill {
-	top: ($buttonMargin + $buttonHeight) * 5 / 2
+    top: ($buttonMargin + $buttonHeight) * 5 / 2
   }
 
-  .chart {
-	opacity: 0;
-	border: none;
-	margin: 0;
-  }
-
-  .triple.voted .vote-button {
-	opacity: 0;
+  &.voted .chart {
+    opacity: 1;
   }
 
   @mixin selectedVote($entityNum, $vote) {
-	&.voted.s#{$vote}#{$entityNum} .entity#{$entityNum} {
-	  .vote-button.#{$vote} {
-		top: $buttonMargin;
-		opacity: 1;
-		background: white;
-		border: 0;
-	  }
+    &.voted.s#{$vote}#{$entityNum} .entity#{$entityNum} {
+      .vote-button.#{$vote} {
+        top: $buttonMargin;
+        opacity: 1;
+        background: white;
+        border: 0;
+      }
 
-	  .chart.#{$vote} {
-		opacity: 1;
-	  }
-	}
+      .chart.#{$vote} {
+        opacity: 1;
+      }
+    }
 
-	&.s#{$vote}#{$entityNum} .entity#{$entityNum} .vote-button.#{$vote} {
-	  font-weight: bold;
-	  font-size: 13pt;
-	}
+    &.s#{$vote}#{$entityNum} .entity#{$entityNum} .vote-button.#{$vote} {
+      font-weight: bold;
+      font-size: 13pt;
+    }
   }
 
   @include selectedVote(0, marry);
@@ -136,84 +141,27 @@ div {
   @include selectedVote(2, kill);
 
   button.vote {
-	display: none;
+    display: none;
   }
 
   &.unvoted {
-	&.smarry0.sfuck1.skill2,
-	&.smarry0.sfuck2.skill1,
-	&.smarry1.sfuck0.skill2,
-	&.smarry1.sfuck2.skill0,
-	&.smarry2.sfuck0.skill1,
-	&.smarry2.sfuck1.skill0 {
-	  button.vote {
-		display: inline-block;
-	  }
-	  button.disabledVote {
-		display: none;
-	  }
-	}
+    &.smarry0.sfuck1.skill2,
+    &.smarry0.sfuck2.skill1,
+    &.smarry1.sfuck0.skill2,
+    &.smarry1.sfuck2.skill0,
+    &.smarry2.sfuck0.skill1,
+    &.smarry2.sfuck1.skill0 {
+      button.vote {
+        display: inline-block;
+      }
+      button.disabledVote {
+        display: none;
+      }
+    }
   }
 
   &.voted .vote-button {
-	opacity: 0;
+    opacity: 0;
+    top: $buttonMargin;
   }
-}
-
-.modal-dialog {
-  background: #c1d9ff;
-  border: 1px solid #3a5774;
-  color: #000;
-  padding: 4px;
-  position: absolute;
-}
-
-.modal-dialog a,
-.modal-dialog a:link,
-.modal-dialog a:visited  {
-  color: #06c;
-  cursor: pointer;
-}
-
-.modal-dialog-bg {
-  background: #666;
-  left: 0;
-  position: absolute;
-  top: 0;
-}
-
-.modal-dialog-title {
-  background: #e0edfe;
-  color: #000;
-  cursor: pointer;
-  font-size: 120%;
-  font-weight: bold;
-
-  /* Add padding on the right to ensure the close button has room. */
-  padding: 8px 31px 8px 8px;
-
-  position: relative;
-  _zoom: 1; /* Ensures proper width in IE6 RTL. */
-}
-
-.modal-dialog-title-close {
-  /* Client apps may override the URL at which they serve the sprite. */
-  background: #e0edfe url(//ssl.gstatic.com/editor/editortoolbar.png) no-repeat -528px 0;
-  cursor: default;
-  height: 15px;
-  position: absolute;
-  right: 10px;
-  top: 8px;
-  width: 15px;
-  vertical-align: middle;
-}
-
-.modal-dialog-buttons,
-.modal-dialog-content {
-  background-color: #fff;
-  padding: 8px;
-}
-
-.goog-buttonset-default {
-  font-weight: bold;
 }

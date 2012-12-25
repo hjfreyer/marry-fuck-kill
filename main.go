@@ -28,7 +28,7 @@ func init() {
 	http.HandleFunc("/make", handlers.MakeHandler)
 	http.Handle("/api/v1/imagesearch", handlers.ImageSearchApiHandler)
 	http.Handle("/api/v1/make", handlers.MakeTripleApiHandler)
-	// http.HandleFunc("/api/v1/vote", WrapHandler(ApiVoteHandler))
+	http.Handle("/api/v1/vote", handlers.VoteApiHandler)
 	http.Handle("/i/", handlers.GetImageHandler)
 	http.Handle("/vote/", handlers.SingleTripleHandler)
 }

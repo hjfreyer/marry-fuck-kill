@@ -9,13 +9,16 @@
       {{template "triple" .}}
     </div>
     {{end}}
+    <script>mfk.depsInit();</script>
     {{template "foot"}}
   </body>
 </html>
 {{end}}
 
 {{define "triple"}}
-<div class="triple {{if .UserVoted}}voted s{{.Vote 0}}0 s{{.Vote 1}}1 s{{.Vote 2}}2 {{else}}unvoted{{end}}" id="triple{{.Id}}">
+<div class="triple {{if .UserVoted}}voted
+            {{range $idx, $vote := .VotesPerEntity}}s{{$vote}}{{$idx}} {{end}}
+            {{else}}unvoted{{end}}" id="triple{{.Id}}">
   <div class="entities">
     {{range $idx, $entity := .Entities}}
     <div class="entity entity{{$idx}}">
@@ -29,9 +32,7 @@
         <button class="vote-button marry">Marry</button>
         <button class="vote-button fuck">Fuck</button>
         <button class="vote-button kill">Kill</button>
-        <div class="chart marry"><img src="{{.ChartUrl 1 0 0}}"></div>
-        <div class="chart fuck"><img src="{{.ChartUrl 0 1 0}}"></div>
-        <div class="chart kill"><img src="{{.ChartUrl 0 0 1}}"></div>
+        <div class="chart"></div>
       </div>
     </div>
   {{end}}
@@ -41,11 +42,17 @@
   <button class="edit">Edit</button>
 </div>
 <script>new mfk.Triple(
-	document.getElementById('triple{{.Id}}'), 
-	{{.Id}}, 
-	{{.MarryCount}},
-	{{.FuckCount}},
-	{{.KillCount}});
+	document.getElementById('triple{{.Id}}'),
+	{{.Id}},
+    { 'm' : {{.Stats.A.Marry}},
+      'f' : {{.Stats.A.Fuck}},
+      'k' : {{.Stats.A.Kill}} },
+    { 'm' : {{.Stats.B.Marry}},
+      'f' : {{.Stats.B.Fuck}},
+      'k' : {{.Stats.B.Kill}} },
+    { 'm' : {{.Stats.C.Marry}},
+      'f' : {{.Stats.C.Fuck}},
+      'k' : {{.Stats.C.Kill}} });
 </script>
 {{end}}
 

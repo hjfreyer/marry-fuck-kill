@@ -4,12 +4,21 @@ import (
 	"appengine"
 	"appengine/memcache"
 	"net/http"
+	"fmt"
 )
 
 type Error struct {
 	StatusCode int
 	Message    string
-	Error      error
+	Err      error
+}
+
+func NewError(code int, err error, format string, a ...interface{}) *Error {
+	return &Error{
+		StatusCode: code,
+		Err: err,
+		Message: fmt.Sprintf(format, a...),
+	}
 }
 
 type ErrorHandler interface {
@@ -37,7 +46,7 @@ func (handler errorHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	cxt := appengine.NewContext(r)
 	err := handler.Handle(w, r)
 	if err != nil {
-		cxt.Errorf("Error: %s", err.Error)
+		cxt.Errorf("Error: %s", err.Err)
 		http.Error(w, err.Message, err.StatusCode)
 	}
 }

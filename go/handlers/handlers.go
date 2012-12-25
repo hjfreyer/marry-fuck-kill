@@ -11,6 +11,7 @@ import (
 	"html/template"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 func MakeMFKImpl(req *http.Request) *mfklib.MFKImpl {
@@ -34,7 +35,7 @@ func MakeMFKImpl(req *http.Request) *mfklib.MFKImpl {
 	}
 }
 
-func checkOk(err error) {
+func panicOnError(err error) {
 	if err != nil {
 		panic(err)
 	}
@@ -51,10 +52,10 @@ func (a apiImageSearchHandler) Handle(r *http.Request) ([]byte, *Error) {
 
 	mfk := MakeMFKImpl(r)
 	result, err := mfk.ImageSearch(query)
-	checkOk(err)
+	panicOnError(err)
 
 	response, err := json.Marshal(result)
-	checkOk(err)
+	panicOnError(err)
 
 	return response, nil
 }
@@ -83,7 +84,7 @@ func (m makeTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error
 
 	resp, err := mfk.MakeTriple(&request)
 	respJson, err := json.Marshal(&resp)
-	checkOk(err)
+	panicOnError(err)
 	w.Write(respJson)
 
 	return nil
@@ -91,29 +92,53 @@ func (m makeTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error
 
 var MakeTripleApiHandler = NewErrorHandler(makeTripleHandler{})
 
+type voteApiHandler struct{}
+
+func (voteApiHandler) Handle(w http.ResponseWriter, r *http.Request) *Error {
+	// if r.Method != "POST" {
+	// 	return NewError(http.StatusMethodNotAllowed, nil, "GET not allowed - use POST")
+	// }
+
+	tripleIdStr := r.FormValue("triple_id")
+	tripleId, herr := parseTripleId(tripleIdStr)
+	if herr != nil {
+		return herr
+	}
+
+	voteStr := strings.ToUpper(r.FormValue("vote"))
+	vote, ok := mfklib.VoteStatus_value[voteStr]
+	if !ok {
+		return NewError(400, nil, "Invalid vote: %q", voteStr)
+	}
+
+	mfk := MakeMFKImpl(r)
+
+	err := mfk.ChangeVote(tripleId, mfklib.VoteStatus(vote))
+	if err != nil {
+		return tripleNotFound(err)
+	}
+	return nil
+}
+
+var VoteApiHandler = NewErrorHandler(voteApiHandler{})
+
 func parseTripleId(t string) (mfklib.TripleId, *Error) {
 	tripleId, err := strconv.ParseInt(t, 10, 64)
 	if err != nil {
-		if nerr := err.(*strconv.NumError); nerr.Err == strconv.ErrRange {
-			return 0, &Error{404, "Triple ID too long", err}
-		} else {
-			panic(err)
+		switch err.(*strconv.NumError).Err {
+		case strconv.ErrSyntax:
+			return mfklib.TripleId(0), NewError(400, err, "Not a valid Triple ID: %q", t)
+		case strconv.ErrRange:
+			return mfklib.TripleId(0), NewError(400, err, "Triple ID too large: %q", t)
 		}
 	}
 
 	return mfklib.TripleId(tripleId), nil
 }
 
-func asNotFoundError(err error) *Error {
-	if err == nil {
-		return nil
-	}
-
-	switch e := err.(type) {
-	case mfklib.EntityNotFoundError:
-		return &Error{404, "Not found.", e}
-	}
-	panic(err)
+func tripleNotFound(err error) *Error {
+	tnf := err.(*mfklib.TripleNotFoundError)
+	return NewError(404, err, "No Triple with ID %d", tnf.TripleId)
 }
 
 type getImageHandler struct{}
@@ -132,18 +157,20 @@ func (getImageHandler) Handle(w http.ResponseWriter, r *http.Request) *Error {
 	if herr != nil {
 		return herr
 	}
+
+	// Regex ensures this is correct.
 	entity := match[2]
 
 	mfk := MakeMFKImpl(r)
 
 	image, err := mfk.GetImage(tripleId, entity)
-	if herr := asNotFoundError(err); herr != nil {
-		return herr
+	if err != nil {
+		return tripleNotFound(err)
 	}
 
 	w.Header().Set("content-type", *image.ContentType)
 	_, err = w.Write(image.Data)
-	checkOk(err)
+	panicOnError(err)
 
 	return nil
 }
@@ -155,29 +182,43 @@ type tripleView struct {
 
 	Id mfklib.TripleId
 
-	MarryCount uint64
-	FuckCount  uint64
-	KillCount  uint64
+	Stats mfklib.TripleStats
+	Vote mfklib.VoteStatus
 }
 
 func (tv tripleView) UserVoted() bool {
-	return false
+	return !(tv.Vote == mfklib.VoteStatus_UNSET || tv.Vote == mfklib.VoteStatus_SKIP)
 }
 
 func (tv tripleView) Entities() [3]entityView {
 	return [3]entityView{
-		{*tv.A},
-		{*tv.B},
-		{*tv.C},
+		{tv.A, tv.Stats.A},
+		{tv.B, tv.Stats.B},
+		{tv.C, tv.Stats.C},
 	}
 }
 
-type entityView struct {
-	mfklib.Triple_Entity
+func (tv tripleView) VotesPerEntity() [3]string {
+	switch tv.Vote {
+	case mfklib.VoteStatus_MFK:
+		return [3]string{"marry", "fuck", "kill"}
+	case mfklib.VoteStatus_MKF:
+		return [3]string{"marry", "kill", "fuck"}
+	case mfklib.VoteStatus_FMK:
+		return [3]string{"fuck", "marry", "kill"}
+	case mfklib.VoteStatus_FKM:
+		return [3]string{"fuck", "kill", "marry"}
+	case mfklib.VoteStatus_KMF:
+		return [3]string{"kill", "marry", "fuck"}
+	case mfklib.VoteStatus_KFM:
+		return [3]string{"kill", "fuck", "marry"}
+	}
+	panic("Invalid vote")
 }
 
-func (ev entityView) ChartUrl(m, f, k int) string {
-	return ""
+type entityView struct {
+	*mfklib.Triple_Entity
+	mfklib.Tally
 }
 
 type singleTripleHandler struct{}
@@ -200,35 +241,25 @@ func (singleTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error
 	mfk := MakeMFKImpl(r)
 
 	triple, err := mfk.GetTriple(tripleId)
-	if herr := asNotFoundError(err); herr != nil {
-		return herr
+	if err != nil {
+		return tripleNotFound(err)
 	}
-	// mfk
 
-	// tripleIds, err := db.GetTripleIds(10)
-	// if err != nil {
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
+	stats, vote, err := mfk.GetTripleStatsForUser(tripleId)
+	panicOnError(err)
 
-	// triples, err := db.GetTriples(user, tripleIds)
-	// if err != nil {
-	// 	cxt.Errorf("%v", []error(err.(appengine.MultiError)))
-	// 	http.Error(w, err.Error(), http.StatusInternalServerError)
-	// 	return
-	// }
+	triples := []tripleView{
+		{
+			Id: tripleId,
+			Triple: triple,
+			Stats: stats,
+			Vote: vote,
+		},
+	}
 
-	// tripleViews := make([]TripleView, len(triples))
-	// for i, t := range triples {
-	// 	tripleViews[i] = TripleView(t)
-	// }
 
-	//	mfk.Infof("%s", triple)
 	templates := Templates()
-	if err := templates.ExecuteTemplate(w, "tripleList", []tripleView{{Id: tripleId,
-		Triple: triple}}); err != nil {
-		panic(err)
-	}
+	panicOnError(templates.ExecuteTemplate(w, "tripleList", triples))
 
 	return nil
 }

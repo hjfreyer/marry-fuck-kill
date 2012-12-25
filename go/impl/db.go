@@ -11,7 +11,6 @@ func NewDb(c appengine.Context) mfklib.Database {
 	return mfkDb{c}
 }
 
-
 type dbTriple struct {
 	Proto []byte
 }
@@ -20,95 +19,154 @@ type dbTripleStats struct {
 	Proto []byte
 }
 
+func dbTripleStatsFromStats(in mfklib.TripleStats) *dbTripleStats {
+	copyTally := func(in mfklib.Tally) *mfklib.TripleStatsProto_Tally {
+		return &mfklib.TripleStatsProto_Tally{
+			Marry: proto.Uint64(in.Marry),
+			Fuck: proto.Uint64(in.Fuck),
+			Kill: proto.Uint64(in.Kill),
+		}
+	}
+
+	statsProto := mfklib.TripleStatsProto{
+		A: copyTally(in.A),
+		B: copyTally(in.B),
+		C: copyTally(in.C),
+	}
+
+	data, err := proto.Marshal(&statsProto)
+	panicOnError(err)
+	return &dbTripleStats{data}
+}
+
+func (s *dbTripleStats) ToStats() mfklib.TripleStats {
+	var statsProto mfklib.TripleStatsProto
+	panicOnError(proto.Unmarshal(s.Proto, &statsProto))
+
+	copyTally := func(in *mfklib.TripleStatsProto_Tally) mfklib.Tally {
+		return mfklib.Tally{
+			Marry: in.GetMarry(),
+			Fuck: in.GetFuck(),
+			Kill: in.GetKill(),
+		}
+	}
+
+	return mfklib.TripleStats{
+		A: copyTally(statsProto.A),
+		B: copyTally(statsProto.B),
+		C: copyTally(statsProto.C),
+	}
+}
+
 type dbTripleUserStatus struct {
 	Proto []byte
+}
+
+func dbTripleUserStatusFromVote(vote mfklib.VoteStatus) *dbTripleUserStatus {
+	protoStatus := mfklib.TripleUserStatus{
+		Vote: vote.Enum(),
+	}
+
+	data, err := proto.Marshal(&protoStatus)
+	panicOnError(err)
+
+	return &dbTripleUserStatus{data}
+}
+
+func (s *dbTripleUserStatus) ToVote() mfklib.VoteStatus {
+	var statusProto mfklib.TripleUserStatus
+	panicOnError(proto.Unmarshal(s.Proto, &statusProto))
+
+	return statusProto.GetVote()
 }
 
 type mfkDb struct {
 	appengine.Context
 }
 
-func (db mfkDb) AddTriple(triple *mfklib.Triple) (mfklib.TripleId, error) {
-	tripleStr, err := proto.Marshal(triple)
+func panicOnError(err error) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func (db mfkDb) AddTriple(triple *mfklib.Triple) (mfklib.TripleId, error) {
+	tripleStr, err := proto.Marshal(triple)
+	panicOnError(err)
 
 	t := dbTriple{tripleStr}
 	tripleKey := datastore.NewIncompleteKey(db, "dbTriple", nil)
 	tripleKey, err = datastore.Put(db, tripleKey, &t)
 	if err != nil {
-		return 0, err
+		return 0, mfklib.NewLowerLevelError(err, "adding new Triple: %s", *triple)
 	}
 
 	return mfklib.TripleId(tripleKey.IntID()), nil
 }
 
 func (db mfkDb) GetTriple(tripleId mfklib.TripleId) (*mfklib.Triple, error) {
+	// Appengine datastore doesn't like keys with id 0.
+	if int64(tripleId) == 0 {
+		return nil, &mfklib.TripleNotFoundError{tripleId}
+	}
+
 	key := datastore.NewKey(db, "dbTriple", "", int64(tripleId), nil)
 
 	triple := dbTriple{}
-	if err := datastore.Get(db, key, &triple); err == datastore.ErrNoSuchEntity {
-		return nil, mfklib.EntityNotFoundError{
-			Type: "Triple",
-			Id:   int64(tripleId),
-			Err:  err,
-		}
-	} else if err != nil {
-		return nil, err
+	switch err := datastore.Get(db, key, &triple); err {
+	case nil:
+		break
+	case datastore.ErrNoSuchEntity:
+		return nil, &mfklib.TripleNotFoundError{tripleId}
+	default:
+		return nil, mfklib.NewLowerLevelError(err, "get Triple %d", tripleId)
 	}
 
 	result := &mfklib.Triple{}
-	if err := proto.Unmarshal(triple.Proto, result); err != nil {
-		panic(err)
-	}
+	err := proto.Unmarshal(triple.Proto, result)
+	panicOnError(err)
 
 	return result, nil
 }
 
-func getStatsAndStatus(cxt appengine.Context,
-	statsKey, userStatusKey *datastore.Key,
-	stats *mfklib.TripleStats, status *mfklib.TripleUserStatus) error {
-	err := datastore.GetMulti(cxt, []*datastore.Key{statsKey, userStatusKey},
-		[]interface{}{stats, status})
-	if err != nil {
-		merr := err.(appengine.MultiError)
-		for _, e := range merr {
-			if e != nil && e != datastore.ErrNoSuchEntity {
-				return merr
-			}
-		}
-		if merr[0] == datastore.ErrNoSuchEntity {
-			*stats = mfklib.TripleStats{}
-		}
-		if merr[1] == datastore.ErrNoSuchEntity {
-			*status = mfklib.TripleUserStatus{}
-		}
-	}
-	return nil
-}
-
 func (db mfkDb) UpdateStats(
 	tripleId mfklib.TripleId, userId mfklib.UserId,
-	stats *mfklib.TripleStats, status *mfklib.TripleUserStatus,
+	stats *mfklib.TripleStats, vote *mfklib.VoteStatus,
 	updater mfklib.Updater) error {
+	if tripleId == 0 {
+		panic("TripleId must not be zero")
+	}
+	if userId == "" {
+		panic("userId must not be empty")
+	}
+
 	statsKey := datastore.NewKey(db, "dbTripleStats", "", int64(tripleId), nil)
-	userStatusKey := datastore.NewKey(
-		db, "dbTripleUserStatus", string(userId), 0, statsKey)
+	voteKey := datastore.NewKey(db, "dbTripleUserStatus", string(userId), 0, statsKey)
+
+	var dbStats dbTripleStats
+	var dbStatus dbTripleUserStatus
 
 	updateFunc := func(c appengine.Context) error {
-		if err := getStatsAndStatus(c, statsKey, userStatusKey, stats, status); err != nil {
-			return err
-		}
-
-		store, err := updater()
+		err := datastore.GetMulti(c, []*datastore.Key{statsKey, voteKey},
+			[]interface{}{&dbStats, &dbStatus})
 		if err != nil {
-			return err
+			for _, e := range err.(appengine.MultiError) {
+				if e != nil && e != datastore.ErrNoSuchEntity {
+					return err
+				}
+			}
 		}
 
+		*stats = dbStats.ToStats()
+		*vote = dbStatus.ToVote()
+
+		store := updater()
 		if store {
-			_, err := datastore.PutMulti(c, []*datastore.Key{statsKey, userStatusKey},
-				[]interface{}{stats, status})
+			dbStats = *dbTripleStatsFromStats(*stats)
+			dbStatus = *dbTripleUserStatusFromVote(*vote)
+
+			_, err := datastore.PutMulti(c, []*datastore.Key{statsKey, voteKey},
+				[]interface{}{&dbStats, &dbStatus})
 			if err != nil {
 				return err
 			}
@@ -116,9 +174,11 @@ func (db mfkDb) UpdateStats(
 		return nil
 	}
 
-	if err := datastore.RunInTransaction(
-		db, updateFunc, &datastore.TransactionOptions{XG: false}); err != nil {
-		return err
+
+	err := datastore.RunInTransaction(db, updateFunc, &datastore.TransactionOptions{XG: false})
+	if err != nil {
+		return mfklib.NewLowerLevelError(err, "Updating stats for Triple %d and User %s",
+			tripleId, userId)
 	}
 	return nil
 }

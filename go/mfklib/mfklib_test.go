@@ -84,7 +84,7 @@ func (db *inMemoryDatabase) AddTriple(triple *Triple) (TripleId, error) {
 
 func (db *inMemoryDatabase) GetTriple(tripleId TripleId) (*Triple, error) {
 	if int(tripleId) >= len(db.stats) {
-		return nil, &EntityNotFoundError{}
+		return nil, &TripleNotFoundError{tripleId}
 	}
 	return &db.triples[int(tripleId)], nil
 }
@@ -93,16 +93,13 @@ func (db *inMemoryDatabase) UpdateStats(
 	tripleId TripleId, userId UserId,
 	stats *TripleStats, vote *VoteStatus, updater Updater) error {
 	if int(tripleId) >= len(db.stats) {
-		return &EntityNotFoundError{}
+		return &TripleNotFoundError{tripleId}
 	}
 
 	*stats = db.stats[int(tripleId)]
 	*vote = db.vote[tripleUserIdPair{tripleId, userId}]
 
-	update, err := updater()
-	if err != nil {
-		return err
-	}
+	update := updater()
 	if update {
 		db.stats[int(tripleId)] = *stats
 		db.vote[tripleUserIdPair{tripleId, userId}] = *vote
@@ -324,12 +321,19 @@ func (s *S) TestBasicVoting(c *C) {
 	t1, _ := db.AddTriple(&Triple{})
 	db.AddTriple(&Triple{})
 
-	mfk := MFKImpl{
+	mfk1 := MFKImpl{
 		UserId: "Scott",
 		Logger: TestLogger{c},
 		Database: db,
 	}
-	stats, vote, err := mfk.GetTripleStatsForUser(t1)
+	mfk2 := MFKImpl{
+		UserId: "Mike",
+		Logger: TestLogger{c},
+		Database: db,
+	}
+
+	// All clear
+	stats, vote, err := mfk1.GetTripleStatsForUser(t1)
 	c.Check(err, IsNil)
 	c.Check(stats, EqualsStats, 0,
 		0, 0, 0,
@@ -337,24 +341,116 @@ func (s *S) TestBasicVoting(c *C) {
 		0, 0, 0)
 	c.Check(vote, Equals, VoteStatus_UNSET)
 
-	err = mfk.ChangeVote(t1, VoteStatus_MFK)
+	stats, vote, err = mfk2.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
+	c.Check(stats, EqualsStats, 0,
+		0, 0, 0,
+		0, 0, 0,
+		0, 0, 0)
+	c.Check(vote, Equals, VoteStatus_UNSET)
+
+	// Change Scott's vote
+	err = mfk1.ChangeVote(t1, VoteStatus_MFK)
 	c.Check(err, IsNil)
 
-	// The stats are with this user's vote removed.
-	stats, vote, err = mfk.GetTripleStatsForUser(t1)
+	stats, vote, err = mfk1.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
 	c.Check(stats, EqualsStats, 0,
 		0, 0, 0,
 		0, 0, 0,
 		0, 0, 0)
 	c.Check(vote, Equals, VoteStatus_MFK)
 
-	// From another user's perspective, the stats are positive.
-	mfk.UserId = "Mike"
-	stats, vote, err = mfk.GetTripleStatsForUser(t1)
-
+	stats, vote, err = mfk2.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
 	c.Check(stats, EqualsStats, 0,
 		1, 0, 0,
 		0, 1, 0,
 		0, 0, 1)
 	c.Check(vote, Equals, VoteStatus_UNSET)
+
+	// Mike skips the first time.
+	err = mfk2.ChangeVote(t1, VoteStatus_SKIP)
+	c.Check(err, IsNil)
+
+	stats, vote, err = mfk1.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
+	c.Check(stats, EqualsStats, 1,
+		0, 0, 0,
+		0, 0, 0,
+		0, 0, 0)
+	c.Check(vote, Equals, VoteStatus_MFK)
+
+	stats, vote, err = mfk2.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
+	c.Check(stats, EqualsStats, 0,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1)
+	c.Check(vote, Equals, VoteStatus_SKIP)
+
+	// Then votes.
+	err = mfk2.ChangeVote(t1, VoteStatus_MKF)
+	c.Check(err, IsNil)
+
+	stats, vote, err = mfk1.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
+	c.Check(stats, EqualsStats, 0,
+		1, 0, 0,
+		0, 0, 1,
+		0, 1, 0)
+	c.Check(vote, Equals, VoteStatus_MFK)
+
+	stats, vote, err = mfk2.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
+	c.Check(stats, EqualsStats, 0,
+		1, 0, 0,
+		0, 1, 0,
+		0, 0, 1)
+	c.Check(vote, Equals, VoteStatus_MKF)
+
+	// The stats from some 3rd player's perspective.
+	mfk3 := MFKImpl{
+		UserId: "Skwisgaar",
+		Logger: TestLogger{c},
+		Database: db,
+	}
+
+	stats, vote, err = mfk3.GetTripleStatsForUser(t1)
+	c.Check(err, IsNil)
+	c.Check(stats, EqualsStats, 0,
+		2, 0, 0,
+		0, 1, 1,
+		0, 1, 1)
+	c.Check(vote, Equals, VoteStatus_UNSET)
+}
+
+func (s *S) TestVoteWhenNoTriple(c *C) {
+	db := NewInMemoryDb()
+
+	mfk := MFKImpl{
+		UserId: "Scott",
+		Logger: TestLogger{c},
+		Database: db,
+	}
+
+	err := mfk.ChangeVote(TripleId(3), VoteStatus_MFK)
+	c.Check(*(err.(*TripleNotFoundError)), Equals, TripleNotFoundError{
+		TripleId: 3,
+	})
+}
+
+func (s *S) TestGetStatsNoTriple(c *C) {
+	db := NewInMemoryDb()
+
+	mfk := MFKImpl{
+		UserId: "Scott",
+		Logger: TestLogger{c},
+		Database: db,
+	}
+
+	_, _, err := mfk.GetTripleStatsForUser(TripleId(3))
+	c.Check(*(err.(*TripleNotFoundError)), Equals, TripleNotFoundError{
+		TripleId: 3,
+	})
 }

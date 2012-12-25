@@ -6,6 +6,12 @@ import (
 	"github.com/hjfreyer/marry-fuck-kill/go/third_party/proto"
 )
 
+func panicOnError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 type MFKImpl struct {
 	UserId
 
@@ -88,6 +94,17 @@ func (mfk MFKImpl) verifyWrappedImage(image *WrappedImageMetadata) bool {
 	return true
 }
 
+func (mfk MFKImpl) GetTriple(tripleId TripleId) (*Triple, error) {
+	triple, err := mfk.Database.GetTriple(tripleId)
+	switch err.(type) {
+	case nil:
+		return triple, nil
+	case *TripleNotFoundError:
+		return nil, err
+	}
+	panic(err)
+}
+
 func (mfk MFKImpl) GetImage(tripleId TripleId, entity string) (*Image, error) {
 	triple, err := mfk.GetTriple(tripleId)
 	if err != nil {
@@ -101,12 +118,7 @@ func (mfk MFKImpl) GetImage(tripleId TripleId, entity string) (*Image, error) {
 	case "2":
 		return triple.C.Image, nil
 	}
-	return nil, &IllegalArgumentError{
-		Func:     "GetImage",
-		Argument: "entity",
-		Value:    entity,
-		Cause:    "Must be 0, 1, or 2",
-	}
+	panic(fmt.Errorf("Invalid entity %q when getting image for Triple %d", entity, tripleId))
 }
 
 func getIntsForVote(s *TripleStats, v VoteStatus) []*uint64 {
@@ -143,37 +155,39 @@ func subtractVoteFromStats(stats *TripleStats, vote VoteStatus) {
 	}
 }
 
-func (mfk MFKImpl) GetTripleStatsForUser(tripleId TripleId) (TripleStats, VoteStatus, error) {
-	var	stats TripleStats
-	var	vote VoteStatus
-
-	err := mfk.UpdateStats(tripleId, mfk.UserId, &stats, &vote, func() (bool, error) {
-		return false, nil
-	})
-	if err != nil {
-		return stats, vote, err
+func (mfk MFKImpl) GetTripleStatsForUser(tripleId TripleId) (
+	stats TripleStats, vote VoteStatus, err error) {
+	if _, err = mfk.GetTriple(tripleId); err != nil {
+		return // Returns err
 	}
+
+	err = mfk.UpdateStats(tripleId, mfk.UserId, &stats, &vote, func() bool {
+		return false
+	})
+	panicOnError(err)
 
 	subtractVoteFromStats(&stats, vote)
 
-	return stats, vote, nil
+	return
 }
 
 func (mfk MFKImpl) ChangeVote(tripleId TripleId, newVote VoteStatus) error {
+	if _, err := mfk.GetTriple(tripleId); err != nil {
+		return err
+	}
+
 	var stats TripleStats
 	var prevVote VoteStatus
 
-	err := mfk.UpdateStats(tripleId, mfk.UserId, &stats, &prevVote, func() (bool, error) {
+	err := mfk.UpdateStats(tripleId, mfk.UserId, &stats, &prevVote, func() bool {
 		if newVote == prevVote {
-			return false, nil
+			return false
 		}
 		subtractVoteFromStats(&stats, prevVote)
 		addVoteToStats(&stats, newVote)
 		prevVote = newVote
-		return true, nil
+		return true
 	})
-	if err != nil {
-		return err
-	}
+	panicOnError(err)
 	return nil
 }
