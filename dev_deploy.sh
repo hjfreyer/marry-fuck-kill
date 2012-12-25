@@ -39,4 +39,4 @@ sass \
     --cache-location $TMP > $TMP/sass.log &
 guard -i &
 
-$DEV_APPSERVER $BIN
+$DEV_APPSERVER --use_sqlite $BIN
