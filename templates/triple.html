@@ -9,50 +9,75 @@
       {{template "triple" .}}
     </div>
     {{end}}
-    <script>mfk.depsInit();</script>
     {{template "foot"}}
   </body>
 </html>
 {{end}}
 
-{{define "triple"}}
-<div class="triple {{if .UserVoted}}voted
-            {{range $idx, $vote := .VotesPerEntity}}s{{$vote}}{{$idx}} {{end}}
-            {{else}}unvoted{{end}}" id="triple{{.Id}}">
-  <div class="entities">
-    {{range $idx, $entity := .Entities}}
-    <div class="entity entity{{$idx}}">
-      <div class="name">{{.Name}}</div>
-      <div class="image">
-        <div class="centerbox">
-          <img src="/i/{{$.Id}}/{{$idx}}">
-        </div>
-      </div>
-      <div class="button-area">
-        <button class="vote-button marry">Marry</button>
-        <button class="vote-button fuck">Fuck</button>
-        <button class="vote-button kill">Kill</button>
-        <div class="chart"></div>
+{{define "singleTriplePage"}}
+<html>
+  <head>
+    {{template "head" ""}}
+    <script>mfk.depsInit();</script>
+  </head>
+  <body>
+    <div style="margin-bottom: 20px">
+      {{template "singleTriple" .Triple}}
+    </div>
+    {{template "foot" .}}
+  </body>
+</html>
+{{end}}
+
+{{define "tripleClasses"}}triple
+{{if .UserVoted}}voted
+{{range $idx, $vote := .VotesPerEntity}}s{{$vote}}{{$idx}} {{end}}
+{{else}}unvoted{{end}}{{end}}
+
+{{define "tripleId"}}triple{{.Id}}{{end}}
+
+{{define "tripleBody"}}
+<div class="entities">
+  {{range $idx, $entity := .Entities}}
+  <div class="entity entity{{$idx}}">
+    <div class="name">{{.Name}}</div>
+    <div class="image">
+      <div class="centerbox">
+        <img src="/i/{{$.Id}}/{{$idx}}">
       </div>
     </div>
-  {{end}}
+    <div class="button-area">
+      <button class="vote-button marry">Marry</button>
+      <button class="vote-button fuck">Fuck</button>
+      <button class="vote-button kill">Kill</button>
+      <div class="chart"></div>
+    </div>
   </div>
+  {{end}}
+</div>
+{{end}}
+
+{{define "singleTriple"}}
+<div class='single-triple {{template "tripleClasses" .}}'
+     id='{{template "tripleId" .}}'>
+  {{template "tripleBody" .}}
   <button class="vote">Vote</button>
   <button class="disabledVote" disabled="disabled">Vote</button>
   <button class="edit">Edit</button>
+  <button class="skip">Skip</button>
 </div>
-<script>new mfk.Triple(
+<script>FOO = new mfk.SingleTriple(
 	document.getElementById('triple{{.Id}}'),
 	{{.Id}},
-    { 'm' : {{.Stats.A.Marry}},
-      'f' : {{.Stats.A.Fuck}},
-      'k' : {{.Stats.A.Kill}} },
-    { 'm' : {{.Stats.B.Marry}},
-      'f' : {{.Stats.B.Fuck}},
-      'k' : {{.Stats.B.Kill}} },
-    { 'm' : {{.Stats.C.Marry}},
-      'f' : {{.Stats.C.Fuck}},
-      'k' : {{.Stats.C.Kill}} });
+    [{ 'm' : {{.Stats.A.Marry}},
+       'f' : {{.Stats.A.Fuck}},
+       'k' : {{.Stats.A.Kill}} },
+     { 'm' : {{.Stats.B.Marry}},
+       'f' : {{.Stats.B.Fuck}},
+       'k' : {{.Stats.B.Kill}} },
+     { 'm' : {{.Stats.C.Marry}},
+       'f' : {{.Stats.C.Fuck}},
+       'k' : {{.Stats.C.Kill}} }]);
 </script>
 {{end}}
 

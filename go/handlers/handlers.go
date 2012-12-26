@@ -20,9 +20,9 @@ func MakeMFKImpl(req *http.Request) *mfklib.MFKImpl {
 	var userId string
 	if u := user.Current(cxt); u != nil {
 		userId = u.Email + "::" + u.ID
+	} else {
+		userId = req.RemoteAddr
 	}
-	userId = req.RemoteAddr
-
 	backend := impl.BackendImpl{cxt, req}
 	db := impl.NewDb(cxt)
 
@@ -236,7 +236,7 @@ func (singleTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error
 		return herr
 	}
 
-	// cxt := appengine.NewContext(r)
+	cxt := appengine.NewContext(r)
 
 	mfk := MakeMFKImpl(r)
 
@@ -248,18 +248,20 @@ func (singleTripleHandler) Handle(w http.ResponseWriter, r *http.Request) *Error
 	stats, vote, err := mfk.GetTripleStatsForUser(tripleId)
 	panicOnError(err)
 
-	triples := []tripleView{
-		{
-			Id: tripleId,
-			Triple: triple,
-			Stats: stats,
-			Vote: vote,
-		},
+	tv := tripleView{
+		Id: tripleId,
+		Triple: triple,
+		Stats: stats,
+		Vote: vote,
 	}
 
-
+	login, _ := user.LoginURL(cxt, r.URL.Path)
+	context := map[string]interface{}{
+		"Triple" : tv,
+		"LoginUrl" : login,
+	}
 	templates := Templates()
-	panicOnError(templates.ExecuteTemplate(w, "tripleList", triples))
+	panicOnError(templates.ExecuteTemplate(w, "singleTriplePage", context))
 
 	return nil
 }
