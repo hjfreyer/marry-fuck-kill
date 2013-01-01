@@ -112,7 +112,6 @@ mfk.Triple.prototype.setVoted = function() {
 
 mfk.Triple.prototype.clearVotes = function() {
   goog.dom.classes.set(this.dom_, 'triple unvoted');
-  this.charts_.map(function(x) { goog.dom.removeChildren(x); });
 };
 
 mfk.Triple.prototype.selectButton_ = function(action, num) {
@@ -129,6 +128,7 @@ mfk.Triple.prototype.selectButton_ = function(action, num) {
 };
 
 mfk.Triple.prototype.drawCharts_ = function(vote) {
+  this.charts_.map(function(x) { goog.dom.removeChildren(x); });
   mfk.whenDepsReady(function() {
     var drawChart = function(baseTally, voteChar, dom) {
       var data = google.visualization.arrayToDataTable([

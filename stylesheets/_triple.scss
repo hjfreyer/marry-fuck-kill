@@ -1,0 +1,164 @@
+
+$tripleWidth: 642px;
+$tripleHeight: 344px;
+
+$entityWidth: $tripleWidth / 3;
+$entityHeight: 212px;
+
+$imageHeight: $entityHeight - 30px;
+
+$voteButtonAreaHeight: $tripleHeight - $entityHeight;
+$voteButtonMargin: 4px;
+
+// Makes enough room for 4 buttons.
+$voteButtonHeight: ($voteButtonAreaHeight - 3 * $voteButtonMargin) / 4;
+
+$voteTransition: 10s;
+
+.triple-body {
+  position: relative;
+  margin: auto;
+
+  width: $tripleWidth;
+  height: $tripleHeight;
+
+  @for $idx from 0 through 2 {
+    .entity#{$idx} {
+      @include fill-space;
+      left: $idx * $entityWidth;
+      right: (2 - $idx) * $entityWidth;
+    }
+  }
+
+  .entity {
+    .name {
+      text-align: center;
+      font-size: 18pt;
+    }
+
+    .image {
+      @include fill-space;
+      top: $entityHeight - $imageHeight;
+      height: $imageHeight;
+      @include image-div;
+    }
+
+    .button-area {
+      @include fill-space;
+      top: $entityHeight;
+
+      .vote-button {
+        position: absolute;
+
+        left: $voteButtonMargin;
+        right: $voteButtonMargin;
+        height: $voteButtonHeight;
+
+        background: blue;
+
+        z-index: 1;
+
+        -webkit-transition: $voteTransition;
+      }
+
+      .chart {
+        position: absolute;
+        bottom: 0;
+
+        -webkit-transition: opacity $voteTransition;
+      }
+    }
+  }
+}
+
+.triple.unvoted {
+  .button-area {
+    .vote-button.marry {
+      top: ($voteButtonHeight + $voteButtonMargin) * 1 / 2;
+    }
+
+    .vote-button.fuck {
+      top: ($voteButtonHeight + $voteButtonMargin) * 3 / 2;
+    }
+
+    .vote-button.kill {
+      top: ($voteButtonHeight + $voteButtonMargin) * 5 / 2;
+    }
+
+    .chart {
+      opacity: 0;
+    }
+  }
+}
+
+.triple.voted {
+  .button-area {
+    .chart {
+      opacity: 1;
+    }
+  }
+}
+
+@for $entityNum from 0 through 2 {
+  @each $vote in marry, fuck, kill {
+    .triple.unvoted {
+      &.s#{$vote}#{$entityNum} .entity#{$entityNum} .vote-button.#{$vote} {
+        font-weight: bold;
+      }
+    }
+
+    .triple.voted {
+      &.s#{$vote}#{$entityNum} {
+        .entity .vote-button {
+          top: $voteButtonMargin;
+          opacity: 0;
+        }
+
+        .entity#{$entityNum} .vote-button.#{$vote} {
+          opacity: 1;
+          background: white;
+          border: 0;
+        }
+      }
+    }
+  }
+}
+
+.single-triple {
+  .action-bar {
+    text-align: center;
+    margin: 30px 0;
+  }
+
+  .triple.unvoted {
+    .action-bar {
+      .next, .change, .vote {
+        display: none;
+      }
+    }
+
+    &.smarry0.sfuck1.skill2,
+    &.smarry0.sfuck2.skill1,
+    &.smarry1.sfuck0.skill2,
+    &.smarry1.sfuck2.skill0,
+    &.smarry2.sfuck0.skill1,
+    &.smarry2.sfuck1.skill0 {
+      .action-bar {
+        .vote {
+          display: inline-block;
+        }
+        .disabledVote {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .triple.voted {
+    .action-bar {
+      .vote, .disabledVote, .skip {
+        display: none;
+      }
+    }
+  }
+}

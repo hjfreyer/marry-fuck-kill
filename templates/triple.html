@@ -37,15 +37,11 @@
 {{define "tripleId"}}triple{{.Id}}{{end}}
 
 {{define "tripleBody"}}
-<div class="entities">
+<div class="triple-body">
   {{range $idx, $entity := .Entities}}
   <div class="entity entity{{$idx}}">
     <div class="name">{{.Name}}</div>
-    <div class="image">
-      <div class="centerbox">
-        <img src="/i/{{$.Id}}/{{$idx}}">
-      </div>
-    </div>
+    <div class="image" style="background-image: url(/i/{{$.Id}}/{{$idx}})"></div>
     <div class="button-area">
       <button class="vote-button marry">Marry</button>
       <button class="vote-button fuck">Fuck</button>
@@ -58,15 +54,19 @@
 {{end}}
 
 {{define "singleTriple"}}
-<div class='single-triple {{template "tripleClasses" .}}'
-     id='{{template "tripleId" .}}'>
-  {{template "tripleBody" .}}
-  <button class="vote">Vote</button>
-  <button class="disabledVote" disabled="disabled">Vote</button>
-  <button class="edit">Edit</button>
-  <button class="skip">Skip</button>
-</div>
-<script>FOO = new mfk.SingleTriple(
+<div class="single-triple">
+  <div class='{{template "tripleClasses" .}}'
+       id='{{template "tripleId" .}}'>
+    {{template "tripleBody" .}}
+    <div class="action-bar">
+      <button class="vote">Vote</button>
+      <button class="disabledVote" disabled="disabled">Vote</button>
+      <button class="change">Change</button>
+      <button class="skip">Skip</button>
+      <button class="next">Next</button>
+    </div>
+  </div>
+  <script>FOO = new mfk.SingleTriple(
 	document.getElementById('triple{{.Id}}'),
 	{{.Id}},
     [{ 'm' : {{.Stats.A.Marry}},
@@ -79,6 +79,7 @@
        'f' : {{.Stats.C.Fuck}},
        'k' : {{.Stats.C.Kill}} }]);
 </script>
+</div>
 {{end}}
 
 {{define "entity"}}
