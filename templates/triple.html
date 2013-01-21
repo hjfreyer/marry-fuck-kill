@@ -38,18 +38,43 @@
 
 {{define "tripleBody"}}
 <div class="triple-body">
-  {{range $idx, $entity := .Entities}}
-  <div class="entity entity{{$idx}}">
-    <div class="name">{{.Name}}</div>
-    <div class="image" style="background-image: url(/i/{{$.Id}}/{{$idx}})"></div>
-    <div class="button-area">
-      <button class="vote-button marry">Marry</button>
-      <button class="vote-button fuck">Fuck</button>
-      <button class="vote-button kill">Kill</button>
-      <div class="chart"></div>
+  <div class="entities">
+    {{range $idx, $entity := .Entities}}
+    <div class="entity">
+      <div class="name">{{.Name}}</div>
+      <div class="image" style="background-image: url(/i/{{$.Id}}/{{$idx}})"></div>
+    </div>
+    {{end}}
+  </div>
+  <div class="vote-area">
+    <div class="vote-buttons">
+      {{range $idx, $entity := .Entities}}
+      <div class="vote-entity">
+        <button class="vote-button onmarry{{$idx}}">Marry</button>
+        <button class="vote-button onfuck{{$idx}}">Fuck</button>
+        <button class="vote-button onkill{{$idx}}">Kill</button>
+      </div>
+      {{end}}
+    </div>
+    <div class="responses">
+      <div class="user-title">YOU SAID</div>
+      <div class="user">
+        {{range $idx, $entity := .Entities}}
+        <div class="user-responses">
+          <div class="response onmarry{{$idx}}">Marry</div>
+          <div class="response onfuck{{$idx}}">Fuck</div>
+          <div class="response onkill{{$idx}}">Kill</div>
+        </div>
+        {{end}}
+      </div>
+      <div class="others-title">THEY SAID</div>
+      <div class="others">
+        {{range $idx, $entity := .Entities}}
+        <div class="chart"></div>
+        {{end}}
+      </div>
     </div>
   </div>
-  {{end}}
 </div>
 {{end}}
 
