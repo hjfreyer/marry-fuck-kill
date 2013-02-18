@@ -49,9 +49,9 @@ mfk.Triple = function(dom, triple_id, tallies) {
   this.id_ = triple_id;
   this.tallies_ = tallies;
 
-  this.charts_ = goog.dom.query('.responses .others .chart', this.dom_);
+  this.charts_ = goog.dom.query('.chart', this.dom_);
 
-  var voteEntities = goog.dom.query('.vote-area .vote-entity', this.dom_);
+  var voteEntities = goog.dom.query('.vote-column', this.dom_);
   for (var n = 0; n < 3; n++) {
     var e = goog.dom.getChildren(voteEntities[n]);
 
@@ -60,9 +60,7 @@ mfk.Triple = function(dom, triple_id, tallies) {
     util.click(e[2], this.selectButton_.bind(this, 'kill', n));
   }
 
-  if (this.isVoted()) {
-    this.drawCharts_(this.getVote());
-  }
+  this.drawCharts_();
 };
 
 mfk.Triple.prototype.isVoted = function() {
@@ -99,8 +97,6 @@ mfk.Triple.prototype.setVoted = function() {
     console.log('Error: Invalid vote: ' + vote);
     return;
   }
-
-  this.drawCharts_(vote);
 
   goog.dom.classes.swap(this.dom_, 'unvoted', 'voted');
 };
@@ -190,10 +186,13 @@ mfk.sendVote = function(triple_id, vote, callback) {
 mfk.SingleTriple = function(dom, triple_id, tallies) {
   this.triple_ = new mfk.Triple(dom, triple_id, tallies);
   this.voteButton_ = goog.dom.query('.vote', dom)[0];
+  this.changeButton_ = goog.dom.query('.change', dom)[0];
 
   util.click(this.voteButton_, function() {
     this.triple_.setVoted();
   }.bind(this));
+
+	util.click(this.changeButton_, this.triple_.clearVotes.bind(this.triple_));
 //  this.
 };
 

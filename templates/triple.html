@@ -46,35 +46,33 @@
     </div>
     {{end}}
   </div>
-  <div class="vote-area">
-    <div class="vote-buttons">
-      {{range $idx, $entity := .Entities}}
-      <div class="vote-entity">
-        <button class="vote-button onmarry{{$idx}}">Marry</button>
-        <button class="vote-button onfuck{{$idx}}">Fuck</button>
-        <button class="vote-button onkill{{$idx}}">Kill</button>
-      </div>
-      {{end}}
-    </div>
-    <div class="responses">
-      <div class="user-title">YOU SAID</div>
-      <div class="user">
-        {{range $idx, $entity := .Entities}}
-        <div class="user-responses">
-          <div class="response onmarry{{$idx}}">Marry</div>
-          <div class="response onfuck{{$idx}}">Fuck</div>
-          <div class="response onkill{{$idx}}">Kill</div>
-        </div>
-        {{end}}
-      </div>
-      <div class="others-title">THEY SAID</div>
-      <div class="others">
-        {{range $idx, $entity := .Entities}}
-        <div class="chart"></div>
-        {{end}}
-      </div>
-    </div>
-  </div>
+	<div class="vote-area">
+		<div class="vote-columns">
+			{{range $idx, $entity := .Entities}}
+			<div class="vote-column">
+				<button class="vote-button smarry{{$idx}}">Marry</button>
+				<button class="vote-button sfuck{{$idx}}">Fuck</button> 
+				<button class="vote-button skill{{$idx}}">Kill</button>
+			</div>
+			{{end}}
+		</div>
+		<div class="results">
+			<div class="you-would">
+				<div class="title">You said</div>
+				<div class="content">
+					marry, fuck, kill
+				</div>
+			</div>				
+			<div class="charts">
+				<div class="title">You said</div>	
+				<div class="content">				
+					{{range $idx, $entity := .Entities}}
+					<div class="chart"></div>
+					{{end}}
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 {{end}}
 

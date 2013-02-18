@@ -1,40 +1,63 @@
 
 $tripleWidth: 642px;
-$tripleHeight: 344px;
-$voteHeight: 132px;
 
+$voteButtonHeight: 30px;
+$voteButtonMargin: 5px;
 
+$entityTitleHeight: 30px;
+
+// Entity stuff.
+$entityImageBoxSide: $tripleWidth / 3;
 $entityWidth: $tripleWidth / 3;
-$entityHeight: 212px;
 
-$imageHeight: $entityHeight - 30px;
+$entitiesHeight: $entityTitleHeight + $entityImageBoxSide;
 
-$voteButtonAreaHeight: $tripleHeight - $entityHeight;
-$voteButtonMargin: 4px;
+// You would.
+$youWouldHeight: $voteButtonHeight;
+
+$voteHeight: 4 * $voteButtonMargin + 3 * $voteButtonHeight;
+
+$tripleHeight: $entitiesHeight + $voteHeight;
+// $voteHeight: 132px; 
+
+div { background: rgba(0,0,0,0.1)}
+
+
+//$entityHeight: 212px;
+
+//$imageHeight: $entityHeight - 30px;
+
+//$voteButtonAreaHeight: $tripleHeight - $entityHeight;
+//$voteButtonMargin: 4px;
 
 // Makes enough room for 4 buttons.
-$voteButtonHeight: ($voteButtonAreaHeight - 3 * $voteButtonMargin) / 4;
+//$voteButtonHeight: ($voteButtonAreaHeight - 3 * $voteButtonMargin) / 4;
 
-$chartHeight: 104;
+//$chartHeight: 104;
 
 $voteTransition: 400ms;
 
-@mixin vote-selected {
+
+@mixin vote-submitted {
   @for $entityNum from 0 through 2 {
     @each $vote in marry, fuck, kill {
-      .s#{$vote}#{$entityNum} &.on#{$vote}#{$entityNum} {
+      .triple.voted.s#{$vote}#{$entityNum} &.#{$vote}#{$entityNum} {
         @content;
       }
     }
   }
 }
 
-@mixin thirds($width) {
+@mixin voteable {
+	
+}
+
+@mixin thirds {
   @for $i from 1 through 3 {
     &:nth-child(#{$i}) {
       @include fill-space;
-      left: ($i - 1) * ($width / 3);
-      right: (3 - $i) * ($width / 3);
+      left: ($i - 1) * ($tripleWidth / 3);
+      right: (3 - $i) * ($tripleWidth / 3);
     }
   }
 }
@@ -44,12 +67,18 @@ $voteTransition: 400ms;
   margin: auto;
 
   width: $tripleWidth;
-
+	height: $tripleHeight;
+	
   .entities {
-    height: $entityHeight;
+		position: relative;
+    height: $entitiesHeight;
 
     .entity {
-      @include thirds($tripleWidth);
+      @include thirds;
+
+			border: 1px solid black;
+			margin: 10px;
+			box-shadow: 3px 3px;
 
       .name {
         text-align: center;
@@ -58,88 +87,192 @@ $voteTransition: 400ms;
 
       .image {
         @include fill-space;
-        top: $entityHeight - $imageHeight;
-        height: $imageHeight;
+        top: $entityTitleHeight;
+        height: $entityImageBoxSide;
         @include image-div;
       }
     }
   }
 
-  .vote-area {
-    position: relative;
-    width: $tripleWidth;
-    height: $voteHeight;
+	.vote-area {
+		position: relative;
+		height: $voteHeight;
 
-    border: 1px solid black;
+		.vote-columns {
+			@include fill-space;
+			
+			.vote-column {
+				@include thirds;
 
-    overflow: hidden;
+				.vote-button {
+					position: absolute;
+					left: $voteButtonMargin;
+					right: $voteButtonMargin;
+					height: $voteButtonHeight;
 
-    .vote-buttons {
-      @include fill-space;
+					font-size: 14pt;
 
-      -webkit-transition: $voteTransition;
+					-webkit-transition: top $voteTransition, background-color $voteTransition, border $voteTransition;
+        /* width: $entityWidth - 2 * $voteButtonMargin; */
+        /* margin: $voteButtonMargin; */
+				}
+			}
+		}
 
-      .vote-entity {
-        @include thirds($tripleWidth);
-        padding: $voteButtonMargin;
+		.results {
+			@include fill-space;
+			left: -100px;
 
-        .vote-button {
-          -webkit-transition: $voteTransition;
-          height: $voteButtonHeight;
-          width: 100%;
-          margin: $voteButtonMargin;
+			.you-would {
+				@include fill-space;
+				height: $youWouldHeight;
+			}
 
-          @include vote-selected {
-            font-weight: bold;
-          }
-        }
-      }
-    }
+			.charts {
+				@include fill-space;
+				top: $youWouldHeight;
 
-    .responses {
-      @include fill-space;
-      top: $voteHeight;
-      height: $voteHeight;
+				-webkit-transition: $voteTransition;		
 
-      background: white;
-
-      -webkit-transition: $voteTransition;
-
-      .user-title, .others-title {
-        font-size: 8pt;
-        text-align: center;
-        font-family: 'Krona One', sans-serif;
-      }
-
-      .user {
-        position: relative;
-        height: 20px;
-
-        .user-responses {
-          @include thirds($tripleWidth);
-          .response {
-            text-align: center;
-
-            display: none;
-
-            @include vote-selected {
-              display: block;
-            }
-          }
-        }
-      }
-
-      .others {
-        position: relative;
-        height: $chartHeight;
-
-        .chart {
-          @include thirds($tripleWidth);
-        }
+				.chart {
+					@include thirds;
+				}
+			}
+		}
+	}
+}
+// Dynamic stuff.
+  
+@mixin vote-selected($class) {
+	@for $entityNum from 0 through 2 {
+    @each $vote in marry, fuck, kill {
+      &.s#{$vote}#{$entityNum} #{$class}.s#{$vote}#{$entityNum} {
+        @content;
       }
     }
   }
 }
+
+// Unvoted.
+.triple {
+	@for $i from 1 through 3 {
+		.vote-button:nth-child(#{$i}) {
+			top: $tripleHeight - $voteHeight + $voteButtonMargin +
+			    ($i - 1) * ($voteButtonHeight + $voteButtonMargin);
+		}
+	}
+
+	@include vote-selected('.vote-button') {
+		font-weight: bold;
+		font-size: 16pt;
+	}
+
+	.charts {
+		/* top: $tripleHeight; */
+	}
+}
+
+// Voted.
+.triple.voted {
+	.vote-button {
+		opacity: 0;
+	}
+	
+	@include vote-selected('.vote-button') {
+		background-color: white;
+		border: 0;
+		font-weight: bold;
+		font-size: 16pt;
+		top: 0;
+		opacity: 1;
+	}
+
+	.charts {
+		/* top: $tripleHeight - $voteHeight; */
+	}
+}
+
+
+//	.charts {
+//		@include fill-space;
+//		
+//		top: $tripleHeight - $voteHeight;
+//	}
+//
+//	.you-would {
+//		position: relative;
+//		height: $youWouldHeight;
+//	
+//		.d {
+//			text-align: center;
+//			@include thirds;
+//		}
+//	}
+//
+//
+//  .vote-area {
+//		@include fill-space;
+//		
+//    border: 1px solid black;
+//
+//    overflow: hidden;
+//
+//    .vote-buttons {
+//      @include fill-space;
+//
+//      -webkit-transition: top $voteTransition;
+//
+//      .vote-entity {
+//        @include thirds;
+//        padding: $voteButtonMargin;
+//
+//      }
+//    }
+//
+//    .responses {
+//      @include fill-space;
+//      top: $voteHeight;
+//      height: $voteHeight;
+//
+//      background: white;
+//
+//      -webkit-transition: $voteTransition;
+//
+//      .user-title, .others-title {
+//        font-size: 8pt;
+//        text-align: center;
+//        font-family: 'Krona One', sans-serif;
+//      }
+//
+//      .user {
+//        position: relative;
+//        height: 20px;
+//
+//        .user-responses {
+//          @include thirds;
+//          .response {
+//            text-align: center;
+//
+//            display: none;
+//
+//            @include vote-selected {
+//              display: block;
+//            }
+//          }
+//        }
+//      }
+//
+//      .others {
+//        position: relative;
+//        height: $voteHeight;
+//
+//        .chart {
+//          @include thirds;
+//        }
+//      }
+//    }
+//  }
+//}
 
 .triple.unvoted {
   .vote-buttons {
