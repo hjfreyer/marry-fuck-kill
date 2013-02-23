@@ -46,33 +46,37 @@
     </div>
     {{end}}
   </div>
-	<div class="vote-area">
-		<div class="vote-columns">
-			{{range $idx, $entity := .Entities}}
-			<div class="vote-column">
-				<button class="vote-button smarry{{$idx}}">Marry</button>
-				<button class="vote-button sfuck{{$idx}}">Fuck</button> 
-				<button class="vote-button skill{{$idx}}">Kill</button>
-			</div>
-			{{end}}
-		</div>
-		<div class="results">
-			<div class="you-would">
-				<div class="title">You said</div>
-				<div class="content">
-					marry, fuck, kill
-				</div>
-			</div>				
-			<div class="charts">
-				<div class="title">You said</div>	
-				<div class="content">				
-					{{range $idx, $entity := .Entities}}
-					<div class="chart"></div>
-					{{end}}
-				</div>
-			</div>
-		</div>
-	</div>
+  <div class="vote-mask">
+    <div class="vote-area">
+      <div class="vote-columns">
+        {{range $idx, $entity := .Entities}}
+        <div class="vote-column">
+          <button class="vote-button smarry{{$idx}}">Marry</button>
+          <button class="vote-button sfuck{{$idx}}">Fuck</button>
+          <button class="vote-button skill{{$idx}}">Kill</button>
+        </div>
+        {{end}}
+      </div>
+      <div class="results">
+        <div class="us">
+          {{range $idx, $entity := .Entities}}
+          <div class="column">
+            <div class="yourvote smarry{{$idx}}">Marry</div>
+            <div class="yourvote sfuck{{$idx}}">Fuck</div>
+            <div class="yourvote skill{{$idx}}">Kill</div>
+          </div>
+          {{end}}
+          <div class="popup">&lt;You said</div>
+        </div>
+        <div class="them">
+          {{range $idx, $entity := .Entities}}
+          <div class="chart"></div>
+          {{end}}
+          <div class="popup">&lt;They said</div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {{end}}
 
@@ -90,18 +94,18 @@
     </div>
   </div>
   <script>FOO = new mfk.SingleTriple(
-	document.getElementById('triple{{.Id}}'),
-	{{.Id}},
+    document.getElementById('triple{{.Id}}'),
+    {{.Id}},
     [{ 'm' : {{.Stats.A.Marry}},
-       'f' : {{.Stats.A.Fuck}},
-       'k' : {{.Stats.A.Kill}} },
-     { 'm' : {{.Stats.B.Marry}},
-       'f' : {{.Stats.B.Fuck}},
-       'k' : {{.Stats.B.Kill}} },
-     { 'm' : {{.Stats.C.Marry}},
-       'f' : {{.Stats.C.Fuck}},
-       'k' : {{.Stats.C.Kill}} }]);
-</script>
+    'f' : {{.Stats.A.Fuck}},
+    'k' : {{.Stats.A.Kill}} },
+    { 'm' : {{.Stats.B.Marry}},
+    'f' : {{.Stats.B.Fuck}},
+    'k' : {{.Stats.B.Kill}} },
+    { 'm' : {{.Stats.C.Marry}},
+    'f' : {{.Stats.C.Fuck}},
+    'k' : {{.Stats.C.Kill}} }]);
+  </script>
 </div>
 {{end}}
 
