@@ -1,5 +1,5 @@
 
-$tripleWidth: 642px;
+//$tripleWidth: 642px;
 
 $voteButtonHeight: 30px;
 $voteButtonMargin: 7px;
@@ -37,7 +37,6 @@ $tripleHeight: $entitiesHeight + $voteHeight;
 
 $voteTransition: 300ms;
 
-
 @mixin vote-submitted {
   @for $entityNum from 0 through 2 {
     @each $vote in marry, fuck, kill {
@@ -50,16 +49,6 @@ $voteTransition: 300ms;
 
 @mixin voteable {
 
-}
-
-@mixin thirds {
-  @for $i from 1 through 3 {
-    &:nth-child(#{$i}) {
-      @include fill-space;
-      left: ($i - 1) * ($tripleWidth / 3);
-      right: (3 - $i) * ($tripleWidth / 3);
-    }
-  }
 }
 
 .triple-body {

@@ -1,4 +1,21 @@
 
+$searchMargin: 10px;
+
+$resultSize: 135px;
+$resultBorder: 2px;
+$numResultRows: 2;
+$numResultCols: 5;
+
+$tripleWidth: 2 * $searchMargin + $resultSize * $numResultCols;
+
+$searchBarHeight: 40px;
+$drawerHeight: $searchBarHeight + $numResultRows * $resultSize;
+
+$totalHeight: $drawerHeight * 2;
+
+$entityHeight: $drawerHeight;
+$imageSearchHeight: $drawerHeight;
+
 .hidden {
   display: none;
 }
@@ -14,4 +31,14 @@
 @mixin image-div {
   background-repeat: no-repeat;
   background-position: center;
+}
+
+@mixin thirds {
+  @for $i from 1 through 3 {
+    &:nth-child(#{$i}) {
+      @include fill-space;
+      left: ($i - 1) * ($tripleWidth / 3);
+      right: (3 - $i) * ($tripleWidth / 3);
+    }
+  }
 }

@@ -1,52 +1,21 @@
 
 @import "base";
 
-$margin: 10px;
-$searchMargin: 10px;
-
-$resultSize: 135px;
-$resultBorder: 2px;
-$numResultRows: 2;
-$numResultCols: 5;
-
-$totalWidth: 2 * $searchMargin + $resultSize * $numResultCols;
-
-$searchBarHeight: 40px;
-$drawerHeight: $searchBarHeight + $numResultRows * $resultSize;
-
-$totalHeight: $drawerHeight * 2;
-
-$entityHeight: $drawerHeight;
-$imageSearchHeight: $drawerHeight;
-
 #maker {
   position: relative;
-  width: $totalWidth;
+  width: $tripleWidth;
   height: $totalHeight;
 
   margin: auto;
 
   .triple-preview {
-    position: relative;
+    @include fill-space;
     height: $entityHeight;
+
     background: white;
-    z-index: 20;
-
-    @mixin entityNum($idx) {
-      .entity#{$idx} {
-        left: $idx / 3 * $totalWidth;
-        right: (2 - $idx) / 3 * $totalWidth;
-      }
-    }
-
-    @include entityNum(0);
-    @include entityNum(1);
-    @include entityNum(2);
 
     .entity {
-      position: absolute;
-      top: 50px;
-      bottom: 0;
+      @include thirds;
 
       border: 1px solid grey;
 
@@ -73,12 +42,22 @@ $imageSearchHeight: $drawerHeight;
         }
       }
 
-      .image {
-        @include image-div;
+      .image-area {
         @include fill-space;
-        top: $nameHeight;
+        top: $entityHeight - $tripleWidth / 3;
+        background: blue;
 
-        .instructions {
+
+        .frame {
+          @include image-div;
+          @include fill-space;
+
+          background-image: url('http://www.artgalleryframes.com/images/FDN924-G.jpg');
+          background-size: 230px 230px;
+        }
+
+        .image {
+          @include image-div;
           @include fill-space;
         }
       }
@@ -86,16 +65,15 @@ $imageSearchHeight: $drawerHeight;
   }
 
   .search-window {
-    position: relative;
+    @include fill-space;
+    top: $entityHeight;
     height: $imageSearchHeight;
 
     .search-panel {
       position: absolute;
-
-      top: -$imageSearchHeight;
       left: 0;
       right: 0;
-      height: $imageSearchHeight - 1;
+      height: $imageSearchHeight;
 
       background: white;
 
@@ -169,6 +147,10 @@ $imageSearchHeight: $drawerHeight;
   }
 
   @mixin activeSearch($idx) {
+    .search-panel#{$idx} {
+      top: -$imageSearchHeight;
+    }
+
     &.show-search-#{$idx} {
       .search-panel#{$idx} {
         top: 0;

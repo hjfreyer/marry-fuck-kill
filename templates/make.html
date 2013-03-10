@@ -6,18 +6,6 @@
   </head>
   <body>
     <div id="maker">
-      <div class="triple-preview">
-   	    {{range $entityIndex, $entityStructure := .Entities}}
-        <div class="entity{{$entityIndex}} entity">
-		  <div class="name-div">
-            <textarea class="name" rows="2"></textarea>
-          </div>
-		  <div class="image">
-            <div class="instructions hidden">Now give me a picture</div>
-          </div>
-	    </div>
-        {{end}}
-      </div>
       <div class="search-window">
    	    {{range $entityIndex, $entityStructure := .Entities}}
         <div class="search-panel{{$entityIndex}} search-panel">
@@ -38,6 +26,20 @@
           </div>
         </div>
  	    {{end}}
+      </div>
+      <div class="triple-preview">
+   	    {{range $entityIndex, $entityStructure := .Entities}}
+        <div class="entity{{$entityIndex}} entity">
+		  <div class="name-div">
+            <textarea class="name" rows="2"></textarea>
+          </div>
+          <div class="image-area">
+		    <div class="frame"></div>
+            <div class="image"></div>
+            <div class="placeholder">?</div>
+          </div>
+	    </div>
+        {{end}}
       </div>
       <button class="create" disabled="disabled">Create</button>
     </div>
