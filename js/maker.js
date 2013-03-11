@@ -124,8 +124,10 @@ mfk.Maker.prototype.search = function() {
   this.imageSearch_.search(query, this.processResults.bind(this));
 };
 
-mfk.Maker.prototype.processResults = function(){
-
+mfk.Maker.prototype.processResults = function() {
+  var result = this.getResponseJson();
+  console.log(result);
+  window.location = "/vote/" + result.triple_id;
 };
 
 mfk.Maker.prototype.showReview = function() {
@@ -171,7 +173,7 @@ mfk.Maker.prototype.onSubmit = function() {
   };
 
   goog.net.XhrIo.send('/api/v1/make',
-                      this.processResults.bind(this),
+                      this.processResults,
                       'POST',
                       goog.json.serialize(data));
 };

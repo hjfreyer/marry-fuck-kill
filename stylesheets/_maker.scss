@@ -165,4 +165,9 @@
   @include activeSearch(0);
   @include activeSearch(1);
   @include activeSearch(2);
+
+  .create {
+    position: relative;
+    top: $totalHeight;
+  }
 }

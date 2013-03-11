@@ -1,4 +1,3 @@
-
 goog.provide('mfk');
 
 goog.require('util');
@@ -23,193 +22,198 @@ mfk.depsReady = false;
 mfk.depsWaiters = [];
 
 mfk.depsInit = function() {
-  google.load('visualization', '1.0', {'packages':['corechart']});
+    google.load('visualization', '1.0', {'packages':['corechart']});
 
-  google.setOnLoadCallback(function() {
-    mfk.depsReady = true;
-    for (var i = 0; i < mfk.depsWaiters.length; i++) {
-      mfk.depsWaiters[i]();
-    }
-  });
+    google.setOnLoadCallback(function() {
+        mfk.depsReady = true;
+        for (var i = 0; i < mfk.depsWaiters.length; i++) {
+            mfk.depsWaiters[i]();
+        }
+    });
 };
 
 mfk.whenDepsReady = function(func) {
-  if (mfk.depsReady) {
-    func();
-  } else {
-    mfk.depsWaiters.push(func);
-  }
+    if (mfk.depsReady) {
+        func();
+    } else {
+        mfk.depsWaiters.push(func);
+    }
 };
 
 /**
  * @constructor
  */
 mfk.Triple = function(dom, triple_id, tallies) {
-  this.dom_ = dom;
-  this.id_ = triple_id;
-  this.tallies_ = tallies;
+    this.dom_ = dom;
+    this.id_ = triple_id;
+    this.tallies_ = tallies;
 
-  this.charts_ = goog.dom.query('.chart', this.dom_);
+    this.charts_ = goog.dom.query('.chart', this.dom_);
 
-  var voteEntities = goog.dom.query('.vote-column', this.dom_);
-  for (var n = 0; n < 3; n++) {
-    var e = goog.dom.getChildren(voteEntities[n]);
+    var voteEntities = goog.dom.query('.vote-column', this.dom_);
+    for (var n = 0; n < 3; n++) {
+        var e = goog.dom.getChildren(voteEntities[n]);
 
-    util.click(e[0], this.selectButton_.bind(this, 'marry', n));
-    util.click(e[1], this.selectButton_.bind(this, 'fuck', n));
-    util.click(e[2], this.selectButton_.bind(this, 'kill', n));
-  }
+        util.click(e[0], this.selectButton_.bind(this, 'marry', n));
+        util.click(e[1], this.selectButton_.bind(this, 'fuck', n));
+        util.click(e[2], this.selectButton_.bind(this, 'kill', n));
+    }
 
-  this.drawCharts_();
+    this.drawCharts_();
 };
 
 mfk.Triple.prototype.isVoted = function() {
-  return goog.dom.classes.has(this.dom_, 'voted');
+    return goog.dom.classes.has(this.dom_, 'voted');
 };
 
 mfk.Triple.prototype.getVote = function() {
-  var c = goog.dom.classes.has.bind(this, this.dom_);
+    var c = goog.dom.classes.has.bind(this, this.dom_);
 
-  var vote = '';
-  if (c('smarry0')) vote += 'm';
-  if (c('sfuck0')) vote += 'f';
-  if (c('skill0')) vote += 'k';
+    var vote = '';
+    if (c('smarry0')) vote += 'm';
+    if (c('sfuck0')) vote += 'f';
+    if (c('skill0')) vote += 'k';
 
-  if (c('smarry1')) vote += 'm';
-  if (c('sfuck1')) vote += 'f';
-  if (c('skill1')) vote += 'k';
+    if (c('smarry1')) vote += 'm';
+    if (c('sfuck1')) vote += 'f';
+    if (c('skill1')) vote += 'k';
 
-  if (c('smarry2')) vote += 'm';
-  if (c('sfuck2')) vote += 'f';
-  if (c('skill2')) vote += 'k';
+    if (c('smarry2')) vote += 'm';
+    if (c('sfuck2')) vote += 'f';
+    if (c('skill2')) vote += 'k';
 
-  return vote;
+    return vote;
 };
 
 mfk.Triple.prototype.setVoted = function() {
-  if (this.isVoted()) {
-    console.log('Error: already voted.');
-    return;
-  }
+    if (this.isVoted()) {
+        console.log('Error: already voted.');
+        return;
+    }
 
-  var vote = this.getVote();
-  if (vote.length != 3) {
-    console.log('Error: Invalid vote: ' + vote);
-    return;
-  }
+    var vote = this.getVote();
+    if (vote.length != 3) {
+        console.log('Error: Invalid vote: ' + vote);
+        return;
+    }
 
-  goog.dom.classes.swap(this.dom_, 'unvoted', 'voted');
+    goog.dom.classes.swap(this.dom_, 'unvoted', 'voted');
+
+    mfk.sendVote(this.id_, vote, function(){});
 };
 
 mfk.Triple.prototype.clearVotes = function() {
-  goog.dom.classes.set(this.dom_, 'triple unvoted');
+    goog.dom.classes.set(this.dom_, 'triple unvoted');
 };
 
 mfk.Triple.prototype.selectButton_ = function(action, num) {
-  if (this.isVoted()) {
-    return;
-  }
-
-  goog.dom.classes.add(this.dom_, 's' + action + num);
-  for (var action2 in mfk.ACTIONS) {
-    if (action2 != action) {
-      goog.dom.classes.remove(this.dom_, 's' + action2 + num);
+    if (this.isVoted()) {
+        return;
     }
-  }
+
+    goog.dom.classes.add(this.dom_, 's' + action + num);
+    for (var action2 in mfk.ACTIONS) {
+        if (action2 != action) {
+            goog.dom.classes.remove(this.dom_, 's' + action2 + num);
+        }
+    }
 };
 
 mfk.Triple.prototype.drawCharts_ = function(vote) {
-  this.charts_.map(function(x) { goog.dom.removeChildren(x); });
-  mfk.whenDepsReady(function() {
-    var drawChart = function(tally, dom) {
-      var data = google.visualization.arrayToDataTable([
-        ['Vote', 'Votes'],
-        ['Marry', tally['m']],
-        ['Fuck', tally['f']],
-        ['Kill', tally['k']]
-      ]);
+    this.charts_.map(function(x) { goog.dom.removeChildren(x); });
+    mfk.whenDepsReady(function() {
+        var drawChart = function(tally, dom) {
+            var data = google.visualization.arrayToDataTable([
+                ['Vote', 'Votes'],
+                ['Marry', tally['m']],
+                ['Fuck', tally['f']],
+                ['Kill', tally['k']]
+            ]);
 
-      WIDTH = 208;
-      HEIGHT = 104;
-      H_MARGIN = 30;
+            WIDTH = 208;
+            HEIGHT = 104;
+            H_MARGIN = 30;
 
-      var options = {
-        width: WIDTH,
-        height: HEIGHT,
-        colors : ['#C76FDD'],  // or ['#9911BB'], or ['#63067A'],
-        legend : {
-          position : 'none'
-        },
-        chartArea : {
-          top : 15,
-          left : H_MARGIN,
-          height : HEIGHT - 35,
-          width : WIDTH - 2 * H_MARGIN
-        },
-        hAxis: {
-          textPosition: 'out',
-          textStyle : {
-            fontSize: 12,
-            color: '#888'
-          },
-        },
-        vAxis: {
-          baselineColor : 'grey',
-          textStyle : {
-            fontSize: 12,
-            color: '#BBB'
-          },
-        },
-      };
+            var options = {
+                width: WIDTH,
+                height: HEIGHT,
+                colors : ['#C76FDD'],  // or ['#9911BB'], or ['#63067A'],
+                legend : {
+                    position : 'none'
+                },
+                chartArea : {
+                    top : 15,
+                    left : H_MARGIN,
+                    height : HEIGHT - 35,
+                    width : WIDTH - 2 * H_MARGIN
+                },
+                hAxis: {
+                    textPosition: 'out',
+                    textStyle : {
+                        fontSize: 12,
+                        color: '#888'
+                    }
+                },
+                vAxis: {
+                    baselineColor : 'grey',
+                    textStyle : {
+                        fontSize: 12,
+                        color: '#BBB'
+                    }
+                }
+            };
 
-      var chart = new google.visualization.ColumnChart(dom);
-      chart.draw(data, options);
-    };
+            var chart = new google.visualization.ColumnChart(dom);
+            chart.draw(data, options);
+        };
 
-    for (var n = 0; n < 3; n++) {
-      drawChart(this.tallies_[n], this.charts_[n]);
-    }
-  }.bind(this));
+        for (var n = 0; n < 3; n++) {
+            drawChart(this.tallies_[n], this.charts_[n]);
+        }
+    }.bind(this));
 };
 
 
 mfk.sendVote = function(triple_id, vote, callback) {
-  var postData = goog.Uri.QueryData.createFromMap(new goog.structs.Map(
-    {
-      triple_id : triple_id,
-      vote : vote
-    })).toString();
+    var postData = goog.Uri.QueryData.createFromMap(new goog.structs.Map(
+        {
+            triple_id : triple_id,
+            vote : vote
+        })).toString();
 
-  goog.net.XhrIo.send('/api/v1/vote', callback, 'POST', postData);
+    goog.net.XhrIo.send('/api/v1/vote', callback, 'POST', postData);
 };
 
 mfk.SingleTriple = function(dom, triple_id, tallies) {
-  this.triple_ = new mfk.Triple(dom, triple_id, tallies);
-  this.voteButton_ = goog.dom.query('.vote', dom)[0];
-  this.changeButton_ = goog.dom.query('.change', dom)[0];
+    this.tripleId_ = triple_id;
+    this.triple_ = new mfk.Triple(dom, triple_id, tallies);
+    this.voteButton_ = goog.dom.query('.vote', dom)[0];
+    this.changeButton_ = goog.dom.query('.change', dom)[0];
+    this.nextButton_ = goog.dom.query('.next', dom)[0];
 
-  util.click(this.voteButton_, function() {
-    this.triple_.setVoted();
-  }.bind(this));
+    util.click(this.voteButton_, this.triple_.setVoted.bind(this.triple_));
+    util.click(this.changeButton_, this.triple_.clearVotes.bind(this.triple_));
 
-	util.click(this.changeButton_, this.triple_.clearVotes.bind(this.triple_));
-//  this.
+    util.click(this.nextButton_, function() {
+        window.location = "/next?triple_id=" + this.tripleId_;
+    }.bind(this));
+    //  this.
 };
 
 // mfk.makeTriples = function() {
 //   goog.array.forEach(goog.dom.query('.triple'),
 //                      function(triple) {
-// 					   var t = new mfk.Triple(triple);
-// 					   t.decorate();
+//                                         var t = new mfk.Triple(triple);
+//                                         t.decorate();
 //                      });
 // };
 
 mfk.main = function() {
- // goog.array.forEach(goog.dom.query('.triple'),
- //                     function(triple) {
- //                       var t = new mfk.Triple(triple);
- //                       t.decorate();
- //                     });
+    // goog.array.forEach(goog.dom.query('.triple'),
+    //                     function(triple) {
+    //                       var t = new mfk.Triple(triple);
+    //                       t.decorate();
+    //                     });
 
 };
 

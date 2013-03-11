@@ -42,7 +42,8 @@
     {{range $idx, $entity := .Entities}}
     <div class="entity">
       <div class="name">{{.Name}}</div>
-      <div class="image" style="background-image: url(/i/{{$.Id}}/{{$idx}})"></div>
+      <div class="image" style="background-image: url(/i/{{$.Id}}/{{$idx}})">
+      </div>
     </div>
     {{end}}
   </div>
@@ -86,25 +87,26 @@
        id='{{template "tripleId" .}}'>
     {{template "tripleBody" .}}
     <div class="action-bar">
+      <button class="change">Change</button>
+      <button class="next">Next</button>
+
+      <button class="skip">Skip</button>
       <button class="vote">Vote</button>
       <button class="disabledVote" disabled="disabled">Vote</button>
-      <button class="change">Change</button>
-      <button class="skip">Skip</button>
-      <button class="next">Next</button>
     </div>
   </div>
-  <script>FOO = new mfk.SingleTriple(
+  <script>new mfk.SingleTriple(
     document.getElementById('triple{{.Id}}'),
     {{.Id}},
     [{ 'm' : {{.Stats.A.Marry}},
-    'f' : {{.Stats.A.Fuck}},
-    'k' : {{.Stats.A.Kill}} },
-    { 'm' : {{.Stats.B.Marry}},
-    'f' : {{.Stats.B.Fuck}},
-    'k' : {{.Stats.B.Kill}} },
-    { 'm' : {{.Stats.C.Marry}},
-    'f' : {{.Stats.C.Fuck}},
-    'k' : {{.Stats.C.Kill}} }]);
+       'f' : {{.Stats.A.Fuck}},
+       'k' : {{.Stats.A.Kill}} },
+     { 'm' : {{.Stats.B.Marry}},
+       'f' : {{.Stats.B.Fuck}},
+       'k' : {{.Stats.B.Kill}} },
+     { 'm' : {{.Stats.C.Marry}},
+       'f' : {{.Stats.C.Fuck}},
+       'k' : {{.Stats.C.Kill}} }]);
   </script>
 </div>
 {{end}}

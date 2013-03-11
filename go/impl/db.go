@@ -1,6 +1,8 @@
 package impl
 
 import (
+"math/rand"
+"time"
 	"appengine"
 	"appengine/datastore"
 	"github.com/hjfreyer/marry-fuck-kill/go/mfklib"
@@ -13,6 +15,7 @@ func NewDb(c appengine.Context) mfklib.Database {
 
 type dbTriple struct {
 	Proto []byte
+	Random int64  // Non-negative random number.
 }
 
 type dbTripleStats struct {
@@ -94,7 +97,13 @@ func (db mfkDb) AddTriple(triple *mfklib.Triple) (mfklib.TripleId, error) {
 	tripleStr, err := proto.Marshal(triple)
 	panicOnError(err)
 
-	t := dbTriple{tripleStr}
+	// Pick an int64 uniformly, based on the time.
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	t := dbTriple{
+		Proto: tripleStr,
+		Random: r.Int63(),
+	}
 	tripleKey := datastore.NewIncompleteKey(db, "dbTriple", nil)
 	tripleKey, err = datastore.Put(db, tripleKey, &t)
 	if err != nil {
