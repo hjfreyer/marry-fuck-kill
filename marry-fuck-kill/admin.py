@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import logging
 import ezt
 
 from google.appengine.ext import webapp
@@ -65,18 +66,24 @@ class TripleReviewHandler(webapp.RequestHandler):
 class EnableDisableTripleHandler(webapp.RequestHandler):
   """Admin-only handler to remove Triple from random display."""
   def post(self):
+    # This is a convenience for admins: We must get the next triple ID before
+    # we set this triple's rand to -1.0, or we will reset the view order.
+    rand = models.Triple.get_next_id(self.request, self.response)
+
     action = self.request.get('action')
     triple_id = self.request.get('key')
     triple = models.Triple.get_by_id(long(triple_id))
     if action == "disable":
+      logging.info("Disabling id=%s", triple_id)
       triple.disable()
     elif action == "enable":
+      logging.info("Enabling id=%s", triple_id)
       triple.enable()
     else:
       raise ValueError("Invalid action '%s'." % action)
     triple.put()
 
-    self.redirect('/vote/%s' % triple_id)
+    self.redirect('/vote/%s?prev=%s' % (rand, triple_id))
 
 
 def main():
