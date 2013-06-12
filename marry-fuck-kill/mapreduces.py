@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 
-import random
 import logging
 
 import core
@@ -38,7 +37,7 @@ def RandomizeMapper(triple):
   We run this periodically with a cronjob to mix up our sort order.
   """
   if triple.enabled:
-    triple.rand = random.random()
+    triple.enable()  # re-enabling generates a new random ID
     logging.debug('generate_rand: id=%s rand=%.15f',
                   triple.key().id(), triple.rand)
     yield op.db.Put(triple)

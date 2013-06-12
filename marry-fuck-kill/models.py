@@ -80,6 +80,10 @@ class Triple(db.Model):
   # week in seconds
   CONTEXT_COOKIE_MAX_AGE_SECS = 604800
 
+  # If true, each Triple will always get the same random sequence number. Set
+  # this to True to make debugging easier. Should always be False in prod.
+  DETERMINISTIC_RANDOM_IDS = False
+
   @property
   def id_string(self):
     return self.key().id()
@@ -97,7 +101,15 @@ class Triple(db.Model):
 
   def enable(self):
     """Allow this Triple to be picked in the random rotation."""
-    self.rand = random.random()
+    if Triple.DETERMINISTIC_RANDOM_IDS:
+      # Use a throwaway instance of random.Random instead of the common one to
+      # avoid messing up global state.
+      r = random.Random("%s/%s/%s" % (self.one, self.two, self.three))
+      self.rand = r.random()
+      logging.warn("DETERMINISTIC_RANDOM_IDS=True! Generating deterministic "
+          "rand value %s = %s", self, self.rand)
+    else:
+      self.rand = random.random()
 
   @property
   def enabled(self):
@@ -139,7 +151,9 @@ class Triple(db.Model):
       next_id = Triple._get_random_id()
 
     if next_id is not None:
-      response.headers.add_header('Set-Cookie', '%s=%d; Max-Age=%d' % (
+      logging.info('Setting cookie from next_id: %s=%d',
+          Triple.CONTEXT_COOKIE_NAME, next_id)
+      response.headers.add_header('Set-Cookie', '%s=%d; Max-Age=%d; Path=/' % (
           Triple.CONTEXT_COOKIE_NAME, next_id,
           Triple.CONTEXT_COOKIE_MAX_AGE_SECS))
 

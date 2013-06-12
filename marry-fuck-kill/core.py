@@ -16,7 +16,6 @@
 #
 
 import logging
-import random
 import urllib2
 from django.utils import simplejson
 
@@ -168,7 +167,7 @@ def MakeEntity(name, query, user_ip, original_url):
   if original_url not in images_by_url:
     logging.error("URL '%s' is not in result set for query '%s'. "
                   "Result set over %d pages is: %s" % (
-        orignal_url, query, check_pages, list(images_by_url)))
+        original_url, query, check_pages, list(images_by_url)))
     raise EntityValidationError(
       "URL '%s' is not in result set for query '%s'." % (original_url,
                                                          query))
@@ -225,7 +224,6 @@ def MakeTriple(entities, creator, creator_ip):
   triple = models.Triple(one=one, two=two, three=three,
                          creator=creator,
                          creatorip=creator_ip,
-                         rand=random.random(),
                          has_cached_votes=True,
                          votes_one_m=0,
                          votes_one_f=0,
@@ -236,6 +234,7 @@ def MakeTriple(entities, creator, creator_ip):
                          votes_three_m=0,
                          votes_three_f=0,
                          votes_three_k=0)
+  triple.enable()
   triple.put()
   return triple
 
