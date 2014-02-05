@@ -53,9 +53,16 @@
     margin: 5px 2px 0 2px;
 }
 
+/* Unused in wide-screen version. */
+#lefty .elem {}
+
 /* This only affects non-gwt-styled elements. */
 #body a, a:visited, a:hover {
     color: black;
+}
+
+#mobile-warning {
+  display: none;
 }
 
 .titleImage {
@@ -85,6 +92,7 @@
     font-weight: bold;
     font-size: 20px;
     vertical-align: top;
+    height: 2.5em;
 
     border-style: solid;
     border-color: black;

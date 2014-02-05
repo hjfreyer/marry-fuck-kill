@@ -1,0 +1,18 @@
+#mobile-warning {
+  margin-top: 10px;
+  text-align: center;
+  display: block;
+}
+
+#lefty {
+    display: block;
+    float: none;
+    width: 640px;
+    border: 1px solid #330033;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+}
+
+#lefty .elem {
+  float: left;
+}
