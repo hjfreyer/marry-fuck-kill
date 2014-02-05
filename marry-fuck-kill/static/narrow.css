@@ -13,7 +13,12 @@
     -moz-border-radius: 15px;
 }
 
+#lefty .prev-name {
+  height: 2.5em;
+}
+
 #lefty .elem {
   float: left;
   padding: 10px;
+  width: 190px;
 }
