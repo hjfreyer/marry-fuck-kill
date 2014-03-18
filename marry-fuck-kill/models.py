@@ -92,6 +92,10 @@ class Triple(db.Model):
   def creator_nickname(self):
     return self.creator and self.creator.nickname() or ''
 
+  @property
+  def time_fmt(self):
+    return self.time.strftime('%F %H:%M:%S UTC')
+
   def disable(self):
     """Prevent this Triple from being picked in the random rotation.
 
@@ -114,6 +118,32 @@ class Triple(db.Model):
   @property
   def enabled(self):
     return self.rand != -1.0
+
+  @property
+  def enabled_or_none(self):
+    """Returns True if this Triple is enabled, None otherwise.
+
+    This strange return value is a convenience for using the EZT "if-any"
+    directive.
+    """
+    return self.enabled or None
+
+  @property
+  def total_assignments(self):
+    """Returns total # of assignments made on this Triple.
+
+    This is calculated from cached votes. If this Triple doesn't have cached
+    votes, this method returns None.
+    """
+    if self.has_cached_votes:
+      total_votes = (
+          self.votes_one_m + self.votes_one_f + self.votes_one_k +
+          self.votes_two_m + self.votes_two_f + self.votes_two_k +
+          self.votes_three_m + self.votes_three_f + self.votes_three_k)
+      # 3 "votes" are created per assignment (one M, one F, one K).
+      return total_votes/3
+    else:
+      return None
 
   @staticmethod
   def get_next_id(request, response):

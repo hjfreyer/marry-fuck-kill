@@ -32,9 +32,13 @@
           </tr>
         </table>
       </a>
-      Creator Nickname: [triples.creator_nickname]</br>
-      Creator IP: [triples.creatorip]</br>
-      Rand: [triples.rand]</br>
+        [if-any triples.enabled_or_none]
+          rand = [triples.rand]<br>
+        [else]
+          <span class="admin-disabled">rand = [triples.rand] (disabled)</span><br>
+        [end]
+        Created [triples.time_fmt] (UTC) by [triples.creator_nickname] ([triples.creatorip])<br>
+        [triples.total_assignments] votes.<br>
       <hr>
       [end]
       <form action="/admin/review" method="post">

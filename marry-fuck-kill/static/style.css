@@ -198,10 +198,12 @@
 .adminbar {
     padding: 5px;
     background: #dd8;
-    border: 1px solid black;
-    -moz-border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -o-border-radius: 5px;
+    border-top: 2px solid black;
+}
+
+.admin-disabled {
+  color: white;
+  background: red;
 }
 
 .nav {

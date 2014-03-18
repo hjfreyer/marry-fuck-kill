@@ -20,39 +20,45 @@
             <a href="/vote/[triples.key]">
               <table class="tripletable statstable">
                 <tr class="title-row">
-                  <td>[triples.one.name]</td>
-                  <td>[triples.two.name]</td>
-                  <td>[triples.three.name]</td>
+                  <td>[triples.triple.one.name]</td>
+                  <td>[triples.triple.two.name]</td>
+                  <td>[triples.triple.three.name]</td>
                 </tr>
                 <tr class="image-row">
                   <td>
-                    <img src="[triples.one.image_url]"
-                         alt="[triples.one.name]"></img>
+                    <img src="[triples.triple.one.image_url]"
+                         alt="[triples.triple.one.name]"></img>
                   </td>
                   <td>
-                    <img src="[triples.two.image_url]"
-                         alt="[triples.two,name]"></img>
+                    <img src="[triples.triple.two.image_url]"
+                         alt="[triples.triple.two,name]"></img>
                   </td>
                   <td>
-                    <img src="[triples.three.image_url]"
-                         alt="[triples.three.name]"></img>
+                    <img src="[triples.triple.three.image_url]"
+                         alt="[triples.triple.three.name]"></img>
                   </td>
                 </tr>
                 <tr class="stats-row">
                   <td>
                     <img src="[triples.one_stats]"
-                         alt="[triples.one.name] stats"></img>
+                         alt="[triples.triple.one.name] stats"></img>
                   </td>
                   <td>
                     <img src="[triples.two_stats]"
-                         alt="[triples.one.name] stats"></img>
+                         alt="[triples.triple.one.name] stats"></img>
                   </td>
                   <td>
                     <img src="[triples.three_stats]"
-                         alt="[triples.one.name] stats"></img>
+                         alt="[triples.triple.one.name] stats"></img>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="3">
+                    Created [triples.triple.time_fmt], [triples.triple.total_assignments] votes
                   </td>
                 </tr>
               </table>
+              <hr>
             </a>
           [end]
         [else]

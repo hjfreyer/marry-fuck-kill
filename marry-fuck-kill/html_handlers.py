@@ -104,20 +104,9 @@ def RenderVotePage(handler, triple_id):
   two = triple.two
   three = triple.three
 
-  # Map False -> None so EZT understands.
-  if triple.enabled:
-    triple_enabled = True
-  else:
-    triple_enabled = None
-
   template_values = dict(page='vote',
+                         triple=triple,
                          triple_id=triple_id,
-                         triple_rand=triple.rand,
-                         triple_enabled=triple_enabled,
-                         triple_creator=str(triple.creator),
-                         triple_creatorip=str(triple.creatorip),
-                         triple_reviewed=triple.reviewed,
-                         triple_time=str(triple.time),
                          e1_name=one.name,
                          e1_url=one.image_url,
                          e2_name=two.name,
@@ -196,9 +185,7 @@ class MyMfksHandler(RequestHandler):
     for t in triples:
       stats = core.GetStatsUrlsForTriple(t)
       item = ezt_util.EztItem(key=str(t.key().id()),
-                              one=t.one,
-                              two=t.two,
-                              three=t.three,
+                              triple=t,
                               one_stats=stats[0],
                               two_stats=stats[1],
                               three_stats=stats[2])
