@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/712/trunk/python/src/mapreduce/api/map_job
+END
+map_job_context.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/703/trunk/python/src/mapreduce/api/map_job/map_job_context.py
+END
+map_job_config.py
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/!svn/ver/703/trunk/python/src/mapreduce/api/map_job/map_job_config.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/712/trunk/python/src/mapreduce/api/map_job/__init__.py
+END
+mapper.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/703/trunk/python/src/mapreduce/api/map_job/mapper.py
+END
+map_job_control.py
+K 25
+svn:wc:ra_dav:version-url
+V 75
+/svn/!svn/ver/712/trunk/python/src/mapreduce/api/map_job/map_job_control.py
+END

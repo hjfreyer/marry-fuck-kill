@@ -3,6 +3,24 @@ svn:wc:ra_dav:version-url
 V 54
 /svn/!svn/ver/73/trunk/python/src/mapreduce/lib/graphy
 END
+bar_chart.py
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/73/trunk/python/src/mapreduce/lib/graphy/bar_chart.py
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/6/trunk/python/src/mapreduce/lib/graphy/README
+END
+formatters.py
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/73/trunk/python/src/mapreduce/lib/graphy/formatters.py
+END
 common.py
 K 25
 svn:wc:ra_dav:version-url
@@ -32,22 +50,4 @@ K 25
 svn:wc:ra_dav:version-url
 V 66
 /svn/!svn/ver/73/trunk/python/src/mapreduce/lib/graphy/__init__.py
-END
-bar_chart.py
-K 25
-svn:wc:ra_dav:version-url
-V 67
-/svn/!svn/ver/73/trunk/python/src/mapreduce/lib/graphy/bar_chart.py
-END
-README
-K 25
-svn:wc:ra_dav:version-url
-V 60
-/svn/!svn/ver/6/trunk/python/src/mapreduce/lib/graphy/README
-END
-formatters.py
-K 25
-svn:wc:ra_dav:version-url
-V 68
-/svn/!svn/ver/73/trunk/python/src/mapreduce/lib/graphy/formatters.py
 END

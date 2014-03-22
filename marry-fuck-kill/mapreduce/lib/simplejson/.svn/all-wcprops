@@ -3,6 +3,18 @@ svn:wc:ra_dav:version-url
 V 58
 /svn/!svn/ver/73/trunk/python/src/mapreduce/lib/simplejson
 END
+decoder.py
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/svn/!svn/ver/73/trunk/python/src/mapreduce/lib/simplejson/decoder.py
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/6/trunk/python/src/mapreduce/lib/simplejson/README
+END
 scanner.py
 K 25
 svn:wc:ra_dav:version-url
@@ -20,16 +32,4 @@ K 25
 svn:wc:ra_dav:version-url
 V 69
 /svn/!svn/ver/73/trunk/python/src/mapreduce/lib/simplejson/encoder.py
-END
-decoder.py
-K 25
-svn:wc:ra_dav:version-url
-V 69
-/svn/!svn/ver/73/trunk/python/src/mapreduce/lib/simplejson/decoder.py
-END
-README
-K 25
-svn:wc:ra_dav:version-url
-V 64
-/svn/!svn/ver/6/trunk/python/src/mapreduce/lib/simplejson/README
 END

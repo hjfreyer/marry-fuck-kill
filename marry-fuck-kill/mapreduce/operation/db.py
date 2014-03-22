@@ -21,12 +21,15 @@
 __all__ = ['Put', 'Delete']
 
 
-# TODO(user): handler function annotation which requests to
-# use db calls directly without batching them/doing async db calls.
-class Put(object):
+from mapreduce.operation import base
+
+# pylint: disable=protected-access
+
+
+class Put(base.Operation):
   """Put entity into datastore via mutation_pool.
 
-  See mapreduce.context.MutationPool.
+  See mapreduce.context._MutationPool.
   """
 
   def __init__(self, entity):
@@ -43,13 +46,13 @@ class Put(object):
     Args:
       context: mapreduce context as context.Context.
     """
-    context.mutation_pool.put(self.entity)
+    context._mutation_pool.put(self.entity)
 
 
-class Delete(object):
+class Delete(base.Operation):
   """Delete entity from datastore via mutation_pool.
 
-  See mapreduce.context.MutationPool.
+  See mapreduce.context._MutationPool.
   """
 
   def __init__(self, entity):
@@ -66,4 +69,4 @@ class Delete(object):
     Args:
       context: mapreduce context as context.Context.
     """
-    context.mutation_pool.delete(self.entity)
+    context._mutation_pool.delete(self.entity)

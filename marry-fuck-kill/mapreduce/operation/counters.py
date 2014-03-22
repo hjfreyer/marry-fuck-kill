@@ -21,7 +21,12 @@
 __all__ = ['Increment']
 
 
-class Increment(object):
+from mapreduce.operation import base
+
+# pylint: disable=protected-access
+
+
+class Increment(base.Operation):
   """Increment counter operation."""
 
   def __init__(self, counter_name, delta=1):
@@ -40,4 +45,4 @@ class Increment(object):
     Args:
       context: mapreduce context as context.Context.
     """
-    context.counters.increment(self.counter_name, self.delta)
+    context._counters.increment(self.counter_name, self.delta)

@@ -16,16 +16,160 @@
 
 """Utility functions for use with the mapreduce library."""
 
+# pylint: disable=g-bad-name
 
 
-__all__ = ["for_name", "is_generator_function", "get_short_name", "parse_bool",
-           "create_datastore_write_config"]
 
+__all__ = [
+    "create_datastore_write_config",
+    "for_name",
+    "get_queue_name",
+    "get_short_name",
+    "handler_for_name",
+    "is_generator",
+    "parse_bool",
+    "total_seconds",
+    "try_serialize_handler",
+    "try_deserialize_handler",
+    "CALLBACK_MR_ID_TASK_HEADER",
+    ]
 
 import inspect
-import logging
+import os
+import pickle
+import random
+import sys
+import time
+import types
+
+from google.appengine.ext import ndb
 
 from google.appengine.datastore import datastore_rpc
+from mapreduce import parameters
+
+# Taskqueue task header for mr id. Use internal by MR.
+_MR_ID_TASK_HEADER = "AE-MR-ID"
+_MR_SHARD_ID_TASK_HEADER = "AE-MR-SHARD-ID"
+
+# Callback task MR ID task header
+CALLBACK_MR_ID_TASK_HEADER = "Mapreduce-Id"
+
+
+# Ridiculous future UNIX epoch time, 500 years from now.
+_FUTURE_TIME = 2**34
+
+
+def _get_descending_key(gettime=time.time):
+  """Returns a key name lexically ordered by time descending.
+
+  This lets us have a key name for use with Datastore entities which returns
+  rows in time descending order when it is scanned in lexically ascending order,
+  allowing us to bypass index building for descending indexes.
+
+  Args:
+    gettime: Used for testing.
+
+  Returns:
+    A string with a time descending key.
+  """
+  now_descending = int((_FUTURE_TIME - gettime()) * 100)
+  request_id_hash = os.environ.get("REQUEST_ID_HASH")
+  if not request_id_hash:
+    request_id_hash = str(random.getrandbits(32))
+  return "%d%s" % (now_descending, request_id_hash)
+
+
+def _get_task_host():
+  """Get the Host header value for all mr tasks.
+
+  Task Host header determines which instance this task would be routed to.
+
+  Current version id format is: v7.368834058928280579
+  Current module id is just the module's name. It could be "default"
+  Default version hostname is app_id.appspot.com
+
+  Returns:
+    A complete host name is of format version.module.app_id.appspot.com
+  If module is the default module, just version.app_id.appspot.com. The reason
+  is if an app doesn't have modules enabled and the url is
+  "version.default.app_id", "version" is ignored and "default" is used as
+  version. If "default" version doesn't exist, the url is routed to the
+  default version.
+  """
+  version = os.environ["CURRENT_VERSION_ID"].split(".")[0]
+  default_host = os.environ["DEFAULT_VERSION_HOSTNAME"]
+  module = os.environ["CURRENT_MODULE_ID"]
+  if os.environ["CURRENT_MODULE_ID"] == "default":
+    return "%s.%s" % (version, default_host)
+  return "%s.%s.%s" % (version, module, default_host)
+
+
+def _get_task_headers(map_job_id,
+                      mr_id_header_key=_MR_ID_TASK_HEADER):
+  """Get headers for all mr tasks.
+
+  Args:
+    map_job_id: map job id.
+    mr_id_header_key: the key to set mr id with.
+
+  Returns:
+    A dictionary of all headers.
+  """
+  return {mr_id_header_key: map_job_id,
+          "Host": _get_task_host()}
+
+
+def _enum(**enums):
+  """Helper to create enum."""
+  return type("Enum", (), enums)
+
+
+def get_queue_name(queue_name):
+  """Determine which queue MR should run on.
+
+  How to choose the queue:
+  1. If user provided one, use that.
+  2. If we are starting a mr from taskqueue, inherit that queue.
+     If it's a special queue, fall back to the default queue.
+  3. Default queue.
+
+  If user is using any MR pipeline interface, pipeline.start takes a
+  "queue_name" argument. The pipeline will run on that queue and MR will
+  simply inherit the queue_name.
+
+  Args:
+    queue_name: queue_name from user. Maybe None.
+
+  Returns:
+    The queue name to run on.
+  """
+  if queue_name:
+    return queue_name
+  queue_name = os.environ.get("HTTP_X_APPENGINE_QUEUENAME",
+                              parameters.config.QUEUE_NAME)
+  if len(queue_name) > 1 and queue_name[0:2] == "__":
+    # We are currently in some special queue. E.g. __cron.
+    return parameters.config.QUEUE_NAME
+  else:
+    return queue_name
+
+
+def total_seconds(td):
+  """convert a timedelta to seconds.
+
+  This is patterned after timedelta.total_seconds, which is only
+  available in python 27.
+
+  Args:
+    td: a timedelta object.
+
+  Returns:
+    total seconds within a timedelta. Rounded up to seconds.
+  """
+  secs = td.seconds + td.days * 24 * 3600
+  if td.microseconds:
+    secs += 1
+  return secs
 
 
 def for_name(fq_name, recursive=False):
@@ -45,7 +189,7 @@ def for_name(fq_name, recursive=False):
     fq_name: fully qualified name of something to find
 
   Returns:
-    class object.
+    class object or None if fq_name is None.
 
   Raises:
     ImportError: when specified module could not be loaded or the class
@@ -53,6 +197,9 @@ def for_name(fq_name, recursive=False):
   """
 #  if "." not in fq_name:
 #    raise ImportError("'%s' is not a full-qualified name" % fq_name)
+
+  if fq_name is None:
+    return
 
   fq_name = str(fq_name)
   module_name = __name__
@@ -76,7 +223,7 @@ def for_name(fq_name, recursive=False):
     else:
       raise ImportError("Could not find '%s' on path '%s'" % (
                         short_name, module_name))
-  except ImportError, e:
+  except ImportError:
     # module_name is not actually a module. Try for_name for it to figure
     # out what's this.
     try:
@@ -98,8 +245,65 @@ def for_name(fq_name, recursive=False):
     raise
 
 
-def is_generator_function(obj):
-  """Return true if the object is a user-defined generator function.
+def handler_for_name(fq_name):
+  """Resolves and instantiates handler by fully qualified name.
+
+  First resolves the name using for_name call. Then if it resolves to a class,
+  instantiates a class, if it resolves to a method - instantiates the class and
+  binds method to the instance.
+
+  Args:
+    fq_name: fully qualified name of something to find.
+
+  Returns:
+    handler instance which is ready to be called.
+  """
+  resolved_name = for_name(fq_name)
+  if isinstance(resolved_name, (type, types.ClassType)):
+    # create new instance if this is type
+    return resolved_name()
+  elif isinstance(resolved_name, types.MethodType):
+    # bind the method
+    return getattr(resolved_name.im_class(), resolved_name.__name__)
+  else:
+    return resolved_name
+
+
+def try_serialize_handler(handler):
+  """Try to serialize map/reduce handler.
+
+  Args:
+    handler: handler function/instance. Handler can be a function or an
+      instance of a callable class. In the latter case, the handler will
+      be serialized across slices to allow users to save states.
+
+  Returns:
+    serialized handler string or None.
+  """
+  if (isinstance(handler, types.InstanceType) or  # old style class
+      (isinstance(handler, object) and  # new style class
+       not inspect.isfunction(handler) and
+       not inspect.ismethod(handler)) and
+      hasattr(handler, "__call__")):
+    return pickle.dumps(handler)
+  return None
+
+
+def try_deserialize_handler(serialized_handler):
+  """Reverse function of try_serialize_handler.
+
+  Args:
+    serialized_handler: serialized handler str or None.
+
+  Returns:
+    handler instance or None.
+  """
+  if serialized_handler:
+    return pickle.loads(serialized_handler)
+
+
+def is_generator(obj):
+  """Return true if the object is generator or generator function.
 
   Generator function objects provides same attributes as functions.
   See isfunction.__doc__ for attributes listing.
@@ -112,6 +316,9 @@ def is_generator_function(obj):
   Returns:
     true if the object is generator function.
   """
+  if isinstance(obj, types.GeneratorType):
+    return True
+
   CO_GENERATOR = 0x20
   return bool(((inspect.isfunction(obj) or inspect.ismethod(obj)) and
                obj.func_code.co_flags & CO_GENERATOR))
@@ -160,3 +367,42 @@ def create_datastore_write_config(mapreduce_spec):
   else:
     # dev server doesn't support force_writes.
     return datastore_rpc.Configuration()
+
+
+def _set_ndb_cache_policy():
+  """Tell NDB to never cache anything in memcache or in-process.
+
+  This ensures that entities fetched from Datastore input_readers via NDB
+  will not bloat up the request memory size and Datastore Puts will avoid
+  doing calls to memcache. Without this you get soft memory limit exits,
+  which hurts overall throughput.
+  """
+  ndb_ctx = ndb.get_context()
+  ndb_ctx.set_cache_policy(lambda key: False)
+  ndb_ctx.set_memcache_policy(lambda key: False)
+
+
+def _obj_to_path(obj):
+  """Returns the fully qualified path to the object.
+
+  Args:
+    obj: obj must be a new style top level class, or a top level function.
+      No inner function or static method.
+
+  Returns:
+    Fully qualified path to the object.
+
+  Raises:
+    TypeError: when argument obj has unsupported type.
+    ValueError: when obj can't be discovered on the top level.
+  """
+  if obj is None:
+    return obj
+
+  if inspect.isclass(obj) or inspect.isfunction(obj):
+    fetched = getattr(sys.modules[obj.__module__], obj.__name__, None)
+    if fetched is None:
+      raise ValueError(
+          "Object %r must be defined on the top level of a module." % obj)
+    return "%s.%s" % (obj.__module__, obj.__name__)
+  raise TypeError("Unexpected type %s." % type(obj))
