@@ -31,7 +31,11 @@
         </table>
       </a>
         [if-any triples.enabled_or_none]
-          rand = [triples.rand]<br>
+           rand = [triples.rand]
+          <form action="/admin/enable_disable" method="post" id="adminform" target="_blank">
+          <input type="hidden" name="key" value="[triples.id_string]">
+          <input type="submit" name="action" value="disable">
+          </form>
         [else]
           <span class="admin-disabled">rand = [triples.rand] (disabled)</span><br>
         [end]
