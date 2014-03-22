@@ -89,16 +89,18 @@ def RenderVotePage(handler, triple_id):
     return
 
   prev_id = handler.request.get('prev')
+  display_prev_id = None
+  prev_names = ['', '', '']
+  prev_urls = ['', '', '']
   logging.info('Vote page for %s. Prev = %s', triple_id, prev_id)
 
   if prev_id:
     prev_triple = models.Triple.get_by_id(int(prev_id))
-    prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
-    prev_names = [e.name for e in prev_entities]
-    prev_urls = core.GetStatsUrlsForTriple(prev_triple)
-  else:
-    prev_names = ['', '', '']
-    prev_urls = ['', '', '']
+    if prev_triple is not None:
+      prev_entities = [prev_triple.one, prev_triple.two, prev_triple.three]
+      prev_names = [e.name for e in prev_entities]
+      prev_urls = core.GetStatsUrlsForTriple(prev_triple)
+      display_prev_id = prev_id
 
   one = triple.one
   two = triple.two
@@ -113,7 +115,7 @@ def RenderVotePage(handler, triple_id):
                          e2_url=two.image_url,
                          e3_name=three.name,
                          e3_url=three.image_url,
-                         prev_id=prev_id,
+                         prev_id=display_prev_id,
                          prev_e1_name=prev_names[0],
                          prev_e2_name=prev_names[1],
                          prev_e3_name=prev_names[2],
