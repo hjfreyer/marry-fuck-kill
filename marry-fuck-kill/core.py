@@ -19,13 +19,13 @@ import logging
 import urllib2
 from django.utils import simplejson
 
+from google.appengine.api import urlfetch
 from google.appengine.api import users
 from google.appengine.ext import db
 
 import models
 
 GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
-SEARCH_REFERER = 'http://marry-fuck-kill.appspot.com'
 
 # Whether to display the new vote counts (cached in Triples).
 USE_CACHED_VOTE_COUNTS = True
@@ -176,13 +176,10 @@ def MakeEntity(name, query, user_ip, original_url):
 
   # Get the thumbnail URL for the entity.  This could throw
   # URLError. We'll let it bubble up.
-  fh = urllib2.urlopen(tb_url)
+  result = urlfetch.fetch(tb_url)
   logging.info('Downloading %s' % tb_url)
-  data = fh.read()
-  logging.info('Downloaded %s bytes' % len(data))
-
   entity = models.Entity(name=name,
-                         data=data,
+                         data=result.content,
                          query=query,
                          original_url=original_url)
   entity.put()
@@ -308,13 +305,13 @@ def GetImagesForQuery(query, check_pages, userip):
                              'ip': userip,
                              'key': GOOGLE_API_KEY})
     logging.info('GetImagesForQuery: query url=%s', url)
-    req = urllib2.Request(url, None, {'Referer': SEARCH_REFERER})
     # This may raise a DownloadError
-    results = simplejson.load(urllib2.urlopen(req))
-    images += results['responseData']['results']
+    result = urlfetch.fetch(url)
+    data = simplejson.loads(result.content)
+    images += data['responseData']['results']
 
     # Make sure there are more pages before advancing 'start'
-    pages = results['responseData']['cursor']['pages']
+    pages = data['responseData']['cursor']['pages']
     logging.info('GetImagesForQuery: %d results so far,'
                  ' on page %s of %s (will try up to %s)',
                  len(images), page+1, len(pages), check_pages)
