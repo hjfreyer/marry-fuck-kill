@@ -91,6 +91,7 @@
 .title-row td {
     font-weight: bold;
     font-size: 20px;
+    text-transform: capitalize;
     vertical-align: top;
     height: 2.5em;
 
