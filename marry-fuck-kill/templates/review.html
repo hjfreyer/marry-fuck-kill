@@ -8,9 +8,7 @@
   <body id="body">
     [insertfile "header.html"]
     <div id="page">
-      [if-any triples][else]
-      No triples to review!
-      [end]
+      <h2>[count][if-any count_max]+[end] triples to review</h2>
       [for triples]
       <a href="/vote/[triples.id_string]">
         <table class="tripletable statstable">
