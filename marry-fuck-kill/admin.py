@@ -50,9 +50,9 @@ class MapReduceTriggerHandler(webapp.RequestHandler):
 class TripleReviewHandler(webapp.RequestHandler):
   """Admin-only handler to remove manually review Triples."""
   def get(self):
-    unreviewed_query = models.Triple.all().filter('reviewed =', False)
-    count = unreviewed_query.count(limit=1000)
-    ten = unreviewed_query.fetch(10)
+    query = models.Triple.all().filter('reviewed =', False).order('time')
+    count = query.count(limit=1000)
+    ten = query.fetch(10)
 
     variables = dict(
         triples=ten,

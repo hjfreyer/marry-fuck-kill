@@ -109,16 +109,16 @@ def RenderVotePage(handler, triple_id):
   template_values = dict(page='vote',
                          triple=triple,
                          triple_id=triple_id,
-                         e1_name=one.name,
+                         e1_name=one.name.encode('utf-8'),
                          e1_url=one.image_url,
-                         e2_name=two.name,
+                         e2_name=two.name.encode('utf-8'),
                          e2_url=two.image_url,
-                         e3_name=three.name,
+                         e3_name=three.name.encode('utf-8'),
                          e3_url=three.image_url,
                          prev_id=display_prev_id,
-                         prev_e1_name=prev_names[0],
-                         prev_e2_name=prev_names[1],
-                         prev_e3_name=prev_names[2],
+                         prev_e1_name=prev_names[0].encode('utf-8'),
+                         prev_e2_name=prev_names[1].encode('utf-8'),
+                         prev_e3_name=prev_names[2].encode('utf-8'),
                          prev_e1_stat_url=prev_urls[0],
                          prev_e2_stat_url=prev_urls[1],
                          prev_e3_stat_url=prev_urls[2])
@@ -181,7 +181,8 @@ class MyMfksHandler(RequestHandler):
   def get(self):
     template_values = dict(page='mymfks')
     user = users.get_current_user()
-    triples = [t for t in models.Triple.all().filter('creator =', user)]
+    query = models.Triple.all().filter('creator =', user).order('time')
+    triples = [t for t in query]
 
     items = []
     for t in triples:
