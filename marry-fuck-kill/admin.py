@@ -20,26 +20,29 @@ import ezt
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
-from mapreduce import control
+from mapreduce.api import map_job
+from mapreduce import input_readers
 
 import ezt_util
 import models
+import mapreduces
 
 class MapReduceTriggerHandler(webapp.RequestHandler):
   MR_SPECS = dict(
     RANDOMIZE = dict(
-      name='Randize',
-      handler_spec='mapreduces.RandomizeMapper',
-      reader_spec='mapreduce.input_readers.DatastoreInputReader',
-      reader_parameters=dict(entity_kind='models.Triple'))
+      job_name='Randomize',
+      mapper=mapreduces.RandomizeMapper,
+      input_reader_cls=input_readers.DatastoreInputReader,
+      input_reader_params=dict(entity_kind='models.Triple'))
     )
 
   def get(self, mr_name):
     self.response.headers['Content-Type'] = 'text/plain'
 
     if mr_name in MapReduceTriggerHandler.MR_SPECS:
-      control.start_map(**MapReduceTriggerHandler.MR_SPECS[mr_name])
-      self.response.out.write('MR Cron Started: %s' % mr_name)
+      config = map_job.JobConfig(**MapReduceTriggerHandler.MR_SPECS[mr_name])
+      job = map_job.Job.submit(config)
+      self.response.out.write('MR Cron Started: %s, ID %s' % (mr_name, config.job_id))
     else:
       self.response.out.write('MR Cron Not Found: %s' % mr_name)
 

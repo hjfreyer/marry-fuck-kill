@@ -18,6 +18,7 @@ mapreduce:
     handler: mapreduces.SetAssignmentTriple
     params:
     - name: entity_kind
+      default: models.Assignment
 - name: CalculateVoteCounts
   mapper:
     input_reader: mapreduce.input_readers.DatastoreInputReader
