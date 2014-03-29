@@ -172,7 +172,11 @@ class MakeHandler(RequestHandler):
 
 class EntityImageHandler(RequestHandler):
   def get(self, entity_id):
-    entity = models.Entity.get(urllib2.unquote(entity_id))
+    try:
+      entity = models.Entity.get(urllib2.unquote(entity_id))
+    except db.BadKeyError:
+      self.error(404)
+      return
     self.response.headers['Content-Type'] = "image/jpg";
     self.response.out.write(entity.data)
 
