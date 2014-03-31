@@ -15,6 +15,7 @@
 # limitations under the License.
 #
 
+import collections
 import logging
 import urllib2
 from django.utils import simplejson
@@ -24,11 +25,12 @@ from google.appengine.api import users
 from google.appengine.ext import db
 
 import models
-
-GOOGLE_API_KEY = 'ABQIAAAA4AIACTDq7g0UgEEe0e4XcBScM50iuTtmL4hn6SVBcuHEk5GnyBRYi46EgwfJeghlh-_jWgC9BbPapQ'
+import config_NOCOMMIT as config
 
 # Whether to display the new vote counts (cached in Triples).
 USE_CACHED_VOTE_COUNTS = True
+
+Image = collections.namedtuple('Image', ['original', 'thumbnail'])
 
 class EntityValidationError(Exception): pass
 
@@ -161,7 +163,7 @@ def MakeEntity(name, query, user_ip, original_url):
   check_pages = 2
 
   images = GetImagesForQuery(query, check_pages, user_ip)
-  images_by_url = dict([(image['unescapedUrl'], image) for image in images])
+  images_by_url = dict([(image.original, image) for image in images])
   logging.info('validate_request: possible valid urls = %s',
                list(images_by_url))
   if original_url not in images_by_url:
@@ -172,7 +174,7 @@ def MakeEntity(name, query, user_ip, original_url):
       "URL '%s' is not in result set for query '%s'." % (original_url,
                                                          query))
 
-  tb_url = images_by_url[original_url]['tbUrl']
+  tb_url = images_by_url[original_url].thumbnail
 
   # Get the thumbnail URL for the entity.  This could throw
   # URLError. We'll let it bubble up.
@@ -288,37 +290,41 @@ def MakeAssignment(triple_id, v1, v2, v3, user, user_ip):
   return assign
 
 
-def GetImagesForQuery(query, check_pages, userip):
+def GetImagesForQuery(query, pages, userip):
+  """Performs an image search.
+
+  Args:
+    query: (str) The search query
+    pages: (int) number of pages of results to return
+    userip: (str) IP address of user making the query, for accounting.
+
+  Returns:
+    [Image]: A list of Image objects representing search results
+  """
   start = 0
   images = []
   query = query.encode('utf-8')
-  for page in range(check_pages):
-    url = ('https://ajax.googleapis.com/ajax/services/search/images'
-           '?v=1.0'
-           '&safe=moderate'
-           '&rsz=8'
-           '&userip=%(ip)s'
-           '&q=%(q)s'
-           '&start=%(start)s'
-           '&key=%(key)s' % {'q': urllib2.quote(query),
-                             'start': start,
-                             'ip': userip,
-                             'key': GOOGLE_API_KEY})
-    logging.info('GetImagesForQuery: query url=%s', url)
-    # This may raise a DownloadError
-    result = urlfetch.fetch(url)
-    data = simplejson.loads(result.content)
-    images += data['responseData']['results']
 
-    # Make sure there are more pages before advancing 'start'
-    pages = data['responseData']['cursor']['pages']
-    logging.info('GetImagesForQuery: %d results so far,'
-                 ' on page %s of %s (will try up to %s)',
-                 len(images), page+1, len(pages), check_pages)
-    if len(pages) > page + 1:
-      start = pages[page+1]['start']
-    else:
-      break
+  # TODO(mjkelly): userip
+  url = ('https://www.googleapis.com/customsearch/v1'
+         '?key={key}'
+         '&cx={cx}'
+         '&q={q}'
+         '&searchType=image').format(
+         key=config.CSE_API_KEY,
+         cx=config.CSE_ID,
+         q=urllib2.quote(query))
+
+  logging.info('GetImagesForQuery: query url=%s', url)
+  # This may raise a DownloadError
+  result = urlfetch.fetch(url)
+  data = simplejson.loads(result.content)
+
+  logging.warning('No support for pages != 1, sorry')
+  for item in data['items']:
+    link = item['link']
+    thumb = item['image']['thumbnailLink']
+    images.append(Image(original=link, thumbnail=thumb))
 
   return images
 
