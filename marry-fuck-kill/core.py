@@ -158,18 +158,14 @@ def MakeEntity(name, query, user_ip, original_url):
   Ensures that the URL actually comes from a google search for the
   query. If it doesn't, may throw an EntityValidationError.
   """
-  # This must be synchronized with the number of pages the creation
-  # interface shows. Raising it incurs a large performance penalty.
-  check_pages = 2
-
-  images = GetImagesForQuery(query, check_pages, user_ip)
+  images = GetImagesForQuery(query, user_ip)
   images_by_url = dict([(image.original, image) for image in images])
   logging.info('validate_request: possible valid urls = %s',
                list(images_by_url))
   if original_url not in images_by_url:
     logging.error("URL '%s' is not in result set for query '%s'. "
-                  "Result set over %d pages is: %s" % (
-        original_url, query, check_pages, list(images_by_url)))
+                  "Result set is: %s" % (
+        original_url, query, list(images_by_url)))
     raise EntityValidationError(
       "URL '%s' is not in result set for query '%s'." % (original_url,
                                                          query))
@@ -290,12 +286,11 @@ def MakeAssignment(triple_id, v1, v2, v3, user, user_ip):
   return assign
 
 
-def GetImagesForQuery(query, pages, userip):
-  """Performs an image search.
+def GetImagesForQuery(query, userip):
+  """Performs an image search. It should return 10 results.
 
   Args:
     query: (str) The search query
-    pages: (int) number of pages of results to return
     userip: (str) IP address of user making the query, for accounting.
 
   Returns:
@@ -305,22 +300,22 @@ def GetImagesForQuery(query, pages, userip):
   images = []
   query = query.encode('utf-8')
 
-  # TODO(mjkelly): userip
   url = ('https://www.googleapis.com/customsearch/v1'
          '?key={key}'
          '&cx={cx}'
          '&q={q}'
+         '&userIp={userip}'
          '&searchType=image').format(
          key=config.CSE_API_KEY,
          cx=config.CSE_ID,
-         q=urllib2.quote(query))
+         q=urllib2.quote(query),
+         userip=userip)
 
   logging.info('GetImagesForQuery: query url=%s', url)
   # This may raise a DownloadError
   result = urlfetch.fetch(url)
   data = simplejson.loads(result.content)
 
-  logging.warning('No support for pages != 1, sorry')
   for item in data['items']:
     link = item['link']
     thumb = item['image']['thumbnailLink']
