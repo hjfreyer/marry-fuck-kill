@@ -1,0 +1,53 @@
+application: marry-fuck-kill-hrd
+version: staging
+runtime: python27
+api_version: 1
+# TODO(mjkelly): I don't see a specific reason why the app is *not* threadsafe,
+# but I haven't looked hard. Must change CGI frontend to WSGI before setting
+# threadsafe: true, though.
+threadsafe: false
+
+handlers:
+- url: /favicon.ico
+  static_files: static/favicon.ico
+  upload: static/favicon.ico
+
+- url: /robots.txt
+  static_files: static/robots.txt
+  upload: static/robots.txt
+
+- url: /s
+  static_dir: static
+
+- url: /app
+  static_dir: jsapp/
+
+- url: /make
+  static_files: jsapp/index.html
+  upload: jsapp/index.html
+
+- url: /admin/.*
+  script: admin.py
+  login: admin
+
+- url: /mapreduce(/.*)?
+  script: mapreduce/main.py
+  login: admin
+
+# Uncomment this to view stats. Also uncomment config in appengine_config.py.
+#- url: /stats.*
+#  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
+#  login: admin
+
+- url: /.*
+  script: main.py
+
+error_handlers:
+- error_code: over_quota
+  file: over_quota.html
+
+builtins:
+- remote_api: on
+
+includes:
+- mapreduce/include.yaml

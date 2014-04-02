@@ -1,0 +1,56 @@
+body#mfk-maker #maker-area {
+    $width: 640px;
+    $height: 268px;
+
+    position: relative;
+    margin: auto;
+    width: $width;
+    height: $height;
+    overflow: hidden;
+
+    .search-dialog {
+	position: absolute;
+	background: lightblue;
+	width: 2 * $width;
+	height: $height;
+	top: 0;
+	transition: 200ms left;
+
+	overflow: hidden;
+
+	.name-picker {
+	    width: $width;
+	    height: $height;
+	    position: absolute;
+	    top: 0;
+	    left: 0;
+	}
+
+	.image-picker {
+	    width: $width;
+	    height: $height;
+	    position: absolute;
+	    top: 0;
+	    right: 0;
+	}
+
+	&.animated {
+	}
+
+	&.first {
+	    left: $width;
+	}
+
+	&.second {
+	    left: -2 * $width;
+	}
+
+	&.first.shown {
+	    left: 0;
+	}
+
+	&.second.shown {
+	    left: -$width;
+	}
+    }
+}

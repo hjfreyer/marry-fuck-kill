@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en" ng-app="mfkMaker">
+  <head>
+    <meta charset="utf-8">
+    <title>My AngularJS App</title>
+    <link rel="stylesheet" href="/app/css/app.css"/>
+  </head>
+  <body id="mfk-maker" ng-controller="Page" ng-keydown="page.onKeyDown($event)">
+    MAKAMFK
+
+    <div id="maker-area" ng-controller="MakerTable">
+      <div class="search-dialog" ng-repeat="entity in table.entities"
+	   ng-class="{first: entity.position == 0,
+		      second: entity.position == 1,
+		      shown: $index == table.searchIdx}">
+	<div class="name-picker">
+	  <label>Name</label><input ng-model="entity.name">
+	  <button ng-click="table.showSearch(entity)">Next</button>
+	</div>
+	<div class="image-picker">
+	  <button ng-click="table.search(entity)">Search</button>
+	  <button ng-click="page.popState()">Back</button>
+	  <button ng-click="table.done()">Done</button>
+	  <div ng-repeat="image in entity.images">
+	    <img ng-src="{{image.thumbnail}}">
+	  </div>
+	</div>
+      </div>
+
+      <table class="tripletable">
+	<tr class="title-row">
+	  <td ng-repeat="entity in table.entities">
+	    {{entity.name}}
+	  </td>
+	</tr>
+	<tr class="image-row">
+	  <td ng-repeat="entity in table.entities">
+	    <img ng-src="{{entity.getImage()}}" alt="foo">
+	  </td>
+	</tr>
+	<tr class="edit-row">
+	  <td ng-repeat="entity in table.entities">
+ 	    <button ng-click="table.select($index)">Click me</button>
+	  </td>
+	</tr>
+      </table>
+      {{table.searchIdx}}
+    </div>
+    <div>Angular seed app: v<span app-version></span></div>
+
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script>
+    <!--script src="../bower_components/angular-ui/build/angular-ui.min.js"></script-->
+    <script src="/app/js/app.js"></script>
+    <script src="/app/js/services.js"></script>
+    <script src="/app/js/controllers.js"></script>
+    <script src="/app/js/filters.js"></script>
+    <script src="/app/js/directives.js"></script>
+  </body>
+</html>
