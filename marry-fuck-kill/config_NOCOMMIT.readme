@@ -1,0 +1,13 @@
+# This is configuration that should not be committed. It contains API keys that
+# are linked to paid Google Cloud accounts, secret keys, etc.
+
+# This file should have the following constants:
+
+# Search API stuff:
+CSE_API_KEY = Google Compute Engine Custom Search API key. See
+    http://console.developers.google.com.
+CSE_ID = Google Custom Search engine ID. This search engine should have image
+    search enabled, and should have no site restriction.
+
+# Secrets:
+HMAC_KEY = Any value. Used for signing JSON results from search queries.
