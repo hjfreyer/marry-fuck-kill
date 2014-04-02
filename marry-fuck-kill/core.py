@@ -16,10 +16,11 @@
 #
 
 import collections
+import datetime
+import hmac
+import json
 import logging
 import urllib2
-import json
-import hmac
 
 from google.appengine.api import urlfetch
 from google.appengine.api import users
@@ -306,13 +307,19 @@ def ImageSearch(query, user_ip):
          cx=config.CSE_ID,
          q=urllib2.quote(query),
          userip=user_ip)
-
   logging.info('ImageSearch: query url=%s', url)
+
+  download_start = datetime.datetime.now()
   # This may raise a DownloadError
   result = urlfetch.fetch(url)
-  logging.info('ImageSearch: got results (%d bytes)', len(result.content))
+  download_finish = datetime.datetime.now()
   data = json.loads(result.content)
-  logging.info('ImageSearch: loaded to JSON')
+  parse_finish = datetime.datetime.now()
+
+  logging.info('ImageSearch: downloaded %s bytes; %s to download, %s to parse',
+    len(result.content),
+    download_finish - download_start,
+    parse_finish - download_finish)
 
   for item in data['items']:
     link = item['link']
