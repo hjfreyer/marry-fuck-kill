@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 import ezt
+import json
 import logging
-import random
 import urllib2
 
 from google.appengine.api import users
@@ -148,6 +149,8 @@ class VoteSubmitHandler(RequestHandler):
 
 class MakeSubmitHandler(RequestHandler):
   def post(self):
+    # TODO(mjkelly): When we have a new client, check the 'sig' values we get.
+    # That will allow us to avoid repeating the search on the server side.
     logging.info('Make handler')
 
     entities = []
@@ -177,7 +180,7 @@ class EntityImageHandler(RequestHandler):
     except db.BadKeyError:
       self.error(404)
       return
-    self.response.headers['Content-Type'] = "image/jpg";
+    self.response.headers['Content-Type'] = 'image/jpg';
     self.response.out.write(entity.data)
 
 
@@ -201,6 +204,32 @@ class MyMfksHandler(RequestHandler):
     template_values.update(GetUserData('/mymfks'))
     template_values.update(dict(triples=items))
     ezt_util.WriteTemplate('mymfks.html', template_values, self.response.out)
+
+
+class ImageSearchHandler(RequestHandler):
+  def get(self):
+    query = self.request.get('q')
+    logging.info('ImageSearchHandler: q = %s', query)
+
+    images = core.ImageSearch(query, self.request.remote_addr)
+    images_dicts = []
+
+    for img in images:
+      d = img._asdict()
+      # The goal here is just to ensure that we can check that we once returned
+      # this URL as a result for a search. We're not attempting to associate
+      # the URL with specific search terms, or with a time period.
+      #
+      # If someone puts in enough effort to abuse this somehow, we can think
+      # about locking it down more.
+      d.update(dict(sig=core.Sign(*img)))
+      images_dicts.append(d)
+
+    results = json.dumps(dict(time=str(datetime.datetime.now()), images=images_dicts))
+
+    logging.info('results = %s', images)
+    self.response.headers['Content-Type'] = 'application/json';
+    self.response.out.write(results)
 
 
 class CatchAllHandler(RequestHandler):

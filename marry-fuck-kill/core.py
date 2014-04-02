@@ -18,7 +18,8 @@
 import collections
 import logging
 import urllib2
-from django.utils import simplejson
+import json
+import hmac
 
 from google.appengine.api import urlfetch
 from google.appengine.api import users
@@ -153,12 +154,9 @@ def _UpdateTripleVoteCounts(triple_key, new_counts):
 
 
 def MakeEntity(name, query, user_ip, original_url):
-  """Makes an Entity with the given attributes.
-
-  Ensures that the URL actually comes from a google search for the
-  query. If it doesn't, may throw an EntityValidationError.
-  """
-  images = GetImagesForQuery(query, user_ip)
+  """Makes an Entity with the given attributes."""
+  # TODO(mjkelly): Delete this once we have signature checking.
+  images = ImageSearch(query, user_ip)
   images_by_url = dict([(image.original, image) for image in images])
   logging.info('validate_request: possible valid urls = %s',
                list(images_by_url))
@@ -286,20 +284,18 @@ def MakeAssignment(triple_id, v1, v2, v3, user, user_ip):
   return assign
 
 
-def GetImagesForQuery(query, userip):
+def ImageSearch(query, user_ip):
   """Performs an image search. It should return 10 results.
 
   Args:
     query: (str) The search query
-    userip: (str) IP address of user making the query, for accounting.
+    user_ip: (str) IP address of user making the query, for accounting.
 
   Returns:
     [Image]: A list of Image objects representing search results
   """
-  start = 0
   images = []
   query = query.encode('utf-8')
-
   url = ('https://www.googleapis.com/customsearch/v1'
          '?key={key}'
          '&cx={cx}'
@@ -309,12 +305,14 @@ def GetImagesForQuery(query, userip):
          key=config.CSE_API_KEY,
          cx=config.CSE_ID,
          q=urllib2.quote(query),
-         userip=userip)
+         userip=user_ip)
 
-  logging.info('GetImagesForQuery: query url=%s', url)
+  logging.info('ImageSearch: query url=%s', url)
   # This may raise a DownloadError
   result = urlfetch.fetch(url)
-  data = simplejson.loads(result.content)
+  logging.info('ImageSearch: got results (%d bytes)', len(result.content))
+  data = json.loads(result.content)
+  logging.info('ImageSearch: loaded to JSON')
 
   for item in data['items']:
     link = item['link']
@@ -322,4 +320,18 @@ def GetImagesForQuery(query, userip):
     images.append(Image(original=link, thumbnail=thumb))
 
   return images
+
+def Sign(*items):
+  """Signs a sequence of items using our internal HMAC key.
+
+  Args:
+    *items: Any sequence of items.
+
+  Returns:
+    (str) Hex digest of *items
+  """
+  h = hmac.new(config.HMAC_KEY)
+  for item in items:
+    h.update(item)
+  return h.hexdigest()
 

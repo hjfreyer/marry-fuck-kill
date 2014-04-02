@@ -30,6 +30,7 @@ def main():
       ("/vote/(.*)", html_handlers.VoteHandler),
       ("/vote.do", html_handlers.VoteSubmitHandler),
       ("/i/(.*)", html_handlers.EntityImageHandler),
+      ("/search", html_handlers.ImageSearchHandler),
       ("/.*", html_handlers.CatchAllHandler),
     ])
   util.run_wsgi_app(application)

@@ -42,9 +42,5 @@ error_handlers:
 builtins:
 - remote_api: on
 
-libraries:
-- name: django
-  version: "1.2"
-
 includes:
 - mapreduce/include.yaml
