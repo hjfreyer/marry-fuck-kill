@@ -1,56 +1,165 @@
+body#mfk-maker {
+    background: #9911bb;
+    font-family: sans-serif;
+}
+
 body#mfk-maker #maker-area {
-    $width: 640px;
-    $height: 268px;
+    $imageWidth: 200px;
+    $imageHeight: 200px;
+
+    $columnWidth: 240px;
+
+    $tableHeight: 275px;
+    $tableWidth: 3 * $columnWidth;
 
     position: relative;
     margin: auto;
-    width: $width;
-    height: $height;
+
+    width: $tableWidth;
+    height: $tableHeight;
+
+    /* border: 1px solid black; */
+    box-shadow: 4px 4px 10px 0 rgba(50, 50, 50, 0.75);
+    background: white;
     overflow: hidden;
 
-    .search-dialog {
-	position: absolute;
-	background: lightblue;
-	width: 2 * $width;
-	height: $height;
-	top: 0;
-	transition: 200ms left;
-
-	overflow: hidden;
-
-	.name-picker {
-	    width: $width;
-	    height: $height;
-	    position: absolute;
-	    top: 0;
-	    left: 0;
-	}
-
-	.image-picker {
-	    width: $width;
-	    height: $height;
-	    position: absolute;
-	    top: 0;
-	    right: 0;
-	}
-
-	&.animated {
-	}
-
-	&.first {
-	    left: $width;
-	}
-
-	&.second {
-	    left: -2 * $width;
-	}
-
-	&.first.shown {
-	    left: 0;
-	}
-
-	&.second.shown {
-	    left: -$width;
+    @for $idx from 0 through 2 {
+	.entity-#{$idx} {
+	    .info {
+		left: $columnWidth * $idx;
+	    }
 	}
     }
+
+    .entity {
+	.info {
+	    position: absolute;
+	    top: 0;
+	    width: $columnWidth;
+	    height: $tableHeight;
+
+	    .name {
+		margin: 10px;
+		input { text-align: center; }
+	    }
+
+	    .image {
+		$margin: ($columnWidth - $imageWidth) / 2;
+
+		position: absolute;
+		width: $imageWidth;
+		height: $imageHeight;
+		bottom: $margin;
+		left: $margin;
+
+		background-repeat: no-repeat;
+		background-position: center;
+
+		cursor: pointer;
+
+		&:hover {
+
+		}
+	    }
+	}
+
+	.image-search {
+	    position: absolute;
+	    top: -$tableHeight;
+	    left: 0;
+	    z-index: 10;
+
+	    transition: 240ms top;
+
+	    width: $tableWidth;
+	    height: $tableHeight;
+
+	    background: white;
+	    border-bottom: 1px solid grey;
+
+	    &.shown {
+		top: 0;
+	    }
+
+	    $toolbarHeight: 50px;
+	    $inputHeight: 34px;
+
+	    .toolbar {
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: $toolbarHeight;
+
+		padding: ($toolbarHeight - $inputHeight) / 2;
+
+		border-bottom: 1px solid lightgrey;
+	    }
+
+	    .results {
+		position: absolute;
+		top: $toolbarHeight;
+		bottom: 0;
+		left: 0;
+		right: 0;
+
+		padding: ($toolbarHeight - $inputHeight) / 2;
+
+		overflow-y: auto;
+
+		img {
+		    height: 100px;
+		    margin: 0 5px 5px 0;
+		    cursor: pointer;
+		}
+	    }
+	}
+    }
+
+
+    /* .search-dialog { */
+    /* 	position: absolute; */
+    /* 	background: lightblue; */
+    /* 	width: 2 * $width; */
+    /* 	height: $height; */
+    /* 	top: 0; */
+    /* 	transition: 200ms left; */
+
+    /* 	overflow: hidden; */
+
+    /* 	.name-picker { */
+    /* 	    width: $width; */
+    /* 	    height: $height; */
+    /* 	    position: absolute; */
+    /* 	    top: 0; */
+    /* 	    left: 0; */
+    /* 	} */
+
+    /* 	.image-picker { */
+    /* 	    width: $width; */
+    /* 	    height: $height; */
+    /* 	    position: absolute; */
+    /* 	    top: 0; */
+    /* 	    right: 0; */
+    /* 	} */
+
+    /* 	&.animated { */
+    /* 	} */
+
+    /* 	&.first { */
+    /* 	    left: $width; */
+    /* 	} */
+
+    /* 	&.second { */
+    /* 	    left: -2 * $width; */
+    /* 	} */
+
+    /* 	&.first.shown { */
+    /* 	    left: 0; */
+    /* 	} */
+
+    /* 	&.second.shown { */
+    /* 	    left: -$width; */
+    /* 	} */
+    /* } */
 }

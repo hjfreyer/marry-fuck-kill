@@ -1,13 +1,6 @@
 *.pyc
-*.class
-*.swp
-*.cache.png
-*.cache.html
-MfkMaker/war/*
-MfkMaker/test-classes/*
-MfkWeb/war/*
-marry-fuck-kill/static/gwt/*
 *~
 *NOCOMMIT*
 .sass-cache
 bin-dev/
+bower_components

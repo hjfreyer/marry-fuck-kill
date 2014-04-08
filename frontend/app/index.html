@@ -3,53 +3,54 @@
   <head>
     <meta charset="utf-8">
     <title>My AngularJS App</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="/app/css/app.css"/>
   </head>
   <body id="mfk-maker" ng-controller="Page" ng-keydown="page.onKeyDown($event)">
     MAKAMFK
 
     <div id="maker-area" ng-controller="MakerTable">
-      <div class="search-dialog" ng-repeat="entity in table.entities"
-	   ng-class="{first: entity.position == 0,
-		      second: entity.position == 1,
-		      shown: $index == table.searchIdx}">
-	<div class="name-picker">
-	  <label>Name</label><input ng-model="entity.name">
-	  <button ng-click="table.showSearch(entity)">Next</button>
+      <div class="entity entity-{{$index}}" ng-repeat="entity in table.entities">
+	<div class="image-search" ng-class="{shown: entity.searching}">
+	  <div class="toolbar">
+	    <form class="input-group" ng-submit="entity.search()">
+	      <input type="text" class="form-control" ng-model="entity.query"
+		     placeholder="Search">
+	      <span class="input-group-btn">
+		<button class="btn btn-default">
+		  <span class="glyphicon glyphicon-search"></span>
+		</button>
+	      </span>
+	    </form>
+	  </div>
+	  <div class="results">
+	    <img ng-repeat="image in entity.images"
+		 ng-src="{{image.thumbnail}}"
+		 ng-click="entity.selectImage($index)">
+	  </div>
 	</div>
-	<div class="image-picker">
-	  <button ng-click="table.search(entity)">Search</button>
-	  <button ng-click="page.popState()">Back</button>
-	  <button ng-click="table.done()">Done</button>
-	  <div ng-repeat="image in entity.images">
-	    <img ng-src="{{image.thumbnail}}">
+	<div class="info">
+	  <form class="name input-group input-group-lg"
+		ng-submit="entity.showSearch()">
+	    <input type="text" class="form-control"
+		   ng-model="entity.name"
+		   tabindex="{{$index + 1}}"
+		   placeholder="Choose a Name">
+	  </form>
+	  <div class="image"
+	       ng-click="entity.showSearch()"
+	       ng-style="{'background-image': 'url('+entity.getImage()+')'}">
+
 	  </div>
 	</div>
       </div>
 
-      <table class="tripletable">
-	<tr class="title-row">
-	  <td ng-repeat="entity in table.entities">
-	    {{entity.name}}
-	  </td>
-	</tr>
-	<tr class="image-row">
-	  <td ng-repeat="entity in table.entities">
-	    <img ng-src="{{entity.getImage()}}" alt="foo">
-	  </td>
-	</tr>
-	<tr class="edit-row">
-	  <td ng-repeat="entity in table.entities">
- 	    <button ng-click="table.select($index)">Click me</button>
-	  </td>
-	</tr>
-      </table>
-      {{table.searchIdx}}
     </div>
-    <div>Angular seed app: v<span app-version></span></div>
 
-    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script>
-    <!--script src="../bower_components/angular-ui/build/angular-ui.min.js"></script-->
+    <!--script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script-->
+    <script src="/bower_components/angular/angular.js"></script>
+
+
     <script src="/app/js/app.js"></script>
     <script src="/app/js/services.js"></script>
     <script src="/app/js/controllers.js"></script>
