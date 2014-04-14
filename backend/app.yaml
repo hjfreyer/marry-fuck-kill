@@ -20,11 +20,14 @@ handlers:
   static_dir: static
 
 - url: /app
-  static_dir: jsapp/
+  static_dir: static2/app/
+
+- url: /bower_components
+  static_dir: static2/bower/
 
 - url: /make
-  static_files: jsapp/index.html
-  upload: jsapp/index.html
+  static_files: static2/app/index.html
+  upload: static2/app/index.html
 
 - url: /admin/.*
   script: admin.py
