@@ -1,3 +1,12 @@
+
+@mixin full {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
 body#mfk-maker {
     background: #9911bb;
     font-family: sans-serif;
@@ -9,7 +18,13 @@ body#mfk-maker #maker-area {
 
     $columnWidth: 240px;
 
-    $tableHeight: 275px;
+    $topBarHeight: 65px;
+    $bottomBarHeight: 60px;
+
+    $inputHeight: 34px;
+    $lgInputHeight: 46px;
+
+    $tableHeight: $topBarHeight + $imageHeight + $bottomBarHeight;
     $tableWidth: 3 * $columnWidth;
 
     position: relative;
@@ -18,7 +33,6 @@ body#mfk-maker #maker-area {
     width: $tableWidth;
     height: $tableHeight;
 
-    /* border: 1px solid black; */
     box-shadow: 4px 4px 10px 0 rgba(50, 50, 50, 0.75);
     background: white;
     overflow: hidden;
@@ -36,21 +50,21 @@ body#mfk-maker #maker-area {
 	    position: absolute;
 	    top: 0;
 	    width: $columnWidth;
-	    height: $tableHeight;
+	    height: $topBarHeight + $imageHeight;
 
 	    .name {
-		margin: 10px;
+		padding: ($topBarHeight - $lgInputHeight) / 2;
 		input { text-align: center; }
 	    }
 
 	    .image {
-		$margin: ($columnWidth - $imageWidth) / 2;
+		margin: 0 ($columnWidth - $imageWidth) / 2;
 
 		position: absolute;
 		width: $imageWidth;
 		height: $imageHeight;
-		bottom: $margin;
-		left: $margin;
+		left: 0;
+		top: $topBarHeight;
 
 		background-repeat: no-repeat;
 		background-position: center;
@@ -107,15 +121,62 @@ body#mfk-maker #maker-area {
 
 		overflow-y: auto;
 
-		img {
+		.result {
 		    height: 100px;
 		    margin: 0 5px 5px 0;
 		    cursor: pointer;
 		}
 	    }
+	    .watermark {
+		position: absolute;
+		bottom: 5px;
+		right: 5px;
+
+		opacity: 0.3;
+	    }
 	}
     }
 
+    .bottom-bar {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: $bottomBarHeight;
+
+	$margin: ($bottomBarHeight - $inputHeight) / 2;
+
+	.reset {
+	    position: absolute;
+	    bottom: $margin;
+	    left: $margin;
+	}
+
+	.submit {
+	    position: absolute;
+	    bottom: $margin;
+	    right: $margin;
+	}
+
+	.help-text {
+	    $lineHeight: 20px;
+
+	    position: absolute;
+	    bottom: $margin;
+	    left: 200px;
+	    right: 200px;
+	    margin: 0;
+	    padding: ($inputHeight - $lineHeight)/2 15px;
+	    opacity: 0;
+	    text-align: center;
+
+	    transition: 200ms opacity;
+
+	    &.shown {
+		opacity: 1;
+	    }
+	}
+    }
 
     /* .search-dialog { */
     /* 	position: absolute; */
