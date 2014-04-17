@@ -154,27 +154,12 @@ def _UpdateTripleVoteCounts(triple_key, new_counts):
   triple.put()
 
 
-def MakeEntity(name, query, user_ip, original_url):
+def MakeEntity(name, query, user_ip, thumb_url, original_url):
   """Makes an Entity with the given attributes."""
-  # TODO(mjkelly): Delete this once we have signature checking.
-  images = ImageSearch(query, user_ip)
-  images_by_url = dict([(image.original, image) for image in images])
-  logging.info('validate_request: possible valid urls = %s',
-               list(images_by_url))
-  if original_url not in images_by_url:
-    logging.error("URL '%s' is not in result set for query '%s'. "
-                  "Result set is: %s" % (
-        original_url, query, list(images_by_url)))
-    raise EntityValidationError(
-      "URL '%s' is not in result set for query '%s'." % (original_url,
-                                                         query))
-
-  tb_url = images_by_url[original_url].thumbnail
-
   # Get the thumbnail URL for the entity.  This could throw
   # URLError. We'll let it bubble up.
-  result = urlfetch.fetch(tb_url)
-  logging.info('Downloading %s' % tb_url)
+  result = urlfetch.fetch(thumb_url)
+  logging.info('Downloading %s' % thumb_url)
   entity = models.Entity(name=name,
                          data=result.content,
                          query=query,
@@ -191,12 +176,9 @@ def MakeTriple(entities, creator, creator_ip):
     entities: a data structure built in MakeSubmitHandler.
     creator: the user who created the Triple.
     creator_ip: IP address of the request to make this triple.
-
-  The only non-obvious part of this is that we check that q[1-3] actually
-  include u[1-3]. This is to prevent users from adding any URL they
-  please.
   """
   for i in range(len(entities)):
+    # TODO(mjkelly): Check for a signature element.
     for k in ['n', 'u', 'q', 'ou']:
       if not entities[i][k]:
         raise ValueError("Entity %s missing attribute '%s'" % (i, k))
@@ -204,16 +186,19 @@ def MakeTriple(entities, creator, creator_ip):
   # This may raise a URLError or EntityValidatationError.
   one = MakeEntity(name=entities[0]['n'],
                    query=entities[0]['q'],
-                   original_url=entities[0]['ou'],
-                   user_ip=creator_ip)
+                   user_ip=creator_ip,
+                   thumb_url=entities[0]['u'],
+                   original_url=entities[0]['ou'])
   two = MakeEntity(name=entities[1]['n'],
                    query=entities[1]['q'],
-                   original_url=entities[1]['ou'],
-                   user_ip=creator_ip)
+                   user_ip=creator_ip,
+                   thumb_url=entities[1]['u'],
+                   original_url=entities[1]['ou'])
   three = MakeEntity(name=entities[2]['n'],
                      query=entities[2]['q'],
-                     original_url=entities[2]['ou'],
-                     user_ip=creator_ip)
+                     user_ip=creator_ip,
+                     thumb_url=entities[2]['u'],
+                     original_url=entities[2]['ou'])
 
   triple = models.Triple(one=one, two=two, three=three,
                          creator=creator,

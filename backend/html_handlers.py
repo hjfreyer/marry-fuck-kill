@@ -149,6 +149,14 @@ class VoteSubmitHandler(RequestHandler):
 
 class MakeSubmitHandler(RequestHandler):
   def post(self):
+    """Handles a request to make a new Triple.
+
+    We expect the following parameters:
+      n1, n2, n3: Names of the new triples
+      u1, u2, u3: The URLs of the thumbnails of the new triples.
+      q1, q2, q3: The queries that generated the new trples.
+      ou1, ou2, ou3: The original URLs of the new triples.
+    """
     # TODO(mjkelly): When we have a new client, check the 'sig' values we get.
     # That will allow us to avoid repeating the search on the server side.
     logging.info('Make handler')
