@@ -34,6 +34,9 @@ USE_CACHED_VOTE_COUNTS = True
 
 Image = collections.namedtuple('Image', ['original', 'thumbnail'])
 
+class JSONStructureError(Exception):
+  """Raised when JSON structure doesn't match our expectations."""
+
 class EntityValidationError(Exception): pass
 
 
@@ -279,6 +282,9 @@ def ImageSearch(query, user_ip):
 
   Returns:
     [Image]: A list of Image objects representing search results
+
+  Raises:
+    JSONStructureError: If the structure of the search results is unexpected.
   """
   images = []
   query = query.encode('utf-8')
@@ -298,6 +304,7 @@ def ImageSearch(query, user_ip):
   # This may raise a DownloadError
   result = urlfetch.fetch(url)
   download_finish = datetime.datetime.now()
+
   data = json.loads(result.content)
   parse_finish = datetime.datetime.now()
 
@@ -306,13 +313,18 @@ def ImageSearch(query, user_ip):
     download_finish - download_start,
     parse_finish - download_finish)
 
-  if data['searchInformation']['totalResults'] == '0':
-    return []
+  try:
+    if data['searchInformation']['totalResults1'] == '0':
+      return []
 
-  for item in data['items']:
-    link = item['link']
-    thumb = item['image']['thumbnailLink']
-    images.append(Image(original=link, thumbnail=thumb))
+    for item in data['items']:
+      link = item['link']
+      thumb = item['image']['thumbnailLink']
+      images.append(Image(original=link, thumbnail=thumb))
+  except KeyError as e:
+    error = 'Missing key %s in JSON. JSON = %r' % (e, result.content)
+    logging.error(error)
+    raise JSONStructureError(error)
 
   return images
 
