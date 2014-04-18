@@ -53,7 +53,7 @@
 	   ng-class="{placeholder: entity.isPlaceholder()}"
 	   ng-repeat-end>
 	<div class="image"
-	     ng-style="{'background-image': 'url('+entity.getImage()+')'}"></div>
+	     ng-style="{'background-image': 'url('+entity.getImageUrl()+')'}"></div>
 
 	<div class="text">Choose an Image</div>
       </div>
@@ -63,10 +63,19 @@
 	  <span class="glyphicon glyphicon-trash"></span>
 	</button>
       </div>
-      <form class="btn-group submit" method="GET" 	action="/foo">
-	<button type="submit" class="btn btn-primary"
-		ng-disabled="!table.submittable()"
-		ng-click="table.submit($event)">Make it so</button>
+      <form method="POST" action="/make.do">
+	<input ng-repeat-start="entity in table.entities"
+	       type="hidden" name="n{{$index + 1}}" ng-value="entity.name">
+	<input type="hidden" name="u{{$index + 1}}"
+	       ng-value="entity.getImage().thumbnail">
+	<input type="hidden" name="q{{$index + 1}}" ng-value="entity.query">
+	<input ng-repeat-end type="hidden" name="ou{{$index + 1}}"
+	       ng-value="entity.getImage().original">
+	<div class="btn-group submit">
+	  <button type="submit" class="btn btn-primary"
+		  ng-disabled="!table.submittable()"
+		  ng-click="table.submit($event)">Make it so</button>
+	</div>
       </form>
     </div>
 

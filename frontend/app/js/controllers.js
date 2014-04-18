@@ -57,11 +57,15 @@ Entity.prototype.selectImage = function(idx) {
     this.stateStack.release();
 };
 
-Entity.prototype.getImage = function() {
+Entity.prototype.getImageUrl = function() {
     if (this.imageIdx == -1) {
         return '/s/mfk.png';
     }
     return this.images[this.imageIdx].thumbnail;
+};
+
+Entity.prototype.getImage = function() {
+    return this.images[this.imageIdx];
 };
 
 Entity.prototype.isPlaceholder = function() {
