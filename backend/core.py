@@ -306,6 +306,9 @@ def ImageSearch(query, user_ip):
     download_finish - download_start,
     parse_finish - download_finish)
 
+  if data['searchInformation']['totalResults'] == 0:
+    return []
+
   for item in data['items']:
     link = item['link']
     thumb = item['image']['thumbnailLink']
@@ -326,4 +329,3 @@ def Sign(*items):
   for item in items:
     h.update(item)
   return h.hexdigest()
-
