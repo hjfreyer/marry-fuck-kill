@@ -306,7 +306,7 @@ def ImageSearch(query, user_ip):
     download_finish - download_start,
     parse_finish - download_finish)
 
-  if data['searchInformation']['totalResults'] == 0:
+  if data['searchInformation']['totalResults'] == '0':
     return []
 
   for item in data['items']:
