@@ -7,54 +7,77 @@ var Entity = function(Searcher, StateStack) {
     this.stateStack = StateStack;
 
     this.name = '';
-    this.imgIdx = -1;
     this.query = '';
     this.images = [];
+    this.imageIdx = -1;
     this.imagesPromise = null;
 
+    this.pristine = true;
+    this.searchShown = false;
     this.searching = false;
 };
 
+Entity.FIELDS = ['name', 'query', 'images', 'imageIdx',
+		 'imagesPromise', 'pristine', 'searchShown',
+		 'searching'];
+
+Entity.prototype.dump = function() {
+    var result = {}
+    Entity.FIELDS.forEach(function(attr) {
+	result[attr] = this[attr];
+    }, this);
+    return result;
+};
+
+Entity.prototype.load = function(source) {
+    Entity.FIELDS.forEach(function(attr) {
+	this[attr] = source[attr];
+    }, this);
+};
+
 Entity.prototype.showSearch = function() {
+    var saved = this.dump();
     this.stateStack.push(
-        function(imgIdx, query, images, imagesPromise) {
-            this.imgIdx = imgIdx;
-            this.query = query;
-            this.images = images;
-            this.imagesPromise = imagesPromise;
+	function() {
+	    this.load(saved);
+	}.bind(this),
+	function(activeElement) {
+	    activeElement.focus();
+	}.bind(this, document.activeElement));
 
-            this.searching = false;
-        }.bind(this, this.imgIdx, this.query, this.images, this.imagesPromise),
-        function(activeElement) {
-            activeElement.focus();
-        }.bind(this, document.activeElement));
-
-    this.searching = true;
+    this.searchShown = true;
     this.query = this.name;
     this.search();
 };
 
 Entity.prototype.selectImage = function(idx) {
-    this.imgIdx = idx;
+    this.imageIdx = idx;
     this.searching = false;
     this.stateStack.release();
 };
 
 Entity.prototype.getImage = function() {
-    if (this.imgIdx == -1) {
+    if (this.imageIdx == -1) {
         return '/s/mfk.png';
     }
-    return this.images[this.imgIdx].thumbnail;
+    return this.images[this.imageIdx].thumbnail;
 };
 
 Entity.prototype.isPlaceholder = function() {
-    return this.imgIdx == -1;
+    return this.imageIdx == -1;
+};
+
+Entity.prototype.hasNoResults = function() {
+    return !this.pristine && this.images.length == 0;
 };
 
 Entity.prototype.search = function() {
     if (this.query == '') {
         return;
     }
+
+    this.pristine = false;
+    this.searching = true;
 
     var imagesPromise = this.searcher(this.query);
     this.imagesPromise = imagesPromise;
@@ -63,6 +86,7 @@ Entity.prototype.search = function() {
             return;
         }
         this.images = result.data.images;
+	this.searching = false;
     }.bind(this));
 };
 
@@ -84,9 +108,9 @@ Table.prototype.submit = function(event) {
 	event.stopPropagation();
 	return;
     }
-    if (this.entities[0].imgIdx == -1 ||
-	this.entities[1].imgIdx == -1 ||
-	this.entities[2].imgIdx == -1) {
+    if (this.entities[0].imageIdx == -1 ||
+	this.entities[1].imageIdx == -1 ||
+	this.entities[2].imageIdx == -1) {
 	this.errorCode = 'NO_IMAGE';
 	return;
     }

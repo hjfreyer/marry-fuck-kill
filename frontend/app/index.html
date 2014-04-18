@@ -10,69 +10,57 @@
     MAKAMFK
 
     <div id="maker-area">
-      <div class="entity entity-{{$index}}" ng-repeat="entity in table.entities">
-	<div class="image-search" ng-class="{shown: entity.searching}">
-	  <div class="toolbar">
-	    <form class="input-group" ng-submit="entity.search()">
-	      <input type="text" class="form-control" ng-model="entity.query"
-		     placeholder="Search">
-	      <span class="input-group-btn">
-		<button class="btn btn-primary">
-		  <span class="glyphicon glyphicon-search"></span>
-		</button>
-	      </span>
+      <div class="image-search image-search-{{$index}}"
+	   ng-class="{shown: entity.searchShown,
+ 		      empty: entity.hasNoResults(),
+		      searching: entity.searching}"
+	   ng-repeat-start="entity in table.entities">
+	<div class="toolbar">
+	  <form class="input-group" ng-submit="entity.search()">
+	    <input type="text" class="form-control" ng-model="entity.query"
+		   placeholder="Search">
+	    <span class="input-group-btn">
+	      <button class="search btn btn-primary">
+		<span class="glyphicon glyphicon-search"></span>
+	      </button>
+	    </span>
 
-	    </form>
-	  </div>
-	  <img class="watermark" src="/s/powered-by-google.gif"
-	       alt="powered by Google">
-	  <div class="results">
-	    <img class="result"
-		 ng-repeat="image in entity.images"
-		 ng-src="{{image.thumbnail}}"
-		 ng-click="entity.selectImage($index)">
-	  </div>
-	</div>
-	<div class="info">
-	  <form class="name input-group input-group-lg"
-		ng-submit="entity.showSearch()">
-	    <input type="text" class="form-control"
-		   ng-model="entity.name"
-		   tabindex="{{$index + 1}}"
-		   placeholder="Choose a Name">
 	  </form>
-	  <div class="image"
-	       ng-click="entity.showSearch()"
-	       ng-class="{placeholder: entity.isPlaceholder()}"
-	       ng-style="{'background-image': 'url('+entity.getImage()+')'}">
-
-	  </div>
 	</div>
-	<div class="bottom-bar">
-	  <div class="help-text alert alert-sm alert-danger"
-	       ng-class="{shown: table.errorCode == 'NO_NAME'}">
-	    You need to pick a name for all three
-	  </div>
-	  <div class="help-text alert alert-sm alert-danger"
-	       ng-class="{shown: table.errorCode == 'NO_IMAGE'}">
-	    You need to choose an image for all three
-	  </div>
-	  <div class="btn-group reset">
-	    <button type="button" class="btn btn-default"
-		    ng-click="page.reset()">
-	      <span class="glyphicon glyphicon-trash"></span>
-
-	    </button>
-	  </div>
-	  <form class="btn-group submit" method="GET" 	action="/foo">
-	    <input ng-repeat="entity in table.entities" type="hidden"
-		   name="fooo{{$index}}" ng-value="entity.name" required>
-	    <button type="submit" class="btn btn-primary"
-		    ng-click="table.submit($event)">Make it so</button>
-	  </form>
+	<img class="watermark" src="/s/powered-by-google.gif"
+	     alt="powered by Google">
+	<div class="results">
+	  <img class="result"
+	       ng-repeat="image in entity.images"
+	       ng-src="{{image.thumbnail}}"
+	       ng-click="entity.selectImage($index)">
 	</div>
       </div>
 
+      <form class="name name-{{$index}} input-group input-group-lg"
+	    ng-submit="entity.showSearch()">
+	<input type="text" class="form-control"
+	       ng-model="entity.name"
+	       tabindex="{{$index + 1}}"
+	       placeholder="Choose a Name">
+      </form>
+      <div class="image image-{{$index}} btn btn-default"
+	   ng-click="entity.showSearch()"
+	   ng-class="{placeholder: entity.isPlaceholder()}"
+	   ng-style="{'background-image': 'url('+entity.getImage()+')'}"
+	   ng-repeat-end>
+	<div class="text">Choose an Image</div>
+      </div>
+      <div class="btn-group reset">
+	<button type="button" class="btn btn-default"
+		ng-click="page.reset()">
+	  <span class="glyphicon glyphicon-trash"></span>
+	</button>
+      </div>
+      <form class="btn-group submit" method="GET" 	action="/foo">
+	<button type="submit" class="btn btn-primary"
+		ng-click="table.submit($event)">Make it so</button>
+      </form>
     </div>
 
     <!--script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script-->
