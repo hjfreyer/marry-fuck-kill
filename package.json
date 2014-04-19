@@ -1,0 +1,22 @@
+{
+  "name": "marry-fuck-kill",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies" : {
+    "bower": "1.3.x",
+    "grunt": "0.4.x",
+    "grunt-cli": "0.1.x",
+    "grunt-autoprefixer": "0.2.x",
+    "grunt-bower": "0.11.x",
+    "grunt-contrib-clean": "0.5.x",
+    "grunt-contrib-copy": "0.4.x",
+    "grunt-contrib-jade": "0.8.x",
+    "grunt-contrib-sass": "0.7.x",
+    "grunt-contrib-watch": "0.5.x",
+    "grunt-shell-spawn": "0.3.x"
+  },
+  "scripts": {
+    "postinstall": "bower update",
+    "start": "grunt dev"
+  }
+}

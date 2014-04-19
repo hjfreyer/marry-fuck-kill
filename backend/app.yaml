@@ -9,25 +9,19 @@ threadsafe: false
 
 handlers:
 - url: /favicon.ico
-  static_files: static/favicon.ico
-  upload: static/favicon.ico
+  static_files: resources/favicon.ico
+  upload: resources/favicon.ico
 
 - url: /robots.txt
-  static_files: static/robots.txt
-  upload: static/robots.txt
+  static_files: resources/robots.txt
+  upload: resources/robots.txt
 
 - url: /s
   static_dir: static
 
-- url: /app
-  static_dir: static2/app/
-
-- url: /bower_components
-  static_dir: static2/bower/
-
 - url: /make
-  static_files: static2/app/index.html
-  upload: static2/app/index.html
+  static_files: resources/maker.html
+  upload: resources/maker.html
 
 - url: /admin/.*
   script: admin.py

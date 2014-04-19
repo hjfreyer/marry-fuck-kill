@@ -1,6 +1,7 @@
 *.pyc
 *~
 *NOCOMMIT*
-.sass-cache
-bin-dev/
+build/
 bower_components
+node_modules
+.sass-cache

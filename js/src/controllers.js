@@ -19,32 +19,32 @@ var Entity = function(Searcher, StateStack) {
 };
 
 Entity.FIELDS = ['name', 'query', 'images', 'imageIdx',
-		 'imagesPromise', 'pristine', 'searchShown',
-		 'searching', 'error'];
+                 'imagesPromise', 'pristine', 'searchShown',
+                 'searching', 'error'];
 
 Entity.prototype.dump = function() {
     var result = {}
     Entity.FIELDS.forEach(function(attr) {
-	result[attr] = this[attr];
+        result[attr] = this[attr];
     }, this);
     return result;
 };
 
 Entity.prototype.load = function(source) {
     Entity.FIELDS.forEach(function(attr) {
-	this[attr] = source[attr];
+        this[attr] = source[attr];
     }, this);
 };
 
 Entity.prototype.showSearch = function() {
     var saved = this.dump();
     this.stateStack.push(
-	function() {
-	    this.load(saved);
-	}.bind(this),
-	function(activeElement) {
-	    activeElement.focus();
-	}.bind(this, document.activeElement));
+        function() {
+            this.load(saved);
+        }.bind(this),
+        function(activeElement) {
+            activeElement.focus();
+        }.bind(this, document.activeElement));
 
     this.searchShown = true;
     this.query = this.name;
@@ -59,9 +59,9 @@ Entity.prototype.selectImage = function(idx) {
 
 Entity.prototype.getImageUrl = function() {
     if (this.imageIdx == -1) {
-        return '/s/mfk.png';
+        return null;
     }
-    return this.images[this.imageIdx].thumbnail;
+    return 'url(' + this.images[this.imageIdx].thumbnail + ')';
 };
 
 Entity.prototype.getImage = function() {
@@ -74,9 +74,9 @@ Entity.prototype.isPlaceholder = function() {
 
 Entity.prototype.hasNoResults = function() {
     return !this.searching
-	&& !this.pristine
-	&& !this.error
-	&& this.images.length == 0;
+        && !this.pristine
+        && !this.error
+        && this.images.length == 0;
 };
 
 Entity.prototype.search = function() {
@@ -90,17 +90,17 @@ Entity.prototype.search = function() {
     var imagesPromise = this.searcher(this.query);
     this.imagesPromise = imagesPromise;
     imagesPromise
-	.success(function(data) {
+        .success(function(data) {
             if (this.imagesPromise != imagesPromise) {
-		return;
+                return;
             }
             this.images = data.images;
-	    this.searching = false;
-	}.bind(this))
-	.error(function() {
-	    this.searching = false;
-	    this.error = true;
-	}.bind(this));
+            this.searching = false;
+        }.bind(this))
+        .error(function() {
+            this.searching = false;
+            this.error = true;
+        }.bind(this));
 };
 
 var Table = function(Searcher, StateStack) {
@@ -114,31 +114,31 @@ var Table = function(Searcher, StateStack) {
 
 Table.prototype.submittable = function() {
     for (var ii = 0; ii < 3; ii++) {
-	var entity = this.entities[ii];
-	if (entity.name == '') {
-	    return false;
-	}
-	if (entity.imageIdx == -1) {
-	    return false;
-	}
+        var entity = this.entities[ii];
+        if (entity.name == '') {
+            return false;
+        }
+        if (entity.imageIdx == -1) {
+            return false;
+        }
     }
     return true;
 };
 
 Table.prototype.submit = function(event) {
     if (this.entities[0].name == '' ||
-	this.entities[1].name == '' ||
-	this.entities[2].name == '') {
-	this.errorCode = 'NO_NAME';
-	console.log(event);
-	event.stopPropagation();
-	return;
+        this.entities[1].name == '' ||
+        this.entities[2].name == '') {
+        this.errorCode = 'NO_NAME';
+        console.log(event);
+        event.stopPropagation();
+        return;
     }
     if (this.entities[0].imageIdx == -1 ||
-	this.entities[1].imageIdx == -1 ||
-	this.entities[2].imageIdx == -1) {
-	this.errorCode = 'NO_IMAGE';
-	return;
+        this.entities[1].imageIdx == -1 ||
+        this.entities[2].imageIdx == -1) {
+        this.errorCode = 'NO_IMAGE';
+        return;
     }
 };
 
@@ -150,9 +150,9 @@ var Page = ['$scope', 'Searcher', 'StateStack', function($scope, Searcher, State
             }
         },
         popState: StateStack.pop.bind(StateStack),
-	reset: function() {
-	    $scope.table = new Table(Searcher, StateStack);
-	},
+        reset: function() {
+            $scope.table = new Table(Searcher, StateStack);
+        },
     };
     $scope.table = new Table(Searcher, StateStack);
 }];
@@ -164,23 +164,23 @@ var Page = ['$scope', 'Searcher', 'StateStack', function($scope, Searcher, State
 
 //     $scope.table = {
 //         entities: entities,
-// 	errorCode: '',
+//      errorCode: '',
 
-// 	reset: function() {
-// 	    $scope.table.entities = [];
-// 	    for (var i = 0; i < 3; i++) {
-// 		$scope.table.entities[i] = new Entity(Searcher, StateStack);
-// 	    }
-// 	},
+//      reset: function() {
+//          $scope.table.entities = [];
+//          for (var i = 0; i < 3; i++) {
+//              $scope.table.entities[i] = new Entity(Searcher, StateStack);
+//          }
+//      },
 
-// 	submit: function() {
-// 	    if (entities[0].name == '' || entities[1].name == '' || entities[2].name == '') {
-// 		$scope
-// 	    }
+//      submit: function() {
+//          if (entities[0].name == '' || entities[1].name == '' || entities[2].name == '') {
+//              $scope
+//          }
 
-// 	    $scope.table.nameNeeded = true;
-// 	    $timeout(function() { $scope.table.nameNeeded = false; }, 5000);
-// 	},
+//          $scope.table.nameNeeded = true;
+//          $timeout(function() { $scope.table.nameNeeded = false; }, 5000);
+//      },
 //     };
 // }];
 

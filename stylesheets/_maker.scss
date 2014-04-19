@@ -1,0 +1,179 @@
+// vim: tabstop=8 shiftwidth=4
+@import 'common';
+
+@mixin full {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+body#mfk-maker {
+    @include common-body;
+}
+
+body#mfk-maker #maker-area {
+    $topBarHeight: $lgInputHeight + $gutterSize;
+    $middleHeight: $imageSize + $gutterSize;
+    $bottomBarHeight: $inputHeight + $gutterSize;
+
+    $tripleHeight: $topBarHeight + $middleHeight + $bottomBarHeight + $gutterSize;
+
+    @include common-content;
+
+    width: $tripleWidth;
+    height: $tripleHeight;
+    margin: auto;
+
+    background: white;
+    overflow: hidden;
+    position: relative;
+
+    .name {
+        position: absolute;
+        top: $gutterSize / 2;
+
+        width: $imageSize;
+        margin: $gutterSize / 2;
+
+        input { text-align: center; }
+    }
+
+    .imagebox {
+        margin: $gutterSize / 2;
+
+        position: absolute;
+        width: $imageSize;
+        height: $imageSize;
+        top: $topBarHeight + $gutterSize / 2;
+
+        .text {
+            position: absolute;
+            bottom: $gutterSize;
+            left: 0;
+            right: 0;
+            text-align: center;
+
+            display: none;
+        }
+
+        .image, .placeholder-image {
+            @include fill;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .placeholder-image {
+            opacity: 0;
+            background-image: url(/s/assets/mfk.png);
+        }
+
+        &.placeholder {
+            .placeholder-image {
+                opacity: 0.2;
+            }
+            .text {
+                display: block;
+            }
+        }
+    }
+
+    .image-search {
+        position: absolute;
+        top: -$tripleHeight;
+        left: 0;
+        z-index: 10;
+
+        transition: 240ms top;
+
+        width: $tripleWidth;
+        height: $tripleHeight;
+
+        background: white;
+        border-bottom: 1px solid grey;
+
+        &.shown {
+            top: 0;
+        }
+
+        $toolbarHeight: 50px;
+
+        .toolbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: $toolbarHeight;
+
+            padding: ($toolbarHeight - $inputHeight) / 2;
+
+            border-bottom: 1px solid lightgrey;
+        }
+
+        .results {
+            position: absolute;
+            top: $toolbarHeight;
+            bottom: 0;
+            left: 0;
+            right: 0;
+
+            padding: ($toolbarHeight - $inputHeight) / 2;
+
+            overflow-y: auto;
+
+            .result {
+                height: 100px;
+                margin: 0 5px 5px 0;
+                cursor: pointer;
+            }
+        }
+
+        .watermark {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+
+            opacity: 0.3;
+        }
+
+        &.searching {
+            .toolbar .search {
+                background-image: url(/s/assets/loading.gif);
+                background-repeat: no-repeat;
+                background-position: center;
+
+                .glyphicon { opacity: 0 }
+            }
+        }
+    }
+
+
+    @for $idx from 0 through 2 {
+        .name-#{$idx} {
+            left: $gutterSize / 2 + $columnWidth * $idx;
+        }
+
+        .imagebox-#{$idx} {
+            left: $gutterSize / 2 + $columnWidth * $idx;
+        }
+
+        .entity-#{$idx} {
+            .info {
+                left: $columnWidth * $idx;
+            }
+        }
+    }
+
+    .reset {
+        position: absolute;
+        bottom: $gutterSize;
+        left: $gutterSize;
+    }
+
+    .submit {
+        position: absolute;
+        bottom: $gutterSize;
+        right: $gutterSize;
+    }
+}

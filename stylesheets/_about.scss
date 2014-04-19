@@ -1,0 +1,10 @@
+@import "_base";
+
+body#about #page {
+    @include content;
+
+    margin: auto;
+    width: 640px;
+
+    padding: 0 15px 15px 15px;
+}

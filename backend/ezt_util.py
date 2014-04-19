@@ -18,7 +18,7 @@ import ezt
 
 
 def WriteTemplate(template_name, template_dict, out_file):
-  template = ezt.Template('templates/%s' % template_name, base_format='html')
+  template = ezt.Template('resources/templates/%s' % template_name, base_format='html')
   return template.generate(out_file, template_dict)
 
 

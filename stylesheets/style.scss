@@ -1,0 +1,59 @@
+
+$background: #9911bb;
+$fontFamily: sans-serif;
+
+$gutterSize: 10px;
+$imageSize: 200px;
+
+$inputHeight: 34px;
+$lgInputHeight: 46px;
+
+$columnWidth: $imageSize + $gutterSize;
+$tripleWidth: 3 * $columnWidth + $gutterSize;
+
+body {
+    background: $background;
+    font-family: $fontFamily;
+    margin: 0;
+}
+
+.titleImage {
+    margin: 20px 0;
+    border: 0;
+}
+
+a, a:visited, a:hover {
+    color: black;
+}
+
+.nav {
+    text-align: center;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.foot {
+    text-align: center;
+    margin: 20px 0 0 0;
+    font-size: 10px;
+}
+
+@mixin fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+
+@mixin content {
+    margin: auto;
+    box-shadow: 4px 4px 10px 0 rgba(50, 50, 50, 0.75);
+    background: white;
+    overflow: hidden;
+}
+
+@import "_maker";
+@import "vote";
+@import "_narrow";
