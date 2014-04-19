@@ -1,0 +1,18 @@
+// vim: tabstop=8 shiftwidth=4
+
+$gutterSize: 10px;
+$imageSize: 200px;
+
+.common-body {
+    font-family: sans-serif;
+    background: #9911bb;
+}
+
+.shadow-box {
+    box-shadow: 4px 4px 10px 0 rgba(50, 50, 50, 0.75);
+    border: 1px solid lightgrey;
+}
+
+.common-content {
+    @extend .shadow-box;
+}

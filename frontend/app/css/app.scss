@@ -1,3 +1,6 @@
+// vim: tabstop=8 shiftwidth=4
+@import 'common_partial';
+
 @mixin full {
     position: absolute;
     top: 0;
@@ -7,13 +10,11 @@
 }
 
 body#mfk-maker {
-    background: #9911bb;
-    font-family: sans-serif;
+    @extend .common-body;
 }
 
 body#mfk-maker #maker-area {
-    $gutterSize: 10px;
-    $imageSize: 200px;
+    @extend .common-content;
 
     $inputHeight: 34px;
     $lgInputHeight: 46px;
@@ -33,7 +34,6 @@ body#mfk-maker #maker-area {
     width: $tableWidth;
     height: $tableHeight;
 
-    box-shadow: 4px 4px 10px 0 rgba(50, 50, 50, 0.75);
     background: white;
     overflow: hidden;
 
@@ -54,8 +54,6 @@ body#mfk-maker #maker-area {
 	width: $imageSize;
 	height: $imageSize;
 	top: $topBarHeight + $gutterSize / 2;
-
-	border: 1px solid lightgrey;
 
 	cursor: pointer;
 

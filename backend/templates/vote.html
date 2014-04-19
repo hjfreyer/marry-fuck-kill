@@ -47,25 +47,31 @@
         </tr>
         <tr class="buttons-row">
           <td>
-            <div class="button clickable selector m 1">Marry</div>
-            <div class="button clickable selector f 1">Fuck</div>
-            <div class="button clickable selector k 1">Kill</div>
+            <div class="mfk-button-group">
+              <button type="button" class="btn btn-default btn-block mfk-button selector m 1">Marry</button>
+              <button type="button" class="btn btn-default btn-block mfk-button selector f 1">Fuck</button>
+              <button type="button" class="btn btn-default btn-block mfk-button selector k 1">Kill</button>
+            </div>
           </td>
           <td>
-            <div class="button clickable selector m 2">Marry</div>
-            <div class="button clickable selector f 2">Fuck</div>
-            <div class="button clickable selector k 2">Kill</div>
+            <div class="mfk-button-group">
+              <button type="button" class="btn btn-default btn-block mfk-button selector m 2">Marry</button>
+              <button type="button" class="btn btn-default btn-block mfk-button selector f 2">Fuck</button>
+              <button type="button" class="btn btn-default btn-block mfk-button selector k 2">Kill</button>
+            </div>
           </td>
           <td>
-            <div class="button clickable selector m 3">Marry</div>
-            <div class="button clickable selector f 3">Fuck</div>
-            <div class="button clickable selector k 3">Kill</div>
+            <div class="mfk-button-group">
+              <button type="button" class="btn btn-default btn-block mfk-button selector m 3">Marry</button>
+              <button type="button" class="btn btn-default btn-block mfk-button selector f 3">Fuck</button>
+              <button type="button" class="btn btn-default btn-block mfk-button selector k 3">Kill</button>
+            </div>
           </td>
         </tr>
       </table>
       <div class="actionbar">
-        <div class="button" id="submit">Vote</div>
-        <div class="button clickable" id="skip">Skip</div>
+        <button class="btn btn-lg btn-primary" disabled="disabled" id="submit">Vote</button>
+        <button class="btn btn-lg btn-default" id="skip">Skip</button>
       </div>
       <div class="topText">
         Pick one of the above to marry, one to fuck, and one to

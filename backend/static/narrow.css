@@ -1,3 +1,5 @@
+/* TODO(mjkelly): Make this Sass. */
+
 #mobile-warning {
   margin-top: 10px;
   text-align: center;
@@ -8,9 +10,7 @@
     display: block;
     float: none;
     width: 640px;
-    border: 1px solid #330033;
-    border-radius: 15px;
-    -moz-border-radius: 15px;
+    margin-bottom: 5px;
 }
 
 #lefty .prev-name {
@@ -20,5 +20,6 @@
 #lefty .elem {
   float: left;
   padding: 10px;
+  /* this matches the sizes of the images below */
   width: 190px;
 }

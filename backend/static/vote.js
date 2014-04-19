@@ -39,14 +39,14 @@ function mfk_select(element) {
   if ($('.m.selected').length > 0 &&
       $('.f.selected').length > 0 &&
       $('.k.selected').length > 0) {
-    $('#submit').addClass('clickable');
+    $('#submit').attr('disabled', false);
   } else {
-    $('#submit').removeClass('clickable');
+    $('#submit').attr('disabled', true);
   }
 }
 
 function submit(element) {
-  if (element.hasClass('clickable')) {
+  if (!element.attr('disabled')) {
     $('#action').val(element.attr("id"));
     $('#voteform').submit();
   }
@@ -56,4 +56,4 @@ $(document).ready(function(){
     $('.selector').click(function(){ mfk_select($(this)); });
     $('#submit').click(function(){ submit($(this)); });
     $('#skip').click(function(){ submit($(this)); });
-  });
+});
