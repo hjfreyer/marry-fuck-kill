@@ -3,16 +3,22 @@
 $gutterSize: 10px;
 $imageSize: 200px;
 
-.common-body {
+@mixin common-body {
     font-family: sans-serif;
     background: #9911bb;
 }
 
-.shadow-box {
+@mixin shadow-box {
     box-shadow: 4px 4px 10px 0 rgba(50, 50, 50, 0.75);
     border: 1px solid lightgrey;
 }
 
-.common-content {
-    @extend .shadow-box;
+@mixin common-content {
+    @include shadow-box;
 }
+
+.titleImage {
+    margin: 20px 0;
+    border: 0;
+}
+

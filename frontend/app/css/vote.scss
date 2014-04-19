@@ -1,0 +1,217 @@
+// vim: tabstop=8 shiftwidth=4
+@import 'common';
+
+/* The whole browser window. */
+#body {
+    @include common-body;
+    font-family: sans-serif;
+    margin: 0;
+}
+
+/* The main content. */
+#page {
+    @include common-content;
+    display: block;
+    background: white;
+    padding: 15px;
+
+    width: 640px;
+    height: 100%;
+    margin: 0 auto;
+}
+
+/* Extra display panel on the left. */
+#lefty {
+    @include shadow-box;
+    padding-left: 0;
+    display: block;
+    float: left;
+    background: white;
+    padding: 15px;
+
+    /*width: 180px;*/
+    height: 100%;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+#lefty .title {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+#lefty .prev-name {
+    font-weight: bold;
+    font-size: 20px;
+    vertical-align: top;
+    margin: 5px 2px 0 2px;
+}
+
+/* Unused in wide-screen version. */
+#lefty .elem {
+    /* This is based on the width of the Google Charts images that */
+    /* will be inside this panel. */
+    width: 165px;
+}
+
+/* This only affects non-gwt-styled elements. */
+#body a, a:visited, a:hover {
+    color: black;
+}
+
+#mobile-warning {
+  display: none;
+}
+
+.topText {
+    padding: 0 10px 20px 10px;
+    font-size: 15px;
+}
+
+.tripletable {
+    width: 100%;
+    table-layout: fixed;
+
+    border-spacing: 2px 0;
+    margin-top: 3px;
+}
+
+.tripletable td {
+    text-align: center;
+    overflow: hidden;
+}
+
+.title-row td {
+    font-weight: bold;
+    font-size: 20px;
+    text-transform: capitalize;
+    vertical-align: top;
+    height: 2.5em;
+}
+
+.image-row img {
+  border: 0;
+}
+
+.image-row td {
+    height: 180px;
+    border: 1px solid lightgrey;
+}
+
+.buttons-row td {
+    padding-top: 5px;
+}
+
+.statstable {
+    margin-bottom: 40px;
+}
+
+.stats-row img{
+    border: 0;
+}
+
+.selected {
+    font-weight: bold;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.actionbar {
+    text-align: center;
+    margin: 30px 0;
+}
+
+.actionbar .button {
+    display: inline-block;
+    width: 30%;
+    margin: 0 20px;
+}
+
+.adminbar {
+    padding: 5px;
+    background: #dd8;
+    border-top: 2px solid black;
+}
+
+.admin-disabled {
+  color: white;
+  background: red;
+}
+
+.nav {
+    display: block;
+    text-align: center;
+    font-size: 16px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.foot {
+    text-align: center;
+    margin: 10px 0 0 0;
+    font-size: 10px;
+    color: black;
+}
+
+.pickerBody {
+    white-space: nowrap;
+    position: relative;
+}
+
+.mfk-button-group {
+    margin: 2px;
+}
+
+.picker .rightSide {
+    display: inline-block;
+    vertical-align: top;
+    border-right: 1px solid lightgray;
+}
+
+.picker .primaryImgBox {
+    display: table-cell;
+
+    width: 200px;
+    height: 200px;
+
+    vertical-align: middle;
+    text-align: center;
+}
+
+.picker .imageChoices {
+    display: inline-block;
+    width: 400px;
+    white-space: normal;
+}
+
+.picker .unselected {
+    padding: 4px;
+}
+
+.picker .unselected:hover {
+    border: 2px solid gray;
+    padding: 2px;
+}
+
+.picker .branding {
+    position: absolute;
+    right: 0;
+    bottom: 35px;
+    opacity: .6;
+}
+
+.picker .selected {
+    border: 2px solid #9911bb;
+    padding: 2px;
+}
+
+.picker .submitBar {
+    text-align: right;
+}
+
+.picker .button {
+    margin: 5px 10px;
+    width: 120px;
+}

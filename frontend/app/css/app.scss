@@ -1,5 +1,5 @@
 // vim: tabstop=8 shiftwidth=4
-@import 'common_partial';
+@import 'common';
 
 @mixin full {
     position: absolute;
@@ -10,11 +10,11 @@
 }
 
 body#mfk-maker {
-    @extend .common-body;
+    @include common-body;
 }
 
 body#mfk-maker #maker-area {
-    @extend .common-content;
+    @include common-content;
 
     $inputHeight: 34px;
     $lgInputHeight: 46px;
