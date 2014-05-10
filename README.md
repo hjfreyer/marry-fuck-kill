@@ -21,7 +21,7 @@ localhost:8080. Sass files and other preprocessed junk will get
 automatically updated by grunt under the covers.
 
 If nothing is listening on port 8080, make sure running `dev_appserver build/`
-works. (Print a prompt to STDOUT when it's newly installed.)
+works. (It may, for instance, print a prompt to STDOUT when it's newly installed.)
 
 Installation Notes
 ------------------
