@@ -19,10 +19,6 @@ handlers:
 - url: /s
   static_dir: static
 
-- url: /make
-  static_files: resources/maker.html
-  upload: resources/maker.html
-
 - url: /admin/.*
   script: admin.py
   login: admin

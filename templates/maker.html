@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en" ng-app="mfkMaker">
+  <head>
+    [define title]Marry, Fuck, Kill: Make your own![end]
+    [include "head.html"]
+  </head>
+  <body id="mfk-maker" ng-controller="Page" ng-keydown="page.onKeyDown($event)">
+    <center>
+      <a href="/">
+        <img src="/s/assets/title.png" class="titleImage" alt="Marry Fuck Kill">
+      </a>
+    </center>
+
+    <div id="maker-area">
+      <div class="image-search image-search-{{$index}}"
+           ng-class="{shown: entity.searchShown,
+                     searching: entity.searching}"
+           ng-repeat-start="entity in table.entities">
+        <div class="toolbar">
+          <form class="input-group" ng-submit="entity.search()">
+            <input type="text" class="form-control" ng-model="entity.query"
+                   placeholder="Search">
+            <span class="input-group-btn">
+              <button class="search btn btn-primary">
+                <span class="glyphicon glyphicon-search"></span>
+              </button>
+            </span>
+          </form>
+        </div>
+        <img class="watermark" src="/s/assets/powered-by-google.gif"
+             alt="powered by Google">
+        <div class="results" ng-hide="entity.error || entity.hasNoResults()">
+          <img class="result"
+               ng-repeat="image in entity.images"
+               ng-src="{{image.thumbnail}}"
+               ng-click="entity.selectImage($index)">
+        </div>
+        <div class="results" ng-show="entity.error">
+          Aw snap! An error occurred.
+        </div>
+        <div class="results" ng-show="entity.hasNoResults()">
+          No results found.
+        </div>
+      </div>
+
+      <form class="name name-{{$index}} input-group input-group-lg"
+            ng-submit="entity.showSearch()">
+        <input type="text" class="form-control"
+               ng-model="entity.name"
+               tabindex="{{$index + 1}}"
+               placeholder="Choose a Name">
+      </form>
+      <div class="imagebox imagebox-{{$index}} btn btn-default"
+           ng-click="entity.showSearch()"
+           ng-class="{placeholder: entity.isPlaceholder()}"
+           ng-repeat-end>
+        <div class="image"
+             ng-style="{'background-image': entity.getImageUrl()}"></div>
+        <div class="placeholder-image"></div>
+        <div class="text">Choose an Image</div>
+      </div>
+      <div class="btn-group reset">
+        <button type="button" class="btn btn-default"
+                ng-click="page.reset()">
+          <span class="glyphicon glyphicon-trash"></span>
+        </button>
+      </div>
+      <form method="POST" action="/make.do">
+        <input ng-repeat-start="entity in table.entities"
+               type="hidden" name="n{{$index + 1}}" ng-value="entity.name">
+        <input type="hidden" name="u{{$index + 1}}"
+               ng-value="entity.getImage().thumbnail">
+        <input type="hidden" name="q{{$index + 1}}" ng-value="entity.query">
+        <input ng-repeat-end type="hidden" name="ou{{$index + 1}}"
+               ng-value="entity.getImage().original">
+        <div class="btn-group submit">
+          <button type="submit" class="btn btn-primary"
+                  ng-disabled="!table.submittable()"
+                  ng-click="table.submit($event)">Make it so</button>
+        </div>
+      </form>
+      [include "nav.html"]
+    </div>
+    [insertfile "foot.html"]
+
+    <!--script src="//ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.js"></script-->
+    <script src="/s/deps/angular.js"></script>
+    <script src="/s/js/app.js"></script>
+    <script src="/s/js/services.js"></script>
+    <script src="/s/js/controllers.js"></script>
+
+    [insertfile "analytics.html"]
+
+  </body>
+</html>

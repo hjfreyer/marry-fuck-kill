@@ -178,7 +178,7 @@ class MakeHandler(RequestHandler):
   def get(self):
     template_values = dict(page='make')
     template_values.update(GetUserData('/make'))
-    ezt_util.WriteTemplate('make.html', template_values, self.response.out)
+    ezt_util.WriteTemplate('maker.html', template_values, self.response.out)
 
 
 class EntityImageHandler(RequestHandler):

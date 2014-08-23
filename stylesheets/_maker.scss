@@ -16,9 +16,13 @@ body#mfk-maker {
 body#mfk-maker #maker-area {
     $topBarHeight: $lgInputHeight + $gutterSize;
     $middleHeight: $imageSize + $gutterSize;
+    // Space for "trash" and "make" controls.
     $bottomBarHeight: $inputHeight + $gutterSize;
+    // Standard nav bar.
+    $navBarHeight: $inputHeight + $gutterSize;
 
-    $tripleHeight: $topBarHeight + $middleHeight + $bottomBarHeight + $gutterSize;
+    // This is the whole white box.
+    $tripleHeight: $topBarHeight + $middleHeight + $bottomBarHeight + $gutterSize + $navBarHeight;
 
     @include common-content;
 
@@ -167,13 +171,19 @@ body#mfk-maker #maker-area {
 
     .reset {
         position: absolute;
-        bottom: $gutterSize;
+        bottom: $gutterSize + $navBarHeight;
         left: $gutterSize;
     }
 
     .submit {
         position: absolute;
-        bottom: $gutterSize;
+        bottom: $gutterSize + $navBarHeight;
         right: $gutterSize;
+    }
+
+    .nav {
+        position: absolute;
+        bottom: $gutterSize;
+        width: $tripleWidth;
     }
 }
