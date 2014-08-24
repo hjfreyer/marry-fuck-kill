@@ -23,6 +23,12 @@ automatically updated by grunt under the covers.
 If nothing is listening on port 8080, make sure running `dev_appserver build/`
 works. (It may, for instance, print a prompt to STDOUT when it's newly installed.)
 
+Deploying
+---------
+
+The build scripts create a 'build' directory to serve from, so that is the
+directory to update with appcfg.py. Run `appcfg.py update build`.
+
 Installation Notes
 ------------------
 Here's how to get each of the prerequisites.
