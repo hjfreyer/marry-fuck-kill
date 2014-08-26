@@ -6,7 +6,7 @@
     "license": "MIT",
     "private": true,
     "dependencies": {
-	"angular": "1.2.x",
-	"bootstrap": ""
+        "angular": "1.2.x",
+        "bootstrap": ""
     }
 }

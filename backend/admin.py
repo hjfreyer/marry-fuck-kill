@@ -96,13 +96,9 @@ class EnableDisableTripleHandler(webapp.RequestHandler):
     self.redirect('/vote/%s?prev=%s' % (rand, triple_id))
 
 
-def main():
-  application = webapp.WSGIApplication([
-      ("/admin/trigger_mr/(.*)", MapReduceTriggerHandler),
-      ("/admin/enable_disable", EnableDisableTripleHandler),
-      ("/admin/review", TripleReviewHandler),
-    ], debug=True)
-  util.run_wsgi_app(application)
+application = webapp.WSGIApplication([
+    ("/admin/trigger_mr/(.*)", MapReduceTriggerHandler),
+    ("/admin/enable_disable", EnableDisableTripleHandler),
+    ("/admin/review", TripleReviewHandler),
+], debug=True)
 
-if __name__ == '__main__':
-  main()
