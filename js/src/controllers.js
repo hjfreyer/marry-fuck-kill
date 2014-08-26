@@ -8,6 +8,7 @@ var Entity = function(Searcher, StateStack) {
 
     this.name = '';
     this.query = '';
+    this.queryOfRecord = '';
     this.images = [];
     this.imageIdx = -1;
     this.imagesPromise = null;
@@ -18,7 +19,7 @@ var Entity = function(Searcher, StateStack) {
     this.error = false;
 };
 
-Entity.FIELDS = ['name', 'query', 'images', 'imageIdx',
+Entity.FIELDS = ['name', 'query', 'queryOfRecord', 'images', 'imageIdx',
                  'imagesPromise', 'pristine', 'searchShown',
                  'searching', 'error'];
 
@@ -84,6 +85,7 @@ Entity.prototype.search = function() {
         return;
     }
 
+    this.queryOfRecord = this.query;  // most recent actual search
     this.pristine = false;
     this.searching = true;
 
