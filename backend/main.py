@@ -13,27 +13,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
-from google.appengine.ext import webapp
-from google.appengine.ext.webapp import util
+
+import webapp2
 
 import html_handlers
-import models
 
-def main():
-  application = webapp.WSGIApplication([
-      ("/", html_handlers.MainPageHandler),
-      ("/about", html_handlers.AboutHandler),
-      ("/make", html_handlers.MakeHandler),
-      ("/make.do", html_handlers.MakeSubmitHandler),
-      ("/mymfks", html_handlers.MyMfksHandler),
-      ("/vote/(.*)", html_handlers.VoteHandler),
-      ("/vote.do", html_handlers.VoteSubmitHandler),
-      ("/i/(.*)", html_handlers.EntityImageHandler),
-      ("/search", html_handlers.ImageSearchHandler),
-      ("/.*", html_handlers.CatchAllHandler),
-    ])
-  util.run_wsgi_app(application)
-
-if __name__ == '__main__':
-  main()
+# 'application' is specified via the handler in app.yaml.
+application = webapp2.WSGIApplication([
+    ("/", html_handlers.MainPageHandler),
+    ("/about", html_handlers.AboutHandler),
+    ("/make", html_handlers.MakeHandler),
+    ("/make.do", html_handlers.MakeSubmitHandler),
+    ("/mymfks", html_handlers.MyMfksHandler),
+    ("/vote/(.*)", html_handlers.VoteHandler),
+    ("/vote.do", html_handlers.VoteSubmitHandler),
+    ("/i/(.*)", html_handlers.EntityImageHandler),
+    ("/search", html_handlers.ImageSearchHandler),
+    ("/.*", html_handlers.CatchAllHandler),
+])
