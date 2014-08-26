@@ -28,6 +28,16 @@ import core
 import ezt_util
 import models
 
+def _LogRequest(page_name, req):
+    """Logs a reqest object in a a relatively human-readable way.
+
+    Args:
+        page_name: A string identifying this page. Used in log entry for easy
+            greppability.
+        req: A WSGI request object.
+    """
+    arg_dict = dict([(arg, req.get(arg)) for arg in req.arguments()])
+    logging.info('%s page params: %s', page_name, arg_dict)
 
 def GetUserData(url_base):
   # This must be in this module to have access to the current user.
@@ -129,9 +139,8 @@ def RenderVotePage(handler, triple_id):
 
 class VoteSubmitHandler(RequestHandler):
   def post(self):
+    _LogRequest('Vote', self.request)
     action = self.request.get('action')
-
-    logging.info('Vote handler. Action: %s', action)
 
     if action == 'submit':
       core.MakeAssignment(triple_id=self.request.get('key'),
@@ -159,7 +168,7 @@ class MakeSubmitHandler(RequestHandler):
     """
     # TODO(mjkelly): When we have a new client, check the 'sig' values we get.
     # That will allow us to avoid repeating the search on the server side.
-    logging.info('Make handler')
+    _LogRequest('Make', self.request)
 
     entities = []
     for n in range(1, 4):
@@ -216,8 +225,8 @@ class MyMfksHandler(RequestHandler):
 
 class ImageSearchHandler(RequestHandler):
   def get(self):
+    _LogRequest('ImageSearch', self.request)
     query = self.request.get('q')
-    logging.info('ImageSearchHandler: q = %s', query)
 
     images = core.ImageSearch(query, self.request.remote_addr)
     images_dicts = []
