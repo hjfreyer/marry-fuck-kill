@@ -2,10 +2,7 @@ application: marry-fuck-kill-hrd
 version: staging
 runtime: python27
 api_version: 1
-# TODO(mjkelly): I don't see a specific reason why the app is *not* threadsafe,
-# but I haven't looked hard. Must change CGI frontend to WSGI before setting
-# threadsafe: true, though.
-threadsafe: false
+threadsafe: true
 
 handlers:
 - url: /favicon.ico
@@ -20,20 +17,11 @@ handlers:
   static_dir: static
 
 - url: /admin/.*
-  script: admin.py
+  script: admin.application
   login: admin
-
-- url: /mapreduce(/.*)?
-  script: mapreduce/main.py
-  login: admin
-
-# Uncomment this to view stats. Also uncomment config in appengine_config.py.
-#- url: /stats.*
-#  script: $PYTHON_LIB/google/appengine/ext/appstats/ui.py
-#  login: admin
 
 - url: /.*
-  script: main.py
+  script: main.application
 
 error_handlers:
 - error_code: over_quota
